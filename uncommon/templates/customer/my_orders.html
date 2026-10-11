@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | INSOLO UNCOMMON</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Archivo', sans-serif;
+            background: #F3EEE4;
+            color: #241E14;
+        }
+
+        header {
+            height: 85px;
+            padding: 0 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #DED5C7;
+        }
+
+        .brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #241E14;
+            text-decoration: none;
+        }
+
+        nav a {
+            margin-left: 25px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-decoration: none;
+            color: #241E14;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 65px auto;
+            padding: 0 25px;
+        }
+
+        .eyebrow {
+            color: #A0763A;
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #786F62;
+            margin-top: 8px;
+            margin-bottom: 35px;
+            font-size: 14px;
+        }
+
+        .message {
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            background: #E5E9DC;
+            color: #35472B;
+            font-size: 13px;
+        }
+
+        .error {
+            background: #F2DEDA;
+            color: #7E3324;
+        }
+
+        .order-card {
+            background: #FAF8F3;
+            border: 1px solid #DED5C7;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .order-header,
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .order-number {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            overflow-wrap: anywhere;
+        }
+
+        .order-date {
+            font-size: 12px;
+            color: #786F62;
+            margin-top: 9px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 9px 12px;
+            background: #EAE2D4;
+            font-size: 10px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .status-cancelled {
+            background: #F2DEDA;
+            color: #7E3324;
+        }
+
+        .status-delivered {
+            background: #E0E9DA;
+            color: #35472B;
+        }
+
+        .order-footer {
+            border-top: 1px solid #DED5C7;
+            padding-top: 20px;
+            margin-top: 23px;
+        }
+
+        .total-label {
+            color: #786F62;
+            font-size: 11px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .total {
+            font-size: 21px;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 17px;
+            font-family: inherit;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid #241E14;
+        }
+
+        .view-button {
+            background: #241E14;
+            color: #F3EEE4;
+        }
+
+        .cancel-button {
+            background: transparent;
+            color: #7E3324;
+            border-color: #7E3324;
+        }
+
+        .cancel-button:hover {
+            background: #7E3324;
+            color: white;
+        }
+
+        .empty {
+            text-align: center;
+            background: #FAF8F3;
+            border: 1px solid #DED5C7;
+            padding: 65px 20px;
+        }
+
+        .empty h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .empty p {
+            color: #786F62;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            border-top: 1px solid #DED5C7;
+            padding: 28px 15px;
+            margin-top: 80px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #786F62;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                height: auto;
+                min-height: 75px;
+                padding: 18px 5%;
+                align-items: flex-start;
+                gap: 15px;
+                flex-direction: column;
+            }
+
+            nav a {
+                margin-left: 0;
+                margin-right: 15px;
+            }
+
+            .container {
+                margin-top: 38px;
+                padding: 0 16px;
+            }
+
+            h1 {
+                font-size: 38px;
+            }
+
+            .order-card {
+                padding: 18px;
+            }
+
+            .order-footer {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a href="{% url 'customer_home' %}" class="brand">
+        INSOLO UNCOMMON
+    </a>
+
+    <nav>
+        <a href="{% url 'customer_home' %}">HOME</a>
+        <a href="{% url 'my_orders' %}">MY ORDERS</a>
+        <a href="{% url 'bag_view' %}">MY BAG</a>
+    </nav>
+</header>
+
+<main class="container">
+    <p class="eyebrow">YOUR ACCOUNT</p>
+    <h1>My Orders</h1>
+    <p class="subtitle">
+        Track your purchases and manage your orders.
+    </p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'error' %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% for order in orders %}
+        <article class="order-card">
+
+            <div class="order-header">
+                <div>
+                    <div class="order-number">
+                        ORDER #{{ order.order_number }}
+                    </div>
+
+                    <div class="order-date">
+                        Placed on {{ order.created_at|date:"d M Y, h:i A" }}
+                    </div>
+                </div>
+
+                <span class="status
+                    {% if order.status == 'CANCELLED' %}status-cancelled
+                    {% elif order.status == 'DELIVERED' %}status-delivered
+                    {% endif %}">
+                    {{ order.get_status_display|upper }}
+                </span>
+            </div>
+
+            <div class="order-footer">
+                <div>
+                    <p class="total-label">ORDER TOTAL</p>
+                    <p class="total">
+                        ₹{{ order.total_amount|floatformat:2 }}
+                    </p>
+                </div>
+
+                <div class="actions">
+                    <a href="{% url 'order_detail' order.order_number %}"
+                       class="button view-button">
+                        VIEW DETAILS →
+                    </a>
+
+                    {% if order.status == 'PENDING' %}
+                        <form method="POST"
+                              action="{% url 'cancel_order' order.order_number %}"
+                              onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="button cancel-button">
+                                CANCEL ORDER
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+        </article>
+    {% empty %}
+        <div class="empty">
+            <h2>No orders yet</h2>
+            <p>Your next favourite piece is waiting for you.</p>
+
+            <a href="{% url 'customer_home' %}"
+               class="button view-button">
+                EXPLORE COLLECTION
+            </a>
+        </div>
+    {% endfor %}
+</main>
+
+<footer>
+    INSOLO UNCOMMON &mdash; DESIGNED TO BE DIFFERENT
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNCOMMON — Entrance & Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --beige-bg: #EFEBE1;        /* House parchment beige */
+    --beige-card: #F7F4EC;      /* Pale cream beige card */
+    --beige-input: #FAF8F2;     /* Subtle light beige inputs */
+    --beige-tint: #E8E1CE;      /* Muted accent beige */
+    --beige-border: #D6CCB5;    /* Sand/beige division lines */
+    --beige-border-dark: #B8AC90;
+    --text-primary: #241E14;    /* Deep soot brown */
+    --text-muted: #6F6350;      /* Weathered warm umber */
+    --accent-ochre: #A0763A;    /* Antique gold / ochre */
+    --accent-green: #3E4A3A;    /* Forest green accent */
+    --font-serif: 'Libre Caslon Text', serif;
+    --font-sans: 'Archivo', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background-color: var(--beige-bg);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: #C69C5C;
+    color: var(--text-primary);
+  }
+
+  .auth-frame {
+    width: 100%;
+    max-width: 500px;
+    background: var(--beige-card);
+    border: 1px solid var(--beige-border);
+    box-shadow: 0 18px 45px -20px rgba(50, 40, 25, 0.2);
+    border-radius: 2px;
+  }
+
+  .auth-header {
+    padding: 32px 36px 24px;
+    border-bottom: 1px solid var(--beige-border);
+    text-align: center;
+    background: linear-gradient(180deg, #FBF9F4 0%, var(--beige-card) 100%);
+  }
+
+  .brand-logo {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .brand-logo span { color: var(--accent-green); }
+
+  .sub-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-ochre);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .sub-tag::before, .sub-tag::after {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: var(--accent-ochre);
+  }
+
+  /* SWITCHING TABS */
+  .tab-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--beige-tint);
+    border-bottom: 1px solid var(--beige-border);
+  }
+
+  .tab-btn {
+    padding: 14px 10px;
+    background: transparent;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn.active {
+    background: var(--beige-card);
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-ochre);
+    font-weight: 600;
+  }
+
+  .auth-body {
+    padding: 32px 36px;
+  }
+
+  /* ROLE SELECTOR */
+  .role-selector {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--beige-border);
+  }
+
+  .role-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .role-option input[type="radio"] {
+    accent-color: var(--accent-green);
+    cursor: pointer;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .field-grid-split {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+  }
+
+  label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="password"],
+  select {
+    width: 100%;
+    padding: 11px 13px;
+    background: var(--beige-input);
+    border: 1px solid var(--beige-border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    border-radius: 2px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--text-primary);
+    background: #FFFDF8;
+  }
+
+  /* COUNTRY CODE + PHONE COMBO */
+  .phone-combo {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 8px;
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236F6350' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 9px 5px;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 24px;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent-green);
+    color: var(--beige-card);
+    border: 1px solid var(--accent-green);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-submit:hover {
+    background: #241E14;
+    border-color: #241E14;
+  }
+
+  .auth-footer {
+    padding: 16px 36px 22px;
+    text-align: center;
+    border-top: 1px solid var(--beige-border);
+    background: var(--beige-tint);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+  }
+
+  .form-section {
+    display: none;
+  }
+  .form-section.active {
+    display: block;
+  }
+  .error{
+    background-color: #FDECEA;
+    color: #B71C1C;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #B71C1C;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="auth-frame">
+    <!-- Header -->
+    <div class="auth-header">
+      <a href="#" class="brand-logo">UNCOMMON<span>.</span></a>
+      <div class="sub-tag">House Registry & Atelier Desk</div>
+    </div>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+
+    {% else %}
+    <div class="error" style="display:none;" id="error-message"></div>
+    {% endif %}
+    <!-- Mode Tabs -->
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-login" onclick="toggleView('login')">Enter Ledger (Login)</button>
+      <button class="tab-btn" id="tab-register" onclick="toggleView('register')">Register New Name</button>
+    </div>
+
+    <div class="auth-body">
+      <!-- Role Radio (tbl_user vs tbl_admin) -->
+      <!-- 
+      <!-- FORM 1: LOGIN -->
+      <form action="{% url 'login' %}" method = 'POST' id="form-login" class="form-section active" >
+        {% csrf_token %}
+        <input type="hidden" name="role" id="login-role" value="user">
+
+        <div class="field-group">
+          <label>Email Address</label>
+          <input type="email" name="email" required placeholder="patron@uncommon.com">
+        </div>
+
+        <div class="field-group">
+          <label>Secret Password</label>
+          <input type="password" name="password" required placeholder="••••••••••••">
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-login-label">Enter As Patron →</button>
+      </form>
+
+      <!-- FORM 2: REGISTRATION (with Country Code + Age + Name + Phone + Email + Pass) -->
+    <form id="form-register" class="form-section"
+      action="{% url 'customer_register' %}" method="POST">
+    {% csrf_token %}
+        <input type="hidden" name="role" id="register-role" value="user">
+        <!-- Hidden input to hold full combined international phone number -->
+        <input type="hidden" name="full_phone" id="full_phone" value="">
+
+        <div class="field-group">
+          <label>Full Legal Name</label>
+          <input type="text" name="name" required placeholder="e.g. Lord Julian Vance">
+        </div>
+
+        <div class="field-grid-split">
+          <div class="field-group">
+            <label>Age</label>
+            <input type="number" name="age" min="18" max="110" required placeholder="34">
+          </div>
+          <div class="field-group">
+            <label>Country Code & Phone Number</label>
+            <div class="phone-combo">
+              <select id="country_code" required>
+                <option value="+91">🇮🇳 IN (+91)</option>
+                <option value="+1">🇺🇸 US (+1)</option>
+                <option value="+44">🇬🇧 UK (+44)</option>
+                <option value="+971">🇦🇪 UAE (+971)</option>
+                <option value="+41">🇨🇭 CH (+41)</option>
+                <option value="+33">🇫🇷 FR (+33)</option>
+                <option value="+49">🇩🇪 DE (+49)</option>
+                <option value="+65">🇸🇬 SG (+65)</option>
+                <option value="+61">🇦🇺 AU (+61)</option>
+                <option value="+81">🇯🇵 JP (+81)</option>
+              </select>
+              <input type="tel" id="local_phone" name="phone" required placeholder="98765 43210" pattern="[0-9\s\-]{6,15}">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Email Address</label>
+          <input type="email" name="email" required placeholder="patron@domain.com">
+        </div>
+          <div class="field-group">
+          <label>Username</label>
+          <input type="text" name="username" required placeholder="patron_username">
+        </div>
+
+        <div class="field-group">
+          <label>Create Secret Password</label>
+          <input type="password" name="password" required minlength="6" placeholder="Minimum 6 characters">
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-reg-label">Record In Patron Ledger →</button>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="auth-footer">
+      Numbered once. Recorded to a single name.
+    </div>
+  </div>
+
+  <script>
+    // Toggle view between Login and Register
+    function toggleView(mode) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
+
+      if (mode === 'login') {
+        document.getElementById('tab-login').classList.add('active');
+        document.getElementById('form-login').classList.add('active');
+      } else {
+        document.getElementById('tab-register').classList.add('active');
+        document.getElementById('form-register').classList.add('active');
+      }
+    }
+
+    // Role switcher (tbl_user vs tbl_admin)
+    function handleRoleSwitch() {
+      const selected = document.querySelector('input[name="account_role"]:checked').value;
+      document.getElementById('login-role').value = selected;
+      document.getElementById('register-role').value = selected;
+
+      if (selected === 'admin') {
+        document.getElementById('btn-login-label').innerText = 'Enter Curator Desk →';
+        document.getElementById('btn-reg-label').innerText = 'Register House Admin →';
+      } else {
+        document.getElementById('btn-login-label').innerText = 'Enter As Patron →';
+        document.getElementById('btn-reg-label').innerText = 'Record In Patron Ledger →';
+      }
+    }
+
+    // Automatically combine Country Code (+91, +1, etc.) with the local phone number before form submit
+    document.getElementById('form-register').addEventListener('submit', function(e) {
+      const code = document.getElementById('country_code').value;
+      const rawNumber = document.getElementById('local_phone').value.trim();
+      document.getElementById('full_phone').value = code + ' ' + rawNumber;
+    });
+  </script>
+</body>
+</html>

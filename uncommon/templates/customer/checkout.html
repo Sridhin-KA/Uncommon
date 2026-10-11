@@ -1,0 +1,311 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | INSOLO UNCOMMON</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --paper: #F3EEE4;
+            --card: #FBF8F1;
+            --ink: #241E14;
+            --muted: #6F6350;
+            --line: #D6CCB5;
+            --gold: #A0763A;
+            --red: #7E3324;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Archivo', sans-serif;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .topbar {
+            padding: 22px 5%;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px;
+            font-weight: 600;
+            letter-spacing: .08em;
+        }
+
+        .brand span { color: var(--red); }
+
+        main {
+            max-width: 1120px;
+            margin: auto;
+            padding: 55px 24px 85px;
+        }
+
+        .eyebrow {
+            color: var(--gold);
+            font: 11px 'IBM Plex Mono', monospace;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font: 500 clamp(42px, 6vw, 64px)/1.05 'Cormorant Garamond', serif;
+            margin: 14px 0;
+        }
+
+        .intro {
+            color: var(--muted);
+            line-height: 1.8;
+            font-size: 14px;
+            margin-bottom: 38px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--line);
+            padding: 30px;
+        }
+
+        h2 {
+            font: 500 29px 'Cormorant Garamond', serif;
+            margin: 0 0 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 9px;
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            min-height: 145px;
+            padding: 14px;
+            resize: vertical;
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            font: 14px 'Archivo', sans-serif;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--gold);
+        }
+
+        .help {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+            margin: 10px 0 22px;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px 14px;
+            background: #EEE5D5;
+            margin-bottom: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            border: 1px solid var(--ink);
+            background: var(--ink);
+            color: var(--paper);
+            text-align: center;
+            padding: 17px;
+            font: 11px 'IBM Plex Mono', monospace;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .button:hover { background: var(--red); }
+
+        .back {
+            display: inline-block;
+            margin-top: 24px;
+            font: 10px 'IBM Plex Mono', monospace;
+            color: var(--red);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .order-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 15px 0;
+            border-bottom: 1px solid #E4DCC8;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .order-row .name { font-weight: 600; }
+
+        .order-row .details {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .price {
+            white-space: nowrap;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+        }
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            padding: 24px 0 10px;
+        }
+
+        .total strong {
+            font: 500 26px 'Cormorant Garamond', serif;
+        }
+
+        .total span {
+            font: 17px 'IBM Plex Mono', monospace;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.8;
+            margin-top: 18px;
+        }
+
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 26px 5%;
+            color: var(--muted);
+            font: 10px 'IBM Plex Mono', monospace;
+        }
+
+        @media (max-width: 760px) {
+            main { padding: 38px 16px 60px; }
+            .layout { grid-template-columns: 1fr; }
+            .panel { padding: 22px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <a href="{% url 'customer_home' %}" class="brand">
+            INSOLO<span> UNCOMMON</span>
+        </a>
+    </header>
+
+    <main>
+        <div class="eyebrow">Almost yours</div>
+        <h1>Checkout<span style="color:var(--red)">.</span></h1>
+        <p class="intro">
+            Hello {{ customer.name|default:customer.username }}.
+            Confirm your delivery details and review your selected pieces.
+        </p>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="layout">
+            <section class="panel">
+                <h2>Delivery details</h2>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <label for="shipping_address">Complete shipping address</label>
+                    <textarea
+                        id="shipping_address"
+                        name="shipping_address"
+                        maxlength="2000"
+                        placeholder="House / building, street, locality, city, state, PIN code"
+                        required
+                    >{{ request.POST.shipping_address|default:"" }}</textarea>
+
+                    <p class="help">
+                        Include your house number, street, city, state and PIN code
+                        so your order can be delivered correctly.
+                    </p>
+
+                    <button type="submit" class="button">
+                        Place order · ₹{{ total|floatformat:2 }}
+                    </button>
+                </form>
+
+                <a href="{% url 'bag_view' %}" class="back">
+                    ← Return to your bag
+                </a>
+            </section>
+
+            <aside class="panel">
+                <h2>Your selection</h2>
+
+                {% for item in items %}
+                <div class="order-row">
+                    <div>
+                        <span class="name">{{ item.product.product_name }}</span>
+                        <span class="details">
+                            Qty: {{ item.quantity }} × ₹{{ item.product.price|floatformat:2 }}
+                        </span>
+                    </div>
+
+                    <span class="price">
+                        ₹{{ item.line_total|floatformat:2 }}
+                    </span>
+                </div>
+                {% endfor %}
+
+                <div class="total">
+                    <strong>Total</strong>
+                    <span>₹{{ total|floatformat:2 }}</span>
+                </div>
+
+                <p class="note">
+                    This checkout currently places a pending order. No payment
+                    is collected on this page. Payment integration can be added
+                    separately.
+                </p>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        © 2026 INSOLO UNCOMMON · Made with intention.
+    </footer>
+</body>
+</html>

@@ -1,0 +1,1848 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>UNCOMMON — Admin Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --beige-bg: #EFEBE1;
+            --beige-card: #FBF8F1;
+            --beige-subtle: #E9E0CD;
+            --beige-border: #D6CCB5;
+            --text-primary: #241E14;
+            --text-muted: #6F6350;
+            --accent-gold: #C69C5C;
+            --accent-ochre: #A0763A;
+            --accent-forest: #232E22;
+
+            --font-serif: 'Libre Caslon Text', serif;
+            --font-sans: 'Archivo', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--beige-bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--accent-gold);
+            color: var(--text-primary);
+        }
+
+        /* =========================
+           TOP BAR
+        ========================= */
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+
+            background: rgba(239, 235, 225, 0.95);
+            backdrop-filter: blur(8px);
+
+            border-bottom: 1px solid var(--beige-border);
+
+            padding: 16px 36px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 20px;
+        }
+
+        .left-cluster {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        /* HAMBURGER */
+
+        .hamburger-btn {
+            background: var(--beige-card);
+            border: 1px solid var(--beige-border);
+            border-radius: 2px;
+
+            padding: 10px 12px;
+
+            cursor: pointer;
+
+            display: flex;
+            flex-direction: column;
+            gap: 4.5px;
+
+            transition: background 0.15s ease, border-color 0.15s ease;
+
+            flex-shrink: 0;
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 20px;
+            height: 1.5px;
+            background: var(--text-primary);
+        }
+
+        .hamburger-btn:hover {
+            background: var(--beige-subtle);
+            border-color: var(--text-primary);
+        }
+
+        /* BRAND */
+
+        .brand-desk-title {
+            font-family: var(--font-serif);
+            font-size: 21px;
+            font-weight: 700;
+
+            letter-spacing: 0.12em;
+
+            color: var(--text-primary);
+            text-decoration: none;
+
+            white-space: nowrap;
+        }
+
+        .brand-desk-title span {
+            color: var(--accent-forest);
+        }
+
+        .sub-station {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+
+            color: var(--accent-ochre);
+
+            margin-top: 3px;
+        }
+
+        /* TOP RIGHT */
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .admin-session {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+
+            max-width: 240px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn {
+            font-family: var(--font-mono);
+            font-size: 11px;
+
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+
+            padding: 9px 16px;
+
+            border-radius: 2px;
+            border: 1px solid var(--text-primary);
+
+            background: transparent;
+            color: var(--text-primary);
+
+            cursor: pointer;
+            text-decoration: none;
+
+            transition: all 0.15s ease;
+
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--text-primary);
+            color: var(--beige-bg);
+        }
+
+        .btn-forest {
+            background: var(--accent-forest);
+            border-color: var(--accent-forest);
+            color: var(--beige-bg);
+        }
+
+        .btn-forest:hover {
+            background: #000;
+        }
+
+        /* =========================
+           SIDEBAR BACKDROP
+        ========================= */
+
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+
+            background: rgba(36, 30, 20, 0.4);
+            backdrop-filter: blur(3px);
+
+            z-index: 100;
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease;
+        }
+
+        .sidebar-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar-drawer {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 320px;
+            max-width: 88vw;
+            height: 100vh;
+
+            background: var(--beige-card);
+
+            border-right: 1px solid var(--beige-border);
+
+            z-index: 101;
+
+            transform: translateX(-100%);
+
+            transition:
+                transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+            display: flex;
+            flex-direction: column;
+
+            box-shadow:
+                18px 0 40px -10px rgba(36, 30, 20, 0.2);
+        }
+
+        .sidebar-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-head {
+            padding: 24px;
+
+            border-bottom: 1px solid var(--beige-border);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-brand {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.1em;
+        }
+
+        .drawer-brand span {
+            color: var(--accent-forest);
+        }
+
+        .drawer-caption {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--accent-ochre);
+            letter-spacing: 0.16em;
+            margin-top: 4px;
+        }
+
+        .close-drawer-btn {
+            background: transparent;
+            border: none;
+
+            font-size: 28px;
+            cursor: pointer;
+
+            color: var(--text-muted);
+
+            line-height: 1;
+        }
+
+        .close-drawer-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .drawer-nav {
+            padding: 20px 0;
+
+            flex-grow: 1;
+
+            overflow-y: auto;
+        }
+
+        .nav-group-caption {
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+
+            color: var(--text-muted);
+
+            padding: 0 24px 10px;
+        }
+
+        .drawer-link {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 13px 24px;
+
+            color: var(--text-muted);
+            text-decoration: none;
+
+            font-family: var(--font-mono);
+            font-size: 11px;
+
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+
+            border-left: 3px solid transparent;
+
+            transition: all 0.15s ease;
+        }
+
+        .drawer-link:hover,
+        .drawer-link.active {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+        }
+
+        .drawer-link.active {
+            border-left-color: var(--accent-ochre);
+            font-weight: 600;
+        }
+
+        .tag-badge {
+            font-size: 9.5px;
+
+            padding: 2px 7px;
+
+            border-radius: 2px;
+
+            background: var(--accent-forest);
+            color: var(--beige-bg);
+        }
+
+        .tag-badge.ghost {
+            background: transparent;
+
+            border: 1px solid var(--beige-border);
+
+            color: var(--text-muted);
+        }
+
+        .drawer-footer {
+            padding: 20px 24px;
+
+            border-top: 1px solid var(--beige-border);
+
+            background: rgba(233, 224, 205, 0.45);
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-token {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 2px;
+
+            background: var(--accent-forest);
+            color: var(--accent-gold);
+
+            display: grid;
+            place-items: center;
+
+            font-family: var(--font-serif);
+            font-size: 14px;
+
+            flex-shrink: 0;
+        }
+
+        .drawer-admin-email {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            color: var(--text-muted);
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            max-width: 210px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        main {
+            flex-grow: 1;
+
+            padding: 36px 40px;
+
+            max-width: 1440px;
+            width: 100%;
+
+            margin: 0 auto;
+        }
+
+        /* BANNER */
+
+        .dashboard-banner {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: flex-end;
+
+            margin-bottom: 30px;
+
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .dashboard-banner h1 {
+            font-family: var(--font-serif);
+
+            font-size: 30px;
+            font-weight: 500;
+        }
+
+        .banner-sub {
+            font-family: var(--font-mono);
+
+            font-size: 11px;
+
+            color: var(--text-muted);
+
+            letter-spacing: 0.1em;
+
+            margin-top: 4px;
+        }
+
+        .database-status {
+            font-family: var(--font-mono);
+
+            font-size: 11px;
+
+            color: var(--accent-ochre);
+
+            text-align: right;
+        }
+
+        /* =========================
+           METRICS
+        ========================= */
+
+        .metrics-strip {
+            display: grid;
+
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 1px;
+
+            background: var(--beige-border);
+
+            border: 1px solid var(--beige-border);
+
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: var(--beige-card);
+
+            padding: 22px 24px;
+        }
+
+        .metric-label {
+            font-family: var(--font-mono);
+
+            font-size: 10px;
+
+            letter-spacing: 0.14em;
+
+            text-transform: uppercase;
+
+            color: var(--text-muted);
+        }
+
+        .metric-val {
+            font-family: var(--font-serif);
+
+            font-size: 30px;
+
+            font-weight: 500;
+
+            margin: 8px 0 3px;
+        }
+
+        .metric-foot {
+            font-family: var(--font-mono);
+
+            font-size: 10.5px;
+
+            color: var(--accent-ochre);
+        }
+
+        /* =========================
+           TWO COLUMNS
+        ========================= */
+
+        .dashboard-columns {
+            display: grid;
+
+            grid-template-columns: 2fr 1fr;
+
+            gap: 28px;
+        }
+
+        .admin-panel {
+            background: var(--beige-card);
+
+            border: 1px solid var(--beige-border);
+
+            border-radius: 2px;
+
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px 26px;
+
+            border-bottom: 1px solid var(--beige-border);
+
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 15px;
+        }
+
+        .panel-header h2 {
+            font-family: var(--font-serif);
+
+            font-size: 19px;
+
+            font-weight: 500;
+        }
+
+        .panel-header p {
+            font-family: var(--font-mono);
+
+            font-size: 10.5px;
+
+            color: var(--text-muted);
+
+            margin-top: 3px;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            text-align: left;
+
+            min-width: 700px;
+        }
+
+        th {
+            font-family: var(--font-mono);
+
+            font-size: 10px;
+
+            letter-spacing: 0.12em;
+
+            text-transform: uppercase;
+
+            color: var(--text-muted);
+
+            padding: 13px 26px;
+
+            background: var(--beige-subtle);
+
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        td {
+            padding: 15px 26px;
+
+            border-bottom: 1px solid var(--beige-border);
+
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(233, 224, 205, 0.4);
+        }
+
+        .product-description {
+            font-family: var(--font-mono);
+
+            font-size: 9.5px;
+
+            color: var(--text-muted);
+
+            margin-top: 4px;
+        }
+
+        .category-name {
+            font-family: var(--font-mono);
+
+            font-size: 11px;
+
+            color: var(--accent-ochre);
+        }
+
+        .patron-name {
+            font-size: 13px;
+        }
+
+        .patron-info {
+            font-family: var(--font-mono);
+
+            font-size: 9.5px;
+
+            color: var(--text-muted);
+
+            margin-top: 3px;
+        }
+
+        .price {
+            font-family: var(--font-mono);
+
+            font-weight: 600;
+
+            white-space: nowrap;
+        }
+
+        /* STATUS */
+
+        .status-tag {
+            font-family: var(--font-mono);
+
+            font-size: 9.5px;
+
+            letter-spacing: 0.08em;
+
+            padding: 3px 8px;
+
+            border-radius: 2px;
+
+            text-transform: uppercase;
+
+            white-space: nowrap;
+        }
+
+        .tag-registered {
+            background: var(--accent-forest);
+            color: #F5F1E6;
+        }
+
+        .tag-hold {
+            background: #E4D8BE;
+            color: #5B4823;
+        }
+
+        .tag-shelf {
+            border: 1px solid var(--beige-border);
+            color: var(--text-muted);
+        }
+
+        /* =========================
+           LOGS
+        ========================= */
+
+        .log-item {
+            padding: 18px 26px;
+
+            border-bottom: 1px solid var(--beige-border);
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            font-family: var(--font-mono);
+
+            font-size: 9.5px;
+
+            color: var(--accent-ochre);
+
+            letter-spacing: 0.12em;
+        }
+
+        .log-desc {
+            font-size: 13px;
+
+            line-height: 1.45;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            margin-top: auto;
+
+            border-top: 1px solid var(--beige-border);
+
+            padding: 20px 40px;
+
+            background: var(--beige-subtle);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            font-family: var(--font-mono);
+
+            font-size: 11px;
+
+            color: var(--text-muted);
+        }
+
+        /* =========================
+           TABLET
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .topbar {
+                padding: 15px 24px;
+            }
+
+            main {
+                padding: 30px 24px;
+            }
+
+            .metrics-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-columns {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                padding: 20px 24px;
+            }
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .topbar {
+                padding: 12px 16px;
+            }
+
+            .left-cluster {
+                gap: 12px;
+            }
+
+            .brand-desk-title {
+                font-size: 18px;
+            }
+
+            .sub-station {
+                font-size: 7.5px;
+                letter-spacing: 0.12em;
+            }
+
+            .topbar-right {
+                gap: 8px;
+            }
+
+            .admin-session {
+                display: none;
+            }
+
+            .topbar-right .btn-forest {
+                display: none;
+            }
+
+            .btn {
+                font-size: 9px;
+                padding: 8px 11px;
+            }
+
+            main {
+                padding: 24px 16px;
+            }
+
+            .dashboard-banner {
+                align-items: flex-start;
+                margin-bottom: 24px;
+            }
+
+            .dashboard-banner h1 {
+                font-size: 25px;
+                line-height: 1.2;
+            }
+
+            .banner-sub {
+                font-size: 9px;
+                line-height: 1.5;
+            }
+
+            .database-status {
+                font-size: 9px;
+                text-align: left;
+            }
+
+            .metrics-strip {
+                grid-template-columns: 1fr;
+                margin-bottom: 24px;
+            }
+
+            .metric-card {
+                padding: 18px 20px;
+            }
+
+            .metric-val {
+                font-size: 27px;
+            }
+
+            .dashboard-columns {
+                gap: 20px;
+            }
+
+            .panel-header {
+                padding: 18px 18px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .panel-header .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            th,
+            td {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .log-item {
+                padding: 16px 18px;
+            }
+
+            footer {
+                padding: 18px 16px;
+
+                flex-direction: column;
+
+                font-size: 9px;
+
+                gap: 8px;
+            }
+
+            .sidebar-drawer {
+                width: 300px;
+            }
+        }
+
+        /* =========================
+           SMALL MOBILE
+        ========================= */
+
+        @media (max-width: 420px) {
+
+            .brand-desk-title {
+                font-size: 16px;
+            }
+
+            .sub-station {
+                display: none;
+            }
+
+            .hamburger-btn {
+                padding: 8px 10px;
+            }
+
+            .hamburger-btn span {
+                width: 18px;
+            }
+
+            .dashboard-banner h1 {
+                font-size: 22px;
+            }
+
+            .metric-label {
+                font-size: 9px;
+            }
+
+            .metric-val {
+                font-size: 25px;
+            }
+
+            .drawer-link {
+                padding: 12px 20px;
+            }
+
+            .nav-group-caption {
+                padding-left: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         TOP COMMAND BAR
+    ========================== -->
+
+    <header class="topbar">
+
+        <div class="left-cluster">
+
+            <button
+                class="hamburger-btn"
+                id="openSidebarBtn"
+                aria-label="Open Admin Sidebar">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+            <div>
+
+                <a href="{% url 'admin_index' %}" class="brand-desk-title">
+                    UNCOMMON<span>.</span>
+                </a>
+
+                <div class="sub-station">
+                    Station Desk / Operating Admin Ledger
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="topbar-right">
+
+            <!-- Logged in admin email -->
+
+            <span class="admin-session">
+                {{ admin.email }}
+            </span>
+
+
+            <!-- Product shortcut -->
+
+            <a
+                href="{% url 'view_products' %}"
+                class="btn btn-forest">
+
+                + Inventory Desk
+
+            </a>
+
+
+            <!-- Logout -->
+
+            <form
+                action="{% url 'admin_logout' %}"
+                method="POST"
+                style="margin: 0;">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn">
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         SIDEBAR BACKDROP
+    ========================== -->
+
+    <div
+        class="sidebar-backdrop"
+        id="sidebarBackdrop">
+    </div>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside
+        class="sidebar-drawer"
+        id="sidebarDrawer">
+
+        <!-- SIDEBAR HEADER -->
+
+        <div class="drawer-head">
+
+            <div>
+
+                <div class="drawer-brand">
+                    UNCOMMON<span>.</span>
+                </div>
+
+                <div class="drawer-caption">
+                    DRAWER CONTROL
+                </div>
+
+            </div>
+
+            <button
+                class="close-drawer-btn"
+                id="closeSidebarBtn"
+                aria-label="Close Sidebar">
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="drawer-nav">
+
+            <div class="nav-group-caption">
+                Command Core
+            </div>
+
+
+            <!-- Dashboard -->
+
+            <a
+                href="{% url 'admin_index' %}"
+                class="drawer-link active">
+
+                <span>
+                    00 Dashboard
+                </span>
+
+                <span class="tag-badge">
+                    Live
+                </span>
+
+            </a>
+
+
+            <!-- Customers -->
+
+            <a
+                href="{% url 'view_customers' %}"
+                class="drawer-link">
+
+                <span>
+                    01 Customers
+                </span>
+
+                <span class="tag-badge ghost">
+                    Customers
+                </span>
+
+            </a>
+
+
+            <!-- Products -->
+
+            <a
+                href="{% url 'view_products' %}"
+                class="drawer-link">
+
+                <span>
+                    02 Products
+                </span>
+
+                <span class="tag-badge ghost">
+                    Products
+                </span>
+
+            </a>
+
+
+            <!-- Categories -->
+
+            <a
+                href="{% url 'view_categories' %}"
+                class="drawer-link">
+
+                <span>
+                    03 Categories
+                </span>
+
+                <span class="tag-badge ghost">
+                    Categories
+                </span>
+
+            </a>
+
+
+            <!-- Orders -->
+
+            <a
+                href="{% url 'view_orders' %}"
+                class="drawer-link">
+
+                <span>
+                    04 Orders
+                </span>
+
+                <span class="tag-badge ghost">
+                    Orders
+                </span>
+
+            </a>
+
+
+            <!-- Feedback -->
+
+            <a
+                href="{% url 'view_feedback' %}"
+                class="drawer-link">
+
+                <span>
+                    05 Feedback
+                </span>
+
+                <span class="tag-badge ghost">
+                    Feedback
+                </span>
+
+            </a>
+
+        </nav>
+
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="drawer-footer">
+
+            <div class="avatar-token">
+                {% if admin.email %}
+                    {{ admin.email|first|upper }}
+                {% else %}
+                    A
+                {% endif %}
+            </div>
+
+            <div>
+
+                <div
+                    style="
+                        font-weight: 600;
+                        font-size: 12px;
+                    ">
+
+                    Administrator
+
+                </div>
+
+                <div class="drawer-admin-email">
+
+                    {{ admin.email }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN DASHBOARD
+    ========================== -->
+
+    <main>
+
+        <!-- DASHBOARD HEADER -->
+
+        <div class="dashboard-banner">
+
+            <div>
+
+                <h1>
+                    House Registry & Operations Desk
+                </h1>
+
+                <p class="banner-sub">
+                    Master control over cataloged pieces,
+                    client allocations, and atelier seats.
+                </p>
+
+            </div>
+
+
+            <div class="database-status">
+
+                DATABASE: UNCOMMON_DB · CONNECTED
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             METRICS
+        ========================== -->
+
+        <div class="metrics-strip">
+
+
+            <!-- CUSTOMERS -->
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Total Customers
+                </div>
+
+                <div class="metric-val">
+                    84
+                </div>
+
+                <div class="metric-foot">
+                    Registered customers
+                </div>
+
+            </div>
+
+
+            <!-- PRODUCTS -->
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Total Products
+                </div>
+
+                <div class="metric-val">
+                   {{ total_products }}
+                </div>
+
+                <div class="metric-foot">
+                    Cataloged pieces
+                </div>
+
+            </div>
+
+
+            <!-- ORDERS -->
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Active Orders
+                </div>
+
+                <div class="metric-val">
+                    28
+                </div>
+
+                <div class="metric-foot">
+                    Currently processing
+                </div>
+
+            </div>
+
+
+            <!-- FEEDBACK -->
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Feedback
+                </div>
+
+                <div class="metric-val">
+                    16
+                </div>
+
+                <div class="metric-foot">
+                    Customer responses
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             TWO COLUMN WORKSPACE
+        ========================== -->
+
+        <div class="dashboard-columns">
+
+
+            <!-- =========================
+                 PRODUCTS / ORDERS
+            ========================== -->
+
+            <section class="admin-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Immediate Allocation Ledger
+                        </h2>
+
+                        <p>
+                            Recent products and customer allocations
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        href="{% url 'view_products' %}"
+                        class="btn">
+
+                        Open Full Catalog
+
+                    </a>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Piece / Product
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Price
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            <!-- PRODUCT 1 -->
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        No. 001 Sovereign Briefcase
+                                    </strong>
+
+                                    <div class="product-description">
+                                        Saddle-stitched oak hide
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="category-name">
+                                        Artisan Leather
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="patron-name">
+                                        Lord Alistair Sterling
+                                    </div>
+
+                                    <div class="patron-info">
+                                        Customer #014
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="status-tag tag-registered">
+                                        Ordered
+                                    </span>
+
+                                </td>
+
+
+                                <td class="price">
+                                    ₹1,45,000
+                                </td>
+
+                            </tr>
+
+
+                            <!-- PRODUCT 2 -->
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        Cask Decanter & Pair
+                                    </strong>
+
+                                    <div class="product-description">
+                                        Mouth-blown crystal
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="category-name">
+                                        Home & Bar
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="patron-name">
+                                        Julian Vance
+                                    </div>
+
+                                    <div class="patron-info">
+                                        Customer #038
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="status-tag tag-hold">
+                                        Processing
+                                    </span>
+
+                                </td>
+
+
+                                <td class="price">
+                                    ₹84,000
+                                </td>
+
+                            </tr>
+
+
+                            <!-- PRODUCT 3 -->
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        Serpentine Roller
+                                    </strong>
+
+                                    <div class="product-description">
+                                        Turned serpentine stone
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="category-name">
+                                        The Study
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="patron-name">
+                                        Unclaimed
+                                    </div>
+
+                                    <div class="patron-info">
+                                        Available
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="status-tag tag-shelf">
+                                        On Shelf
+                                    </span>
+
+                                </td>
+
+
+                                <td class="price">
+                                    ₹62,000
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 ACTIVITY LOG
+            ========================== -->
+
+            <section class="admin-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Atelier Logs
+                        </h2>
+
+                        <p>
+                            Recent database and system events
+                        </p>
+
+                    </div>
+
+                    <span
+                        style="
+                            font-family: var(--font-mono);
+                            font-size: 9px;
+                            color: var(--accent-ochre);
+                        ">
+
+                        REAL-TIME
+
+                    </span>
+
+                </div>
+
+
+                <div>
+
+
+                    <!-- LOG 1 -->
+
+                    <div class="log-item">
+
+                        <span class="log-time">
+                            16:42 · tbl_order
+                        </span>
+
+                        <div class="log-desc">
+
+                            New order received and
+                            assigned for processing.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- LOG 2 -->
+
+                    <div class="log-item">
+
+                        <span class="log-time">
+                            14:15 · tbl_product
+                        </span>
+
+                        <div class="log-desc">
+
+                            Product inventory updated.
+                            Stock quantity changed.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- LOG 3 -->
+
+                    <div class="log-item">
+
+                        <span class="log-time">
+                            11:08 · tbl_customer
+                        </span>
+
+                        <div class="log-desc">
+
+                            New customer registered
+                            successfully.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- LOG 4 -->
+
+                    <div class="log-item">
+
+                        <span class="log-time">
+                            09:30 · tbl_admin
+                        </span>
+
+                        <div class="log-desc">
+
+                            Administrator session
+                            initialized successfully.
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <span>
+            © 2026 UNCOMMON Atelier Desk · Internal Register Only
+        </span>
+
+        <span>
+            Security Level: Administrator Session Verified
+        </span>
+
+    </footer>
+
+
+    <!-- =========================
+         SIDEBAR JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+        const openBtn =
+            document.getElementById("openSidebarBtn");
+
+        const closeBtn =
+            document.getElementById("closeSidebarBtn");
+
+        const drawer =
+            document.getElementById("sidebarDrawer");
+
+        const backdrop =
+            document.getElementById("sidebarBackdrop");
+
+
+        function openSidebar() {
+
+            drawer.classList.add("open");
+
+            backdrop.classList.add("active");
+
+            document.body.style.overflow = "hidden";
+
+        }
+
+
+        function closeSidebar() {
+
+            drawer.classList.remove("open");
+
+            backdrop.classList.remove("active");
+
+            document.body.style.overflow = "";
+
+        }
+
+
+        openBtn.addEventListener(
+            "click",
+            openSidebar
+        );
+
+
+        closeBtn.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        backdrop.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        /* ESC KEY */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape" &&
+                    drawer.classList.contains("open")
+                ) {
+
+                    closeSidebar();
+
+                }
+
+            }
+        );
+
+
+        /* CLOSE SIDEBAR AFTER CLICKING LINK */
+
+        const sidebarLinks =
+            document.querySelectorAll(".drawer-link");
+
+        sidebarLinks.forEach(function (link) {
+
+            link.addEventListener(
+                "click",
+                function () {
+
+                    closeSidebar();
+
+                }
+            );
+
+        });
+
+    </script>
+
+</body>
+
+</html>

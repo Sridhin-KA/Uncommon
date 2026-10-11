@@ -1,0 +1,2136 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customers — UNCOMMON</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Caslon+Text:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --beige-bg: #EFEBE1;
+            --beige-card: #FBF8F1;
+            --beige-subtle: #E9E0CD;
+            --beige-border: #D6CCB5;
+
+            --text-primary: #241E14;
+            --text-muted: #6F6350;
+
+            --accent-gold: #C69C5C;
+            --accent-ochre: #A0763A;
+            --accent-forest: #232E22;
+
+            --danger: #8A3027;
+            --success: #315A3A;
+            --warning: #9A702E;
+
+            --font-serif: 'Libre Caslon Text', serif;
+            --font-sans: 'Archivo', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--beige-bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* =========================================
+           TOPBAR
+        ========================================= */
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            height: 76px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 16px 36px;
+
+            background: rgba(239, 235, 225, 0.94);
+            backdrop-filter: blur(12px);
+
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .menu-btn {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: transparent;
+            border: 1px solid var(--beige-border);
+
+            color: var(--text-primary);
+
+            font-size: 20px;
+
+            transition: 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            background: var(--beige-subtle);
+        }
+
+        .brand {
+            font-family: var(--font-serif);
+            font-size: 25px;
+            letter-spacing: 0.08em;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .admin-email {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
+
+        .dashboard-link,
+        .logout-link {
+            padding: 9px 14px;
+
+            border: 1px solid var(--beige-border);
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+
+            transition: 0.2s ease;
+        }
+
+        .dashboard-link:hover {
+            background: var(--beige-subtle);
+        }
+
+        .logout-link {
+            color: var(--danger);
+        }
+
+        .logout-link:hover {
+            background: #ead7d2;
+            border-color: #c7a59e;
+        }
+
+        /* =========================================
+           SIDEBAR
+        ========================================= */
+
+        .sidebar {
+            position: fixed;
+            top: 76px;
+            left: 0;
+            bottom: 0;
+
+            width: 320px;
+            max-width: 85vw;
+
+            z-index: 900;
+
+            background: var(--beige-card);
+
+            border-right: 1px solid var(--beige-border);
+
+            transform: translateX(-100%);
+            transition: transform 0.28s ease;
+
+            padding: 32px 24px;
+
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+
+            margin-bottom: 18px;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            padding: 13px 14px;
+
+            border-left: 2px solid transparent;
+
+            font-family: var(--font-mono);
+            font-size: 11px;
+
+            color: var(--text-muted);
+
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+
+            border-left-color: var(--accent-ochre);
+        }
+
+        .nav-number {
+            font-size: 9px;
+            color: var(--accent-ochre);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 76px 0 0 0;
+
+            background: rgba(36, 30, 20, 0.24);
+
+            z-index: 800;
+
+            opacity: 0;
+            pointer-events: none;
+
+            transition: 0.25s ease;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* =========================================
+           MAIN
+        ========================================= */
+
+        main {
+            max-width: 1450px;
+            margin: 0 auto;
+
+            padding: 38px 40px 60px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            font-weight: 400;
+
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        /* =========================================
+           STATS
+        ========================================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--beige-card);
+
+            border: 1px solid var(--beige-border);
+
+            padding: 20px 22px;
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-family: var(--font-serif);
+            font-size: 28px;
+        }
+
+        /* =========================================
+           CONTROL PANEL
+        ========================================= */
+
+        .control-panel {
+            background: var(--beige-card);
+
+            border: 1px solid var(--beige-border);
+
+            padding: 18px;
+
+            margin-bottom: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 16px;
+        }
+
+        .search-form {
+            display: flex;
+            flex: 1;
+            max-width: 650px;
+        }
+
+        .search-input {
+            width: 100%;
+
+            height: 43px;
+
+            background: var(--beige-bg);
+
+            border: 1px solid var(--beige-border);
+
+            padding: 0 14px;
+
+            color: var(--text-primary);
+
+            outline: none;
+
+            font-size: 13px;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-ochre);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            height: 43px;
+
+            padding: 0 20px;
+
+            border: 1px solid var(--accent-forest);
+
+            background: var(--accent-forest);
+
+            color: #fff;
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .clear-btn {
+            height: 43px;
+
+            padding: 0 18px;
+
+            margin-left: 7px;
+
+            border: 1px solid var(--beige-border);
+
+            background: transparent;
+
+            color: var(--text-muted);
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .clear-btn:hover {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+        }
+
+        /* =========================================
+           TABLE
+        ========================================= */
+
+        .table-card {
+            background: var(--beige-card);
+
+            border: 1px solid var(--beige-border);
+
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 18px 20px;
+
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        .table-heading {
+            font-family: var(--font-serif);
+            font-size: 20px;
+        }
+
+        .table-count {
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            min-width: 950px;
+
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--beige-subtle);
+        }
+
+        th {
+            padding: 13px 18px;
+
+            text-align: left;
+
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+
+            font-weight: 500;
+
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        td {
+            padding: 16px 18px;
+
+            border-bottom: 1px solid var(--beige-border);
+
+            font-size: 12px;
+
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.18s ease;
+        }
+
+        tbody tr:hover {
+            background: #F4EFE5;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .customer-id {
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            color: var(--text-muted);
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .customer-email {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .username {
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            color: var(--accent-ochre);
+        }
+
+        .phone {
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .action-btn {
+            padding: 7px 10px;
+
+            background: transparent;
+
+            border: 1px solid var(--beige-border);
+
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+
+            color: var(--text-muted);
+
+            transition: 0.18s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+        }
+
+        .action-btn.view-btn:hover {
+            border-color: var(--accent-ochre);
+            color: var(--accent-ochre);
+        }
+
+        .action-btn.edit-btn:hover {
+            border-color: var(--accent-forest);
+            color: var(--accent-forest);
+        }
+
+        .action-btn.delete-btn {
+            color: var(--danger);
+        }
+
+        .action-btn.delete-btn:hover {
+            background: #ead7d2;
+            border-color: #c7a59e;
+        }
+
+        /* =========================================
+           EMPTY STATE
+        ========================================= */
+
+        .empty-state {
+            padding: 70px 20px;
+
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-family: var(--font-serif);
+            font-size: 36px;
+
+            margin-bottom: 12px;
+        }
+
+        .empty-title {
+            font-family: var(--font-serif);
+            font-size: 21px;
+
+            margin-bottom: 7px;
+        }
+
+        .empty-text {
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* =========================================
+           PAGINATION
+        ========================================= */
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 6px;
+
+            padding: 22px;
+
+            border-top: 1px solid var(--beige-border);
+        }
+
+        .page-link {
+            min-width: 31px;
+            height: 31px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--beige-border);
+
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            transition: 0.18s ease;
+        }
+
+        .page-link:hover {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+        }
+
+        .page-link.current {
+            background: var(--accent-forest);
+            color: #fff;
+
+            border-color: var(--accent-forest);
+        }
+
+        .page-info {
+            margin: 0 8px;
+
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+        }
+
+        /* =========================================
+           MODAL
+        ========================================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+
+            z-index: 2000;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(36, 30, 20, 0.46);
+            backdrop-filter: blur(5px);
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition: 0.2s ease;
+        }
+
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 560px;
+
+            background: var(--beige-card);
+
+            border: 1px solid var(--beige-border);
+
+            box-shadow: 0 20px 70px rgba(36, 30, 20, 0.2);
+
+            transform: translateY(15px);
+
+            transition: 0.22s ease;
+        }
+
+        .modal.open .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 20px 22px;
+
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        .modal-title {
+            font-family: var(--font-serif);
+            font-size: 23px;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+
+            background: transparent;
+
+            border: 1px solid var(--beige-border);
+
+            color: var(--text-muted);
+
+            font-size: 17px;
+        }
+
+        .modal-close:hover {
+            background: var(--beige-subtle);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+
+            padding: 16px 22px;
+
+            border-top: 1px solid var(--beige-border);
+        }
+
+        /* =========================================
+           CUSTOMER DETAILS
+        ========================================= */
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            border-top: 1px solid var(--beige-border);
+            border-left: 1px solid var(--beige-border);
+        }
+
+        .detail-item {
+            padding: 15px;
+
+            border-right: 1px solid var(--beige-border);
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        .detail-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-family: var(--font-mono);
+            font-size: 8px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .detail-value {
+            font-size: 13px;
+
+            word-break: break-word;
+        }
+
+        /* =========================================
+           FORM
+        ========================================= */
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .form-input {
+            width: 100%;
+
+            height: 43px;
+
+            padding: 0 13px;
+
+            background: var(--beige-bg);
+
+            border: 1px solid var(--beige-border);
+
+            color: var(--text-primary);
+
+            outline: none;
+
+            font-size: 12px;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-ochre);
+        }
+
+        .form-input:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 0 15px;
+        }
+
+        .form-help {
+            margin-top: 6px;
+
+            font-family: var(--font-mono);
+            font-size: 8px;
+
+            color: var(--text-muted);
+        }
+
+        .btn {
+            min-height: 40px;
+
+            padding: 0 17px;
+
+            border: 1px solid var(--beige-border);
+
+            background: transparent;
+
+            font-family: var(--font-mono);
+            font-size: 9px;
+
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .btn:hover {
+            background: var(--beige-subtle);
+        }
+
+        .btn-primary {
+            background: var(--accent-forest);
+            border-color: var(--accent-forest);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #182017;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #70251f;
+        }
+
+        .delete-warning {
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        .delete-warning-icon {
+            font-size: 35px;
+
+            color: var(--danger);
+
+            margin-bottom: 12px;
+        }
+
+        .delete-warning h3 {
+            font-family: var(--font-serif);
+            font-size: 22px;
+
+            font-weight: 400;
+
+            margin-bottom: 8px;
+        }
+
+        .delete-warning p {
+            color: var(--text-muted);
+
+            font-size: 12px;
+
+            line-height: 1.7;
+        }
+
+        .delete-customer-name {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* =========================================
+           TOAST
+        ========================================= */
+
+        .toast-container {
+            position: fixed;
+
+            top: 92px;
+            right: 25px;
+
+            z-index: 3000;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 10px;
+
+            width: min(370px, calc(100vw - 30px));
+        }
+
+        .toast {
+            background: var(--beige-card);
+
+            border: 1px solid var(--beige-border);
+
+            border-left: 4px solid var(--success);
+
+            padding: 14px 16px;
+
+            box-shadow: 0 10px 30px rgba(36, 30, 20, 0.12);
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+
+            color: var(--text-primary);
+
+            animation: toastIn 0.25s ease;
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 900px) {
+
+            .topbar {
+                padding: 14px 20px;
+            }
+
+            .admin-email {
+                display: none;
+            }
+
+            main {
+                padding: 30px 22px 50px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-form {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .topbar {
+                height: 68px;
+            }
+
+            .sidebar {
+                top: 68px;
+            }
+
+            .sidebar-overlay {
+                inset: 68px 0 0 0;
+            }
+
+            .brand {
+                font-size: 21px;
+            }
+
+            .dashboard-link {
+                display: none;
+            }
+
+            main {
+                padding: 25px 15px 40px;
+            }
+
+            .page-title {
+                font-size: 27px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-form {
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .clear-btn {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-item.full {
+                grid-column: auto;
+            }
+
+            .modal {
+                padding: 12px;
+            }
+
+            .modal-body {
+                padding: 18px;
+            }
+
+            .modal-footer {
+                padding: 14px 18px;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================================
+     TOPBAR
+========================================= -->
+
+<header class="topbar">
+
+    <div class="topbar-left">
+
+        <button class="menu-btn" id="menuBtn">
+            ☰
+        </button>
+
+        <a href="{% url 'admin_index' %}" class="brand">
+            UNCOMMON
+        </a>
+
+    </div>
+
+    <div class="topbar-right">
+
+        <span class="admin-email">
+            {{ admin.email }}
+        </span>
+
+        <a href="{% url 'admin_index' %}" class="dashboard-link">
+            Dashboard
+        </a>
+
+        <a href="{% url 'admin_logout' %}" class="logout-link">
+            Logout
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================
+     SIDEBAR
+========================================= -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-title">
+        Command Core
+    </div>
+
+    <ul class="nav-list">
+
+        <li class="nav-item">
+            <a href="{% url 'admin_index' %}" class="nav-link">
+                <span class="nav-number">00</span>
+                Dashboard
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{% url 'view_customers' %}" class="nav-link active">
+                <span class="nav-number">01</span>
+                Customers
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{% url 'view_products' %}" class="nav-link">
+                <span class="nav-number">02</span>
+                Products
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{% url 'view_categories' %}" class="nav-link">
+                <span class="nav-number">03</span>
+                Categories
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <span class="nav-number">04</span>
+                Orders
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <span class="nav-number">05</span>
+                Feedback
+            </a>
+        </li>
+
+    </ul>
+
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- =========================================
+     TOAST MESSAGES
+========================================= -->
+
+<div class="toast-container">
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="toast
+                {% if message.tags == 'error' %}
+                    error
+                {% elif message.tags == 'warning' %}
+                    warning
+                {% endif %}
+            ">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+</div>
+
+
+<!-- =========================================
+     MAIN
+========================================= -->
+
+<main>
+
+    <section class="page-header">
+
+        <h1 class="page-title">
+            Customers
+        </h1>
+
+        <p class="page-subtitle">
+            Customer directory / Account management / {{ total_customers }} registered
+        </p>
+
+    </section>
+
+
+    <!-- =====================================
+         STATS
+    ====================================== -->
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Total Customers
+            </div>
+
+            <div class="stat-value">
+                {{ total_customers }}
+            </div>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Current Page
+            </div>
+
+            <div class="stat-value">
+                {{ page_obj.number }}
+            </div>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Total Pages
+            </div>
+
+            <div class="stat-value">
+                {{ page_obj.paginator.num_pages }}
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         SEARCH
+    ====================================== -->
+
+    <section class="control-panel">
+
+        <div class="control-row">
+
+            <form method="GET"
+                  action="{% url 'view_customers' %}"
+                  class="search-form">
+
+                <input
+                    type="text"
+                    name="search"
+                    class="search-input"
+                    placeholder="Search by name, email, username or phone..."
+                    value="{{ search }}"
+                >
+
+                <button type="submit" class="search-btn">
+                    Search
+                </button>
+
+                {% if search %}
+                    <a href="{% url 'view_customers' %}"
+                       class="clear-btn">
+                        Clear
+                    </a>
+                {% endif %}
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================
+         CUSTOMER TABLE
+    ====================================== -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div class="table-heading">
+                Customer Directory
+            </div>
+
+            <div class="table-count">
+                {% if page_obj %}
+                    Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                    of {{ page_obj.paginator.count }}
+                {% else %}
+                    0 customers
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        {% if page_obj.object_list %}
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for customer in page_obj %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="customer-id">
+                                        #{{ customer.id }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="customer-name">
+                                        {{ customer.name }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="customer-email">
+                                        {{ customer.email }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="username">
+                                        @{{ customer.username }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="phone">
+                                        {{ customer.phone }}
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <!-- VIEW -->
+
+                                        <button
+                                            type="button"
+                                            class="action-btn view-btn"
+                                            data-name="{{ customer.name }}"
+                                            data-email="{{ customer.email }}"
+                                            data-username="{{ customer.username }}"
+                                            data-phone="{{ customer.phone }}"
+                                            data-id="{{ customer.id }}"
+                                            onclick="openViewModal(this)"
+                                        >
+                                            View
+                                        </button>
+
+
+                                        <!-- EDIT -->
+
+                                        <button
+                                            type="button"
+                                            class="action-btn edit-btn"
+                                            data-url="{% url 'edit_customer' customer.id %}"
+                                            data-name="{{ customer.name }}"
+                                            data-email="{{ customer.email }}"
+                                            data-username="{{ customer.username }}"
+                                            data-phone="{{ customer.phone }}"
+                                            onclick="openEditModal(this)"
+                                        >
+                                            Edit
+                                        </button>
+
+
+                                        <!-- DELETE -->
+
+                                        <button
+                                            type="button"
+                                            class="action-btn delete-btn"
+                                            data-url="{% url 'delete_customer' customer.id %}"
+                                            data-name="{{ customer.name }}"
+                                            onclick="openDeleteModal(this)"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =================================
+                 PAGINATION
+            ================================== -->
+
+            {% if page_obj.paginator.num_pages > 1 %}
+
+                <div class="pagination">
+
+                    {% if page_obj.has_previous %}
+
+                        <a
+                            href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}"
+                            class="page-link"
+                        >
+                            ‹
+                        </a>
+
+                    {% endif %}
+
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                        {% if num == page_obj.number %}
+
+                            <span class="page-link current">
+                                {{ num }}
+                            </span>
+
+                        {% else %}
+
+                            <a
+                                href="?page={{ num }}{% if search %}&search={{ search|urlencode }}{% endif %}"
+                                class="page-link"
+                            >
+                                {{ num }}
+                            </a>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    {% if page_obj.has_next %}
+
+                        <a
+                            href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}"
+                            class="page-link"
+                        >
+                            ›
+                        </a>
+
+                    {% endif %}
+
+
+                    <span class="page-info">
+                        Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ∅
+                </div>
+
+                <div class="empty-title">
+                    No Customers Found
+                </div>
+
+                <div class="empty-text">
+                    Try adjusting your search criteria
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<!-- =========================================
+     VIEW CUSTOMER MODAL
+========================================= -->
+
+<div class="modal" id="viewModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title">
+                Customer Details
+            </h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal('viewModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Customer ID
+                    </span>
+
+                    <div class="detail-value" id="viewId">
+                        —
+                    </div>
+
+                </div>
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Full Name
+                    </span>
+
+                    <div class="detail-value" id="viewName">
+                        —
+                    </div>
+
+                </div>
+
+                <div class="detail-item full">
+
+                    <span class="detail-label">
+                        Email Address
+                    </span>
+
+                    <div class="detail-value" id="viewEmail">
+                        —
+                    </div>
+
+                </div>
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Username
+                    </span>
+
+                    <div class="detail-value" id="viewUsername">
+                        —
+                    </div>
+
+                </div>
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Phone
+                    </span>
+
+                    <div class="detail-value" id="viewPhone">
+                        —
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn"
+                onclick="closeModal('viewModal')"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     EDIT CUSTOMER MODAL
+========================================= -->
+
+<div class="modal" id="editModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title">
+                Edit Customer
+            </h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal('editModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <form method="POST" id="editForm">
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            id="editName"
+                            class="form-input"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Phone
+                        </label>
+
+                        <input
+                            type="text"
+                            name="phone"
+                            id="editPhone"
+                            class="form-input"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        id="editEmail"
+                        class="form-input"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        name="username"
+                        id="editUsername"
+                        class="form-input"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="editPassword"
+                        class="form-input"
+                        placeholder="Leave blank to keep current password"
+                    >
+
+                    <div class="form-help">
+                        Leave this field empty if you do not want to change the password.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeModal('editModal')"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     DELETE CUSTOMER MODAL
+========================================= -->
+
+<div class="modal" id="deleteModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title">
+                Delete Customer
+            </h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal('deleteModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="delete-warning">
+
+                <div class="delete-warning-icon">
+                    !
+                </div>
+
+                <h3>
+                    Remove this customer?
+                </h3>
+
+                <p>
+                    You are about to permanently delete
+                    <span
+                        class="delete-customer-name"
+                        id="deleteCustomerName"
+                    >
+                        this customer
+                    </span>.
+                    This action cannot be undone.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn"
+                onclick="closeModal('deleteModal')"
+            >
+                Cancel
+            </button>
+
+            <form method="POST" id="deleteForm">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Delete Customer
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =========================================
+       SIDEBAR
+    ========================================= */
+
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+    menuBtn.addEventListener("click", function () {
+
+        sidebar.classList.toggle("open");
+        sidebarOverlay.classList.toggle("show");
+
+    });
+
+
+    sidebarOverlay.addEventListener("click", function () {
+
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+
+    });
+
+
+    /* =========================================
+       MODAL HELPERS
+    ========================================= */
+
+    function openModal(id) {
+
+        document.getElementById(id).classList.add("open");
+
+        document.body.style.overflow = "hidden";
+
+    }
+
+
+    function closeModal(id) {
+
+        document.getElementById(id).classList.remove("open");
+
+        document.body.style.overflow = "";
+
+    }
+
+
+    /* =========================================
+       VIEW CUSTOMER
+    ========================================= */
+
+    function openViewModal(button) {
+
+        document.getElementById("viewId").textContent =
+            "#" + button.dataset.id;
+
+        document.getElementById("viewName").textContent =
+            button.dataset.name;
+
+        document.getElementById("viewEmail").textContent =
+            button.dataset.email;
+
+        document.getElementById("viewUsername").textContent =
+            "@" + button.dataset.username;
+
+        document.getElementById("viewPhone").textContent =
+            button.dataset.phone;
+
+        openModal("viewModal");
+
+    }
+
+
+    /* =========================================
+       EDIT CUSTOMER
+    ========================================= */
+
+    function openEditModal(button) {
+
+        const form = document.getElementById("editForm");
+
+        form.action = button.dataset.url;
+
+        document.getElementById("editName").value =
+            button.dataset.name;
+
+        document.getElementById("editEmail").value =
+            button.dataset.email;
+
+        document.getElementById("editUsername").value =
+            button.dataset.username;
+
+        document.getElementById("editPhone").value =
+            button.dataset.phone;
+
+        document.getElementById("editPassword").value = "";
+
+        openModal("editModal");
+
+    }
+
+
+    /* =========================================
+       DELETE CUSTOMER
+    ========================================= */
+
+    function openDeleteModal(button) {
+
+        const form = document.getElementById("deleteForm");
+
+        form.action = button.dataset.url;
+
+        document.getElementById("deleteCustomerName").textContent =
+            button.dataset.name;
+
+        openModal("deleteModal");
+
+    }
+
+
+    /* =========================================
+       CLOSE MODAL ON OUTSIDE CLICK
+    ========================================= */
+
+    document.querySelectorAll(".modal").forEach(function(modal) {
+
+        modal.addEventListener("click", function(event) {
+
+            if (event.target === modal) {
+
+                modal.classList.remove("open");
+                document.body.style.overflow = "";
+
+            }
+
+        });
+
+    });
+
+
+    /* =========================================
+       ESC KEY
+    ========================================= */
+
+    document.addEventListener("keydown", function(event) {
+
+        if (event.key === "Escape") {
+
+            document.querySelectorAll(".modal").forEach(function(modal) {
+
+                modal.classList.remove("open");
+
+            });
+
+            document.body.style.overflow = "";
+
+        }
+
+    });
+
+
+    /* =========================================
+       AUTO HIDE TOAST
+    ========================================= */
+
+    setTimeout(function() {
+
+        document.querySelectorAll(".toast").forEach(function(toast) {
+
+            toast.style.opacity = "0";
+            toast.style.transform = "translateX(20px)";
+
+            setTimeout(function() {
+
+                toast.remove();
+
+            }, 250);
+
+        });
+
+    }, 4000);
+
+</script>
+
+</body>
+</html>

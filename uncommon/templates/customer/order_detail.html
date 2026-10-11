@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Details | INSOLO UNCOMMON</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F3EEE4;
+            color: #241E14;
+            font-family: 'Archivo', sans-serif;
+        }
+
+        header {
+            min-height: 85px;
+            padding: 18px 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid #DED5C7;
+        }
+
+        .brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: #241E14;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 23px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #241E14;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        nav a:hover {
+            color: #A0763A;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 55px auto 80px;
+            padding: 0 24px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #786F62;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            color: #A0763A;
+        }
+
+        .eyebrow {
+            color: #A0763A;
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 46px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .subtitle {
+            color: #786F62;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .message {
+            padding: 15px 18px;
+            margin-top: 25px;
+            background: #E4EBDD;
+            color: #35472B;
+            font-size: 13px;
+        }
+
+        .message.error {
+            background: #F2DEDA;
+            color: #7E3324;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr);
+            gap: 25px;
+            margin-top: 35px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 1px solid #DED5C7;
+            background: #FAF8F3;
+            padding: 25px;
+            margin-bottom: 22px;
+        }
+
+        .panel-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 9px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: #EAE2D4;
+        }
+
+        .status-pending {
+            background: #F3E6C9;
+            color: #805D1E;
+        }
+
+        .status-confirmed,
+        .status-delivered {
+            background: #E0E9DA;
+            color: #35472B;
+        }
+
+        .status-cancelled {
+            background: #F2DEDA;
+            color: #7E3324;
+        }
+
+        .status-shipped {
+            background: #DFE7ED;
+            color: #35546C;
+        }
+
+        .muted {
+            color: #786F62;
+            font-size: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #E4DDD2;
+            font-size: 13px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #786F62;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .product {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            padding: 20px 0;
+            border-bottom: 1px solid #E4DDD2;
+        }
+
+        .product:first-of-type {
+            padding-top: 0;
+        }
+
+        .product:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .product-meta {
+            font-size: 12px;
+            color: #786F62;
+            margin-top: 7px;
+            line-height: 1.7;
+        }
+
+        .product-price {
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .address {
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 13px 0;
+            border-bottom: 1px solid #E4DDD2;
+            font-size: 13px;
+        }
+
+        .summary-row.total-row {
+            border-bottom: none;
+            padding-top: 20px;
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .primary-button,
+        .cancel-button {
+            width: 100%;
+            display: block;
+            padding: 14px 18px;
+            text-align: center;
+            font-family: inherit;
+            font-size: 11px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1px solid #241E14;
+        }
+
+        .primary-button {
+            background: #241E14;
+            color: #F3EEE4;
+        }
+
+        .primary-button:hover {
+            background: #A0763A;
+            border-color: #A0763A;
+        }
+
+        .cancel-button {
+            margin-top: 12px;
+            background: transparent;
+            color: #7E3324;
+            border-color: #7E3324;
+        }
+
+        .cancel-button:hover {
+            background: #7E3324;
+            color: white;
+        }
+
+        .cancel-note {
+            font-size: 11px;
+            line-height: 1.7;
+            color: #786F62;
+            margin-top: 12px;
+        }
+
+        footer {
+            border-top: 1px solid #DED5C7;
+            text-align: center;
+            padding: 28px 15px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #786F62;
+        }
+
+        @media (max-width: 760px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .container {
+                margin-top: 35px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .info-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a href="{% url 'customer_home' %}" class="brand">
+        INSOLO UNCOMMON
+    </a>
+
+    <nav>
+        <a href="{% url 'customer_home' %}">HOME</a>
+        <a href="{% url 'my_orders' %}">MY ORDERS</a>
+        <a href="{% url 'bag_view' %}">MY BAG</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <a href="{% url 'my_orders' %}" class="back-link">
+        ← BACK TO MY ORDERS
+    </a>
+
+    <p class="eyebrow">ORDER INFORMATION</p>
+
+    <h1>{{ order.order_number }}</h1>
+
+    <p class="subtitle">
+        Placed on {{ order.created_at|date:"d F Y, h:i A" }}
+    </p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'error' %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="layout">
+
+        <section>
+
+            <!-- Order status -->
+            <div class="panel">
+                <div class="status-row">
+                    <h2 class="panel-title" style="margin-bottom: 0;">
+                        Order Status
+                    </h2>
+
+                    <span class="status
+                        {% if order.status == 'PENDING' %}status-pending
+                        {% elif order.status == 'CONFIRMED' %}status-confirmed
+                        {% elif order.status == 'SHIPPED' %}status-shipped
+                        {% elif order.status == 'DELIVERED' %}status-delivered
+                        {% elif order.status == 'CANCELLED' %}status-cancelled
+                        {% endif %}">
+                        {{ order.get_status_display|upper }}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Order Number</span>
+                    <span class="info-value">{{ order.order_number }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Order Date</span>
+                    <span class="info-value">
+                        {{ order.created_at|date:"d M Y, h:i A" }}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Last Updated</span>
+                    <span class="info-value">
+                        {{ order.updated_at|date:"d M Y, h:i A" }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Ordered products -->
+            <div class="panel">
+                <h2 class="panel-title">Items Ordered</h2>
+
+                {% for item in order.items.all %}
+                    <div class="product">
+                        <div>
+                            <div class="product-name">
+                                {{ item.product.product_name }}
+                            </div>
+
+                            <div class="product-meta">
+                                Quantity: {{ item.quantity }}<br>
+                                Unit price: ₹{{ item.price|floatformat:2 }}
+                            </div>
+                        </div>
+
+                        <div class="product-price">
+                            ₹{% widthratio item.price 1 item.quantity %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="muted">No items were found for this order.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Shipping address -->
+            <div class="panel">
+                <h2 class="panel-title">Shipping Address</h2>
+
+                <p class="address">
+                    {{ order.shipping_address|linebreaksbr }}
+                </p>
+            </div>
+
+        </section>
+
+        <aside>
+
+            <!-- Payment/order summary -->
+            <div class="panel">
+                <h2 class="panel-title">Order Summary</h2>
+
+                <div class="summary-row">
+                    <span class="muted">Items</span>
+                    <span>{{ order.items.count }}</span>
+                </div>
+
+                <div class="summary-row total-row">
+                    <span>Total</span>
+                    <span>₹{{ order.total_amount|floatformat:2 }}</span>
+                </div>
+
+                <p class="muted" style="line-height: 1.7; margin-top: 10px;">
+                    Payment is not collected on this page. Your order total
+                    reflects the amount recorded at checkout.
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="panel">
+                <h2 class="panel-title">Manage Order</h2>
+
+                <a href="{% url 'my_orders' %}" class="primary-button">
+                    VIEW ALL ORDERS
+                </a>
+
+                {% if order.status == 'PENDING' %}
+                    <form method="POST"
+                          action="{% url 'cancel_order' order.order_number %}"
+                          onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+                        {% csrf_token %}
+
+                        <button type="submit" class="cancel-button">
+                            CANCEL ORDER
+                        </button>
+                    </form>
+
+                    <p class="cancel-note">
+                        You can cancel this order while its status is Pending.
+                        Once it is confirmed or processed, cancellation will
+                        no longer be available.
+                    </p>
+                {% else %}
+                    <p class="cancel-note">
+                        {% if order.status == 'CANCELLED' %}
+                            This order has been cancelled.
+                        {% elif order.status == 'CONFIRMED' %}
+                            This order is confirmed and can no longer be
+                            cancelled through this page.
+                        {% elif order.status == 'SHIPPED' %}
+                            This order has shipped and can no longer be
+                            cancelled through this page.
+                        {% elif order.status == 'DELIVERED' %}
+                            This order has been delivered.
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+
+        </aside>
+
+    </div>
+</main>
+
+<footer>
+    INSOLO UNCOMMON &mdash; DESIGNED TO BE DIFFERENT
+</footer>
+
+</body>
+</html>

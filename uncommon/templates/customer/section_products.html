@@ -1,0 +1,824 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }} — UNCOMMON</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #EFEBE1;
+            --card: #FBF8F1;
+            --border: #D6CCB5;
+            --ink: #241E14;
+            --muted: #6F6350;
+            --gold: #C69C5C;
+            --forest: #232E22;
+            --serif: 'Libre Caslon Text', serif;
+            --sans: 'Archivo', sans-serif;
+            --mono: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--sans);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .wrap {
+            max-width: 1240px;
+            margin: auto;
+            padding: 0 35px;
+        }
+
+        /* NAVBAR */
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 22px 0;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font: 25px var(--serif);
+            letter-spacing: .14em;
+            white-space: nowrap;
+        }
+
+        .section-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .section-nav a,
+        .bag-nav-link {
+            font: 10px var(--mono);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 8px 0;
+            border-bottom: 1px solid transparent;
+            transition: color .2s, border-color .2s;
+            white-space: nowrap;
+        }
+
+        .section-nav a:hover,
+        .section-nav a.active {
+            color: var(--ink);
+            border-bottom-color: var(--gold);
+        }
+
+        .bag-nav-link {
+            color: var(--ink);
+            border-bottom-color: var(--gold);
+        }
+
+        .bag-nav-link:hover {
+            color: #A0763A;
+        }
+
+        .back-link {
+            font: 10px var(--mono);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .back-link:hover {
+            color: var(--ink);
+        }
+
+        /* INTRODUCTION */
+
+        .intro {
+            padding: 65px 0 35px;
+        }
+
+        .eyebrow {
+            font: 10px var(--mono);
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: #A0763A;
+        }
+
+        h1 {
+            font: clamp(38px, 5vw, 58px)/1.1 var(--serif);
+            font-weight: 400;
+            margin: 17px 0;
+        }
+
+        .intro > p {
+            color: var(--muted);
+            line-height: 1.8;
+            max-width: 650px;
+        }
+
+        /* SEARCH */
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin: 28px 0;
+        }
+
+        .search input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            outline: none;
+            font: 12px var(--sans);
+        }
+
+        .search input:focus {
+            border-color: var(--gold);
+        }
+
+        .search button {
+            padding: 0 22px;
+            background: var(--forest);
+            color: white;
+            border: 1px solid var(--forest);
+            font: 10px var(--mono);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .search button:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--ink);
+        }
+
+        .result-count {
+            font: 10px var(--mono);
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        /* PRODUCT GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+            padding-bottom: 75px;
+        }
+
+        .product {
+            min-width: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            transition: transform .25s, box-shadow .25s;
+        }
+
+        .product:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(36, 30, 20, .07);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 310px;
+            display: block;
+            object-fit: cover;
+            background: #E9E0CD;
+        }
+
+        .info {
+            padding: 19px;
+        }
+
+        .category {
+            font: 9px var(--mono);
+            color: #A0763A;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+        }
+
+        h2 {
+            font: 23px var(--serif);
+            font-weight: 400;
+            margin: 10px 0;
+        }
+
+        .description {
+            font-size: 12px;
+            line-height: 1.7;
+            color: var(--muted);
+            min-height: 40px;
+        }
+
+        .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-top: 1px dashed var(--border);
+            padding-top: 14px;
+            margin-top: 15px;
+        }
+
+        .price {
+            font: 12px var(--mono);
+        }
+
+        .badge {
+            font: 8px var(--mono);
+            color: #A0763A;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        /* ADD TO BAG BUTTON */
+
+        .add-to-bag {
+            width: 100%;
+            margin-top: 17px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: var(--forest);
+            color: var(--card);
+            border: 1px solid var(--forest);
+            font: 10px var(--mono);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .2s, color .2s, border-color .2s;
+        }
+
+        .add-to-bag:hover:not(:disabled) {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--ink);
+        }
+
+        .add-to-bag:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .add-to-bag .button-arrow {
+            font-size: 15px;
+        }
+
+        /* EMPTY RESULTS */
+
+        .empty {
+            grid-column: 1 / -1;
+            padding: 35px;
+            border: 1px dashed var(--border);
+            color: var(--muted);
+            line-height: 1.8;
+            background: var(--card);
+        }
+
+        /* MODERN BAG NOTIFICATION */
+
+        .bag-toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            width: min(440px, calc(100vw - 32px));
+            padding: 18px;
+            background: var(--card);
+            color: var(--ink);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--gold);
+            box-shadow: 0 16px 50px rgba(36, 30, 20, .16);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition:
+                opacity .25s ease,
+                transform .25s ease,
+                visibility .25s;
+        }
+
+        .bag-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--forest);
+            color: white;
+            font-size: 17px;
+        }
+
+        .bag-toast.error {
+            border-top-color: #8A3027;
+        }
+
+        .bag-toast.error .toast-icon {
+            background: #8A3027;
+        }
+
+        .toast-copy {
+            display: grid;
+            gap: 5px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .toast-copy strong {
+            font: 15px var(--serif);
+        }
+
+        .toast-copy span {
+            font: 10px/1.6 var(--mono);
+            color: var(--muted);
+            overflow-wrap: anywhere;
+        }
+
+        .toast-link {
+            font: 9px var(--mono);
+            color: var(--ink);
+            white-space: nowrap;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 3px;
+        }
+
+        .toast-close {
+            align-self: flex-start;
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .toast-close:hover {
+            color: var(--ink);
+        }
+
+        /* FOOTER */
+
+        footer {
+            padding: 25px 0;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font: 10px var(--mono);
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+            .nav {
+                flex-wrap: wrap;
+            }
+
+            .section-nav {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                border-top: 1px solid var(--border);
+                padding-top: 13px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .wrap {
+                padding: 0 18px;
+            }
+
+            header {
+                padding: 18px 0;
+            }
+
+            .logo {
+                font-size: 22px;
+            }
+
+            .section-nav {
+                gap: 18px;
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+
+            .section-nav a {
+                font-size: 9px;
+            }
+
+            .intro {
+                padding: 45px 0 30px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .product-image {
+                height: 350px;
+            }
+
+            .search {
+                flex-wrap: wrap;
+            }
+
+            .search input {
+                width: 100%;
+                flex-basis: 100%;
+            }
+
+            .search button {
+                height: 45px;
+                width: 100%;
+            }
+
+            .bag-toast {
+                right: 16px;
+                bottom: 16px;
+                gap: 10px;
+                padding: 14px;
+            }
+
+            .toast-link {
+                font-size: 8px;
+            }
+
+            .back-link {
+                font-size: 9px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="wrap nav">
+
+        <a href="{% url 'customer_home' %}" class="logo">
+            UNCOMMON.
+        </a>
+
+        <nav class="section-nav" aria-label="Collections">
+
+            <a href="{% url 'section_products' 'HIM' %}"
+               class="{% if section == 'HIM' %}active{% endif %}">
+                INSOLO — For Him ↗
+            </a>
+
+            <a href="{% url 'section_products' 'HER' %}"
+               class="{% if section == 'HER' %}active{% endif %}">
+                INSOLO — For Her ↗
+            </a>
+
+            <a href="{% url 'section_products' 'RARE' %}"
+               class="{% if section == 'RARE' %}active{% endif %}">
+                The Hundred
+            </a>
+
+        </nav>
+
+        <a href="{% url 'bag_view' %}" class="bag-nav-link">
+            Bag · <span id="bag-count">{{ bag_count|default:0 }}</span>
+        </a>
+
+        <a href="{% url 'customer_home' %}" class="back-link">
+            ← Back to home
+        </a>
+
+    </div>
+</header>
+
+<main class="wrap">
+
+    <section class="intro">
+
+        <div class="eyebrow">
+            {% if section == 'HIM' %}
+                Room 01 — Him
+            {% elif section == 'HER' %}
+                Room 02 — INSOLO
+            {% else %}
+                Room 03 — The Hundred
+            {% endif %}
+        </div>
+
+        <h1>{{ title }}</h1>
+
+        <p>{{ subtitle }}</p>
+
+        <form method="get" class="search">
+            <input
+                type="search"
+                name="search"
+                value="{{ search|default:'' }}"
+                placeholder="Search products, descriptions, categories..."
+                aria-label="Search products"
+            >
+
+            <button type="submit">Search ↗</button>
+        </form>
+
+        <div class="result-count">
+            {{ products|length }} matching product{{ products|length|pluralize }}
+        </div>
+
+    </section>
+
+    <section class="grid" aria-label="Products">
+
+        {% for product in products %}
+
+            <article class="product">
+
+                {% if product.image %}
+                    <img
+                        class="product-image"
+                        src="{{ product.image.url }}"
+                        alt="{{ product.product_name }}"
+                        loading="lazy"
+                    >
+                {% else %}
+                    <img
+                        class="product-image"
+                        src="https://picsum.photos/seed/product-{{ product.id }}/600/700"
+                        alt="{{ product.product_name }}"
+                        loading="lazy"
+                    >
+                {% endif %}
+
+                <div class="info">
+
+                    <div class="category">
+                        {{ product.category.category_name }}
+                    </div>
+
+                    <h2>{{ product.product_name }}</h2>
+
+                    <p class="description">
+                        {{ product.description|default:"A considered addition to the collection."|truncatewords:20 }}
+                    </p>
+
+                    <div class="bottom">
+
+                        <span class="price">
+                            ₹{{ product.price|floatformat:2 }}
+                        </span>
+
+                        {% if product.is_rare or product.is_limited %}
+                            <span class="badge">
+                                Rare / Limited
+                            </span>
+                        {% else %}
+                            <span class="badge">
+                                In stock: {{ product.stock }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="add-to-bag"
+                        data-url="{% url 'add_to_bag' product.id %}"
+                        {% if product.stock < 1 %}disabled{% endif %}
+                    >
+                        {% if product.stock < 1 %}
+                            <span>Sold out</span>
+                            <span>—</span>
+                        {% else %}
+                            <span>Add to bag</span>
+                            <span class="button-arrow" aria-hidden="true">↗</span>
+                        {% endif %}
+                    </button>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <div class="empty">
+                <h2>No pieces found.</h2>
+                <p>
+                    No available products were found in this collection.
+                    Try a different search or return later for new additions.
+                </p>
+
+                <a href="{% url 'section_products' section %}">
+                    Clear search ↗
+                </a>
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+</main>
+
+<footer>
+    <div class="wrap">
+        © 2026 UNCOMMON — Made for one.
+    </div>
+</footer>
+
+<!-- CSRF token for Django AJAX requests -->
+<form hidden aria-hidden="true">
+    {% csrf_token %}
+</form>
+
+<!-- BAG SUCCESS / ERROR NOTIFICATION -->
+<div
+    id="bag-toast"
+    class="bag-toast"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+>
+    <span class="toast-icon" id="toast-icon">✓</span>
+
+    <div class="toast-copy">
+        <strong id="toast-title">Added to your bag</strong>
+        <span id="toast-message">
+            Your selection is waiting for you.
+        </span>
+    </div>
+
+    <a href="{% url 'bag_view' %}" class="toast-link">
+        View bag ↗
+    </a>
+
+    <button
+        type="button"
+        id="toast-close"
+        class="toast-close"
+        aria-label="Close notification"
+    >
+        ×
+    </button>
+</div>
+
+<script>
+    const bagToast = document.getElementById("bag-toast");
+    const toastTitle = document.getElementById("toast-title");
+    const toastMessage = document.getElementById("toast-message");
+    const toastIcon = document.getElementById("toast-icon");
+    const toastClose = document.getElementById("toast-close");
+
+    let toastTimer;
+
+    function showBagToast(message, success = true) {
+        toastTitle.textContent = success
+            ? "Added to your bag"
+            : "Unable to add item";
+
+        toastMessage.textContent = message;
+        toastIcon.textContent = success ? "✓" : "!";
+
+        bagToast.classList.toggle("error", !success);
+        bagToast.classList.add("show");
+
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(() => {
+            bagToast.classList.remove("show");
+        }, 4000);
+    }
+
+    toastClose.addEventListener("click", () => {
+        clearTimeout(toastTimer);
+        bagToast.classList.remove("show");
+    });
+
+    function getCsrfToken() {
+        const input = document.querySelector(
+            '[name="csrfmiddlewaretoken"]'
+        );
+
+        return input ? input.value : "";
+    }
+
+    document.querySelectorAll(".add-to-bag").forEach(button => {
+
+        button.addEventListener("click", async () => {
+
+            if (button.disabled) {
+                return;
+            }
+
+            const originalHTML = button.innerHTML;
+
+            button.disabled = true;
+            button.textContent = "Adding...";
+
+            try {
+                const csrfToken = getCsrfToken();
+
+                if (!csrfToken) {
+                    throw new Error(
+                        "Security token missing. Refresh the page and try again."
+                    );
+                }
+
+                const response = await fetch(button.dataset.url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    credentials: "same-origin"
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.message || "Could not add this item."
+                    );
+                }
+
+                // Update navbar bag count without reloading.
+                const bagCount = document.getElementById("bag-count");
+
+                if (bagCount) {
+                    bagCount.textContent = data.bag_count;
+                }
+
+                // Show the success popup.
+                showBagToast(data.message, true);
+
+            } catch (error) {
+                showBagToast(
+                    error.message || "Something went wrong. Please try again.",
+                    false
+                );
+
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            }
+
+        });
+
+    });
+</script>
+
+</body>
+</html>

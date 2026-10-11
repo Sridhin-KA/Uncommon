@@ -1,0 +1,989 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bag | INSOLO UNCOMMON</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --paper: #F3EEE4;
+            --card: #FBF8F1;
+            --ink: #241E14;
+            --muted: #6F6350;
+            --line: #D6CCB5;
+            --gold: #A0763A;
+            --gold-light: #C69C5C;
+            --red: #7E3324;
+            --white: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Archivo', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .announcement {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 9px 16px;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(243, 238, 228, .94);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .nav-inner {
+            max-width: 1320px;
+            margin: auto;
+            min-height: 82px;
+            padding: 16px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px;
+            font-weight: 700;
+            letter-spacing: .09em;
+            white-space: nowrap;
+        }
+
+        .brand span {
+            color: var(--red);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            font-size: 11px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            transition: color .2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--red);
+        }
+
+        .nav-bag {
+            border: 1px solid var(--ink);
+            padding: 10px 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .page {
+            width: min(1240px, 100%);
+            margin: auto;
+            padding: 62px 36px 100px;
+            min-height: 65vh;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 24px;
+            margin: 18px 0 42px;
+        }
+
+        h1, h2, h3, p {
+            margin-top: 0;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 6vw, 70px);
+            line-height: .98;
+            font-weight: 500;
+            letter-spacing: -.035em;
+            margin-bottom: 14px;
+        }
+
+        .intro {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+            max-width: 510px;
+            margin-bottom: 0;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .bag-count {
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(300px, .8fr);
+            align-items: start;
+            gap: 54px;
+        }
+
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--ink);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+        .bag-item {
+            display: grid;
+            grid-template-columns: 126px minmax(0, 1fr);
+            gap: 22px;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .product-image {
+            width: 126px;
+            height: 150px;
+            object-fit: cover;
+            background: #E7DFD0;
+            display: block;
+        }
+
+        .image-placeholder {
+            width: 126px;
+            height: 150px;
+            background: #E7DFD0;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+        }
+
+        .item-main {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .item-category {
+            color: var(--gold);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .item-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 25px;
+            font-weight: 600;
+            line-height: 1.1;
+            margin: 0 0 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .item-description {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.65;
+            max-width: 340px;
+            margin-bottom: 0;
+        }
+
+        .item-price {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .item-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .quantity-control {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--line);
+            min-height: 38px;
+        }
+
+        .quantity-control button {
+            width: 34px;
+            height: 36px;
+            border: 0;
+            background: transparent;
+            color: var(--ink);
+            font-size: 17px;
+        }
+
+        .quantity-control button:hover:not(:disabled) {
+            background: #EAE2D2;
+        }
+
+        .quantity-control button:disabled {
+            opacity: .35;
+            cursor: not-allowed;
+        }
+
+        .quantity-value {
+            min-width: 30px;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .remove-button {
+            border: 0;
+            padding: 7px 0;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .remove-button:hover {
+            color: var(--red);
+        }
+
+        .line-total {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .summary {
+            position: sticky;
+            top: 108px;
+            padding: 28px;
+            background: var(--card);
+            border: 1px solid var(--line);
+        }
+
+        .summary-title {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--gold);
+            font-size: 10px;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #E4DCC8;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 16px 0;
+            border-bottom: 1px dashed #E4DCC8;
+            font-size: 12px;
+        }
+
+        .summary-row span:first-child {
+            color: var(--muted);
+        }
+
+        .summary-row span:last-child {
+            font-family: 'IBM Plex Mono', monospace;
+            text-align: right;
+        }
+
+        .summary-total {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 24px 0;
+        }
+
+        .summary-total strong {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 25px;
+            font-weight: 600;
+        }
+
+        .summary-total span {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 18px;
+        }
+
+        .primary-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 52px;
+            border: 1px solid var(--ink);
+            background: var(--ink);
+            color: var(--paper);
+            padding: 15px 18px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-align: center;
+            text-transform: uppercase;
+            transition: background .2s, border-color .2s;
+        }
+
+        .primary-button:hover {
+            background: var(--red);
+            border-color: var(--red);
+            color: var(--paper);
+        }
+
+        .primary-button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .summary-note {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.8;
+            text-align: center;
+            margin: 16px 0 0;
+        }
+
+        .secure-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding-top: 18px;
+            margin-top: 18px;
+            border-top: 1px solid #E4DCC8;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: .04em;
+        }
+
+        .continue-shopping {
+            display: inline-block;
+            margin-top: 26px;
+            color: var(--red);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
+
+        .empty-bag {
+            padding: 80px 28px;
+            border: 1px dashed var(--line);
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 60px;
+            height: 60px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 22px;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+        }
+
+        .empty-bag h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .empty-bag p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+            max-width: 400px;
+            margin: 0 auto 25px;
+        }
+
+        .empty-bag .primary-button {
+            width: auto;
+            display: inline-flex;
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 100;
+            right: 24px;
+            bottom: 24px;
+            width: min(360px, calc(100% - 32px));
+            padding: 16px 18px;
+            background: var(--ink);
+            color: var(--paper);
+            box-shadow: 0 12px 35px #241E1425;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity .25s, transform .25s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-mark {
+            color: var(--gold-light);
+            font-size: 18px;
+        }
+
+        .toast-text {
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .toast.error .toast-mark {
+            color: #E9A18D;
+        }
+
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 34px 36px;
+        }
+
+        .footer-inner {
+            max-width: 1240px;
+            margin: auto;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: .1em;
+        }
+
+        .footer-brand span {
+            color: var(--red);
+        }
+
+        .footer-note {
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+
+            .summary {
+                position: static;
+            }
+
+            .nav-links {
+                gap: 14px;
+            }
+
+            .nav-inner {
+                padding-inline: 22px;
+            }
+
+            .page {
+                padding: 48px 22px 75px;
+            }
+        }
+
+        @media (max-width: 580px) {
+            .announcement {
+                font-size: 8px;
+            }
+
+            .nav-inner {
+                min-height: 68px;
+                padding: 12px 16px;
+                gap: 12px;
+            }
+
+            .brand {
+                font-size: 20px;
+                letter-spacing: .04em;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-bag {
+                padding: 9px 10px;
+                font-size: 10px;
+            }
+
+            .page {
+                padding: 38px 16px 60px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 30px;
+            }
+
+            .bag-item {
+                grid-template-columns: 88px minmax(0, 1fr);
+                gap: 13px;
+                padding: 18px 0;
+            }
+
+            .product-image, .image-placeholder {
+                width: 88px;
+                height: 112px;
+            }
+
+            .item-name {
+                font-size: 21px;
+            }
+
+            .item-description {
+                font-size: 11px;
+            }
+
+            .item-top {
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .item-price {
+                font-size: 11px;
+            }
+
+            .item-bottom {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .item-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .summary {
+                padding: 22px 18px;
+            }
+
+            .empty-bag {
+                padding: 56px 18px;
+            }
+
+            footer {
+                padding: 28px 16px;
+            }
+
+            .footer-note {
+                line-height: 1.8;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="announcement">
+        Made with intention · Selected with care · INSOLO UNCOMMON
+    </div>
+
+    <header class="navbar">
+        <div class="nav-inner">
+            <a class="brand" href="{% url 'customer_home' %}">
+                INSOLO<span> UNCOMMON</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main navigation">
+                <a href="{% url 'customer_home' %}">All Rooms</a>
+                <a href="{% url 'section_products' 'HIM' %}">Him</a>
+                <a href="{% url 'section_products' 'HER' %}">Her</a>
+                <a href="{% url 'section_products' 'RARE' %}">The Rare Edit</a>
+            </nav>
+
+            <a class="nav-bag" href="{% url 'bag_view' %}">
+                BAG · <span id="nav-bag-count">{{ bag_count|default:0 }}</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="eyebrow">Your selection</div>
+
+        <div class="page-heading">
+            <div>
+                <h1>Your Bag<span style="color: var(--red)">.</span></h1>
+                <p class="intro">
+                    Considered pieces, chosen by you. Take another look before
+                    making them yours.
+                </p>
+            </div>
+
+            <div class="bag-count">
+                <span id="heading-bag-count">{{ bag_count|default:0 }}</span>
+                piece{{ bag_count|default:0|pluralize }}
+            </div>
+        </div>
+
+        {% if items %}
+        <div class="layout">
+            <section aria-label="Bag items">
+                <div class="items-header">
+                    <span>Your selection</span>
+                    <span>Price</span>
+                </div>
+
+                {% for item in items %}
+                <article class="bag-item" id="bag-item-{{ item.product.id }}">
+                    <div>
+                        {% if item.product.image %}
+                            <img
+                                class="product-image"
+                                src="{{ item.product.image.url }}"
+                                alt="{{ item.product.product_name }}"
+                            >
+                        {% else %}
+                            <div class="image-placeholder" aria-label="No product image">
+                                I.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="item-main">
+                        <div class="item-top">
+                            <div>
+                                <div class="item-category">
+                                    {{ item.product.category.category_name|default:"Selected piece" }}
+                                </div>
+
+                                <h2 class="item-name">
+                                    {{ item.product.product_name }}
+                                </h2>
+
+                                {% if item.product.description %}
+                                <p class="item-description">
+                                    {{ item.product.description|truncatewords:18 }}
+                                </p>
+                                {% endif %}
+
+                                {% if item.product.is_rare %}
+                                <div class="item-category" style="margin-top: 10px;">
+                                    Rare selection
+                                </div>
+                                {% elif item.product.is_limited %}
+                                <div class="item-category" style="margin-top: 10px;">
+                                    Limited edition
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="item-price">
+                                ₹{{ item.product.price|floatformat:2 }}
+                            </div>
+                        </div>
+
+                        <div class="item-bottom">
+                            <form
+                                class="quantity-form"
+                                method="post"
+                                action="{% url 'update_bag_quantity' item.product.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <div class="quantity-control">
+                                    <button
+                                        type="submit"
+                                        name="action"
+                                        value="decrease"
+                                        aria-label="Decrease quantity"
+                                        {% if item.quantity <= 1 %}disabled{% endif %}
+                                    >−</button>
+
+                                    <span class="quantity-value">
+                                        {{ item.quantity }}
+                                    </span>
+
+                                    <button
+                                        type="submit"
+                                        name="action"
+                                        value="increase"
+                                        aria-label="Increase quantity"
+                                        {% if item.quantity >= item.product.stock %}disabled{% endif %}
+                                    >+</button>
+                                </div>
+                            </form>
+
+                            <div class="item-actions">
+                                <form
+                                    class="remove-form"
+                                    method="post"
+                                    action="{% url 'remove_from_bag' item.product.id %}"
+                                >
+                                    {% csrf_token %}
+                                    <button type="submit" class="remove-button">
+                                        Remove
+                                    </button>
+                                </form>
+
+                                <span class="line-total">
+                                    ₹{{ item.line_total|floatformat:2 }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+
+                <a class="continue-shopping" href="{% url 'customer_home' %}">
+                    ← Continue exploring
+                </a>
+            </section>
+
+            <aside class="summary">
+                <div class="summary-title">The reckoning</div>
+
+                <div class="summary-row">
+                    <span>Pieces in your bag</span>
+                    <span>{{ bag_count }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₹{{ total|floatformat:2 }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Delivery</span>
+                    <span>Calculated at checkout</span>
+                </div>
+
+                <div class="summary-total">
+                    <strong>Total</strong>
+                    <span>₹{{ total|floatformat:2 }}</span>
+                </div>
+
+                {# Replace this URL with your real checkout route when implemented. #}
+                <a
+                    href="{% url 'checkout' %}"
+                    class="primary-button"
+                >
+                    Continue to checkout →
+                </a>
+
+                <p class="summary-note">
+                    Your total is based on the current prices of the pieces
+                    selected. Final delivery charges, if any, will be confirmed
+                    before payment.
+                </p>
+
+                <div class="secure-note">
+                    <span>◇</span>
+                    <span>Thoughtful choices. Clear totals.</span>
+                </div>
+            </aside>
+        </div>
+
+        {% else %}
+        <section class="empty-bag">
+            <div class="empty-icon">I.</div>
+
+            <h2>Your bag is empty — for now.</h2>
+
+            <p>
+                The right piece is worth finding. Explore the collection and
+                return when something feels like yours.
+            </p>
+
+            <a href="{% url 'customer_home' %}" class="primary-button">
+                Enter the catalogue →
+            </a>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <a class="footer-brand" href="{% url 'customer_home' %}">
+                INSOLO<span> UNCOMMON</span>
+            </a>
+
+            <div class="footer-note">
+                © 2026 INSOLO UNCOMMON · Made with intention.
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast" id="bag-toast" role="status" aria-live="polite">
+        <span class="toast-mark" id="toast-mark">✓</span>
+        <div class="toast-text" id="toast-text"></div>
+    </div>
+
+    <script>
+        // A small confirmation toast for bag actions.
+        const toast = document.getElementById("bag-toast");
+        const toastText = document.getElementById("toast-text");
+        const toastMark = document.getElementById("toast-mark");
+        let toastTimer;
+
+        function showToast(message, isError = false) {
+            toastText.textContent = message;
+            toastMark.textContent = isError ? "!" : "✓";
+            toast.classList.toggle("error", isError);
+            toast.classList.add("show");
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3200);
+        }
+
+        // Confirm before removing a product.
+        document.querySelectorAll(".remove-form").forEach((form) => {
+            form.addEventListener("submit", (event) => {
+                const productRow = form.closest(".bag-item");
+                const name = productRow?.querySelector(".item-name")?.textContent.trim();
+
+                if (!window.confirm(`Remove ${name || "this piece"} from your bag?`)) {
+                    event.preventDefault();
+                    return;
+                }
+
+                sessionStorage.setItem("bagToastMessage", "Piece removed from your bag.");
+            });
+        });
+
+        document.querySelectorAll(".quantity-form").forEach((form) => {
+            form.addEventListener("submit", () => {
+                sessionStorage.setItem("bagToastMessage", "Your bag has been updated.");
+            });
+        });
+
+        // Django redirects back to this page after a successful POST.
+        const toastMessage = sessionStorage.getItem("bagToastMessage");
+
+        if (toastMessage) {
+            sessionStorage.removeItem("bagToastMessage");
+            showToast(toastMessage);
+        }
+
+        // Optional Django messages, if your view uses django.contrib.messages.
+        {% if messages %}
+            {% for message in messages %}
+                showToast("{{ message|escapejs }}", "{{ message.tags }}" === "error");
+            {% endfor %}
+        {% endif %}
+    </script>
+</body>
+</html>

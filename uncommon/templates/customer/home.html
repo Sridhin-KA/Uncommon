@@ -1,0 +1,669 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#EFEBE1">
+    <title>UNCOMMON — Made for One</title>
+    <meta name="description" content="Considered objects, uncommon details, and limited pieces chosen to feel distinctly yours.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#EFEBE1; --card:#FBF8F1; --subtle:#E9E0CD; --border:#D6CCB5;
+            --ink:#241E14; --muted:#6F6350; --gold:#C69C5C; --ochre:#A0763A;
+            --forest:#232E22; --cream:#F5F1E6; --serif:'Libre Caslon Text',serif;
+            --sans:'Archivo',sans-serif; --mono:'IBM Plex Mono',monospace;
+        }
+        * { box-sizing:border-box; }
+        html { scroll-behavior:smooth; scroll-padding-top:90px; }
+        body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+        body, button, input { font-family:var(--sans); }
+        a { color:inherit; text-decoration:none; }
+        img { display:block; max-width:100%; }
+        button, a { -webkit-tap-highlight-color:transparent; }
+        .wrap { width:min(1240px,100%); margin:0 auto; padding:0 40px; }
+        .mono { font-family:var(--mono); text-transform:uppercase; letter-spacing:.12em; }
+        .muted { color:var(--muted); }
+        .eyebrow { display:flex; align-items:center; gap:12px; color:var(--ochre); font:10px var(--mono); letter-spacing:.19em; text-transform:uppercase; }
+        .eyebrow::before { content:""; width:25px; height:1px; background:currentColor; flex:0 0 auto; }
+        .site-header { position:sticky; top:0; z-index:50; background:rgba(239,235,225,.94); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
+        .nav { max-width:1320px; margin:auto; padding:17px 40px; display:flex; align-items:center; justify-content:space-between; gap:25px; }
+        .logo { font:600 25px var(--serif); letter-spacing:.14em; white-space:nowrap; }
+        .logo span { color:var(--forest); }
+        .nav-links, .nav-actions { display:flex; align-items:center; gap:25px; }
+        .nav-links a, .nav-actions a { font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; transition:color .2s,background .2s; }
+        .nav-links a { color:var(--muted); }
+        .nav-links a:hover, .nav-actions a:hover { color:var(--ochre); }
+        .nav-actions { gap:14px; }
+        .nav-actions .insolo-link { color:var(--muted); white-space:nowrap; }
+        .nav-actions .orders-link { color:var(--muted); padding:10px 2px; white-space:nowrap; }
+        .nav-actions .orders-link span { color:var(--ochre); margin-left:3px; }
+        .nav-actions .bag-link { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--ink); padding:11px 15px; white-space:nowrap; }
+        .nav-actions .bag-link:hover { background:var(--ink); color:var(--bg); }
+        .bag-count { display:inline-flex; align-items:center; justify-content:center; min-width:15px; height:15px; padding:0 2px; border-radius:50%; background:var(--gold); color:var(--ink); font-size:9px; }
+        .nav-actions .register-link { padding:12px 15px; background:var(--ink); color:var(--bg); }
+        .nav-actions .register-link:hover { background:var(--forest); }
+        .nav-toggle { display:none; border:1px solid var(--border); background:transparent; color:var(--ink); padding:10px 12px; font:10px var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+        .hero { border-bottom:1px solid var(--border); overflow:hidden; }
+        .hero-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:64px; align-items:center; padding-top:96px; padding-bottom:100px; }
+        .hero-copy { display:flex; flex-direction:column; align-items:flex-start; }
+        h1 { margin:24px 0 22px; max-width:690px; font:500 clamp(48px,6.15vw,83px)/1.02 var(--serif); letter-spacing:-.025em; }
+        h1 em { font-weight:400; }
+        .hero-copy > p { max-width:490px; color:var(--muted); font-size:16px; line-height:1.9; margin:0; }
+        .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:29px; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:14px 20px; border:1px solid var(--ink); font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; transition:background .2s,color .2s,border-color .2s; }
+        .btn-dark { background:var(--ink); color:var(--bg); }
+        .btn-dark:hover { background:var(--forest); border-color:var(--forest); color:white; }
+        .btn-outline:hover { background:var(--subtle); }
+        .hero-note { color:var(--muted); font:10px/1.8 var(--mono); letter-spacing:.04em; margin-top:20px; }
+        .hero-art { position:relative; padding:0 16px 20px 0; }
+        .hero-image { width:100%; height:535px; object-fit:cover; background:var(--subtle); }
+        .hero-inset { position:absolute; top:-22px; right:-4px; width:145px; height:185px; object-fit:cover; border:6px solid var(--bg); box-shadow:0 18px 40px -18px #28190a73; }
+        .number-seal { position:absolute; bottom:-4px; left:-28px; width:126px; height:126px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#2C1C0C; background:radial-gradient(circle at 32% 28%,#D9B778,#A0763A 68%,#84642F); box-shadow:0 16px 34px -14px #5a3c2090,inset 0 0 0 5px #ffffff24; transform:rotate(-8deg); }
+        .number-seal strong { font:28px/1 var(--serif); }
+        .number-seal span { margin-top:8px; font:8px var(--mono); letter-spacing:.14em; text-transform:uppercase; }
+        .art-caption { padding-top:14px; color:var(--muted); font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+        .manifesto { background:var(--forest); color:var(--cream); }
+        .manifesto-inner { padding-top:78px; padding-bottom:78px; display:flex; flex-direction:column; align-items:flex-start; gap:21px; }
+        .manifesto .eyebrow { color:var(--gold); }
+        .manifesto h2 { max-width:930px; margin:0; font:italic 400 clamp(32px,4.1vw,51px)/1.22 var(--serif); }
+        .manifesto p { max-width:590px; margin:0; color:#C9C4B4; font-size:14px; line-height:1.9; }
+        .manifesto-images { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; width:100%; margin-top:14px; }
+        .manifesto-images img { width:100%; height:220px; object-fit:cover; background:#394335; }
+        .manifesto-note { color:var(--gold); font:9px var(--mono); letter-spacing:.16em; text-transform:uppercase; }
+        .section { padding:88px 0; border-bottom:1px solid var(--border); }
+        .section-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:30px; margin-bottom:38px; }
+        .section-heading h2, .services h2, .process h2 { max-width:760px; margin:14px 0 0; font:400 clamp(32px,3.7vw,46px)/1.1 var(--serif); letter-spacing:-.015em; }
+        .section-heading > p { max-width:390px; margin:0; color:var(--muted); font-size:14px; line-height:1.8; }
+        .rooms { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+        .room { min-height:430px; position:relative; display:flex; align-items:flex-end; overflow:hidden; isolation:isolate; background:var(--forest); color:var(--cream); }
+        .room > img { position:absolute; z-index:-2; inset:0; width:100%; height:100%; object-fit:cover; opacity:.78; transition:transform .7s; }
+        .room:hover > img { transform:scale(1.055); }
+        .room-shade { position:absolute; z-index:-1; inset:0; background:linear-gradient(180deg,#14180d05 10%,#171b13c9 75%,#171b13f2 100%); }
+        .room-copy { padding:27px; width:100%; }
+        .room-count { color:#E3BA7C; font:9px var(--mono); letter-spacing:.13em; text-transform:uppercase; }
+        .room-copy h3 { margin:12px 0 10px; font:34px/1.05 var(--serif); }
+        .room-copy p { max-width:310px; margin:0 0 19px; color:#E3DDCF; font-size:12px; line-height:1.8; }
+        .room-link { color:#E3BA7C; font:9px var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+        .product-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+        .product { min-width:0; background:var(--card); border:1px solid var(--border); transition:transform .25s,box-shadow .25s; }
+        .product:hover { transform:translateY(-4px); box-shadow:0 14px 30px #241e140d; }
+        .product-image-wrap { position:relative; overflow:hidden; background:var(--subtle); }
+        .product-image { width:100%; height:300px; object-fit:cover; transition:transform .5s; }
+        .product:hover .product-image { transform:scale(1.025); }
+        .product-flag { position:absolute; top:13px; left:13px; padding:7px 9px; background:var(--bg); color:var(--ochre); font:8px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+        .product-info { padding:19px; }
+        .product-category { color:var(--ochre); font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+        .product-name { margin:10px 0; font:23px/1.15 var(--serif); overflow-wrap:anywhere; }
+        .product-description { min-height:42px; margin:0; color:var(--muted); font-size:12px; line-height:1.75; }
+        .product-bottom { display:flex; justify-content:space-between; align-items:center; gap:12px; border-top:1px dashed var(--border); margin-top:16px; padding-top:14px; }
+        .price { font:12px var(--mono); }
+        .product-status { color:var(--ochre); font:8px var(--mono); letter-spacing:.08em; text-transform:uppercase; text-align:right; }
+        .empty { grid-column:1/-1; padding:35px; border:1px dashed var(--border); color:var(--muted); font-size:14px; line-height:1.8; }
+        .text-link { display:inline-flex; align-items:center; gap:10px; margin-top:28px; color:var(--ochre); font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+        .text-link:hover { color:var(--ink); }
+        .services { background:var(--subtle); border-bottom:1px solid var(--border); }
+        .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center; padding-top:80px; padding-bottom:80px; }
+        .services h2 { margin-top:18px; }
+        .services-copy p { max-width:500px; color:var(--muted); font-size:14px; line-height:1.9; }
+        .service-list { border-top:1px solid var(--border); }
+        .service-item { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:19px 0; border-bottom:1px solid var(--border); }
+        .service-item strong { font:20px var(--serif); font-weight:400; }
+        .service-item span { color:var(--muted); font:9px/1.6 var(--mono); text-align:right; }
+        .process-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:38px; }
+        .process-card { background:var(--card); padding:32px 27px; }
+        .process-number { color:var(--ochre); font:10px var(--mono); letter-spacing:.12em; }
+        .process-card h3 { margin:17px 0 12px; font:23px/1.2 var(--serif); font-weight:400; }
+        .process-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.85; }
+        .hundred { background:var(--forest); color:var(--cream); border-bottom:1px solid var(--border); }
+        .hundred-grid { display:grid; grid-template-columns:1fr .9fr; align-items:center; gap:65px; padding-top:86px; padding-bottom:86px; }
+        .hundred .eyebrow { color:var(--gold); }
+        .hundred h2 { max-width:620px; margin:17px 0; font:400 clamp(32px,3.8vw,45px)/1.12 var(--serif); }
+        .hundred-copy p { max-width:510px; color:#C9C4B4; font-size:14px; line-height:1.9; }
+        .hundred .btn { margin-top:12px; background:var(--gold); border-color:var(--gold); color:var(--ink); }
+        .hundred .btn:hover { background:#E3BA7C; border-color:#E3BA7C; }
+        .hundred-card { padding:30px; border:1px solid #ffffff2b; background:#ffffff08; }
+        .hundred-stat { display:flex; justify-content:space-between; gap:18px; padding:16px 0; border-bottom:1px dashed #ffffff2b; color:#EFEAE1; font-size:12px; }
+        .hundred-stat:last-child { border-bottom:0; }
+        .reservation-form { margin-top:28px; padding:24px; border:1px solid #ffffff2b; background:#ffffff08; }
+        .reservation-form h3 { margin:0 0 8px; font:400 25px/1.2 var(--serif); }
+        .reservation-form > p { margin:0 0 20px; color:#C9C4B4; font-size:12px; line-height:1.8; }
+        .reservation-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .reservation-field { display:flex; flex-direction:column; gap:7px; }
+        .reservation-field.full { grid-column:1/-1; }
+        .reservation-field label { color:#E3BA7C; font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+        .reservation-field input, .reservation-field select, .reservation-field textarea { width:100%; min-height:44px; padding:12px; border:1px solid #ffffff38; border-radius:0; background:#172116; color:#F5F1E6; font:12px var(--sans); outline:none; }
+        .reservation-field textarea { min-height:80px; resize:vertical; }
+        .reservation-field input:focus, .reservation-field select:focus, .reservation-field textarea:focus { border-color:var(--gold); }
+        .reservation-submit { width:100%; margin-top:16px; padding:14px 18px; border:1px solid var(--gold); background:var(--gold); color:var(--ink); cursor:pointer; font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+        .reservation-submit:hover { background:#E3BA7C; }
+        .reservation-note { margin-top:12px !important; font:9px/1.7 var(--mono) !important; color:#BEB8A8 !important; }
+        .reservation-message { margin:0 0 16px; padding:12px; border:1px solid #C69C5C; color:#F5F1E6; font-size:12px; line-height:1.6; }
+        .hundred-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+        .hundred .reserve-open { margin-top:12px; background:transparent; color:var(--cream); border-color:#C69C5C; cursor:pointer; }
+        .hundred .reserve-open:hover { background:#ffffff12; border-color:#E3BA7C; }
+        .reserve-modal { position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(14,20,14,.76); backdrop-filter:blur(7px); }
+        .reserve-modal.is-open { display:flex; }
+        .reserve-dialog { position:relative; width:min(590px,100%); max-height:min(90vh,850px); overflow:auto; padding:32px; background:var(--forest); color:var(--cream); border:1px solid #C69C5C80; box-shadow:0 28px 90px #0005; animation:reserve-in .22s ease-out; }
+        @keyframes reserve-in { from { opacity:0; transform:translateY(12px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .reserve-dialog-head { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:22px; }
+        .reserve-dialog h3 { margin:10px 0 8px; font:400 clamp(26px,4vw,34px)/1.15 var(--serif); }
+        .reserve-dialog-intro { margin:0; color:#C9C4B4; font-size:12px; line-height:1.8; }
+        .reserve-close { flex:0 0 auto; width:38px; height:38px; border:1px solid #ffffff35; background:transparent; color:var(--cream); font-size:23px; cursor:pointer; }
+        .reserve-close:hover { border-color:var(--gold); color:var(--gold); }
+        .reserve-success { position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(14,20,14,.72); backdrop-filter:blur(7px); }
+        .reserve-success.is-open { display:flex; }
+        .success-card { width:min(420px,100%); padding:36px 30px; background:var(--card); color:var(--ink); border:1px solid var(--border); text-align:center; box-shadow:0 25px 80px #0004; animation:reserve-in .22s ease-out; }
+        .success-tick { width:64px; height:64px; margin:0 auto 20px; display:grid; place-items:center; border-radius:50%; background:#E3EBDD; border:1px solid #AFC2A7; color:#315A3A; }
+        .success-tick svg { width:30px; height:30px; stroke:currentColor; stroke-width:2.5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+        .success-card h3 { margin:0 0 10px; font:400 29px/1.2 var(--serif); }
+        .success-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.8; }
+        .success-card .btn { margin-top:22px; width:100%; background:var(--ink); color:var(--bg); cursor:pointer; }
+        .django-flash { display:none; }
+
+        .hundred-stat span:last-child { color:var(--gold); font:9px var(--mono); letter-spacing:.06em; text-align:right; }
+        footer { padding:55px 0 28px; }
+        .footer-main { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:40px; padding-bottom:40px; }
+        .footer-brand { font:600 27px var(--serif); letter-spacing:.12em; }
+        .footer-tagline { margin-top:10px; color:var(--muted); font:9px var(--mono); letter-spacing:.06em; }
+        .footer-columns { display:flex; flex-wrap:wrap; gap:55px; }
+        .footer-col { display:flex; flex-direction:column; gap:12px; min-width:110px; }
+        .footer-col strong { margin-bottom:3px; color:var(--ochre); font:9px var(--mono); letter-spacing:.13em; text-transform:uppercase; }
+        .footer-col a { color:var(--muted); font-size:12px; }
+        .footer-col a:hover { color:var(--ink); }
+        .footer-bottom { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-top:22px; border-top:1px solid var(--border); color:var(--muted); font:9px var(--mono); letter-spacing:.04em; }
+        @media (max-width:1050px) {
+            .nav { padding:16px 24px; gap:18px; flex-wrap:wrap; }
+            .nav-links { gap:15px; }
+            .nav-actions { gap:10px; }
+            .wrap { padding-left:26px; padding-right:26px; }
+            .hero-grid { gap:38px; padding-top:75px; padding-bottom:80px; }
+            .hero-image { height:470px; }
+            .rooms { gap:14px; }
+            .room { min-height:390px; }
+            .room-copy { padding:21px; }
+            .services-grid,.hundred-grid { gap:40px; }
+        }
+        @media (max-width:760px) {
+            .nav { padding:14px 20px; }
+            .nav-toggle { display:block; margin-left:auto; }
+            .nav-links { display:none; order:4; width:100%; padding:13px 0 4px; border-top:1px solid var(--border); }
+            .nav-links.open { display:flex; flex-wrap:wrap; }
+            .nav-actions { margin-left:auto; }
+            .nav-actions .insolo-link { display:none; }
+            .nav-actions .bag-link { padding:10px 11px; }
+            .nav-actions .orders-link { display:none; }
+            .wrap { padding-left:22px; padding-right:22px; }
+            .hero-grid,.services-grid,.hundred-grid { grid-template-columns:1fr; gap:35px; }
+            .hero-grid { padding-top:58px; padding-bottom:65px; }
+            h1 { font-size:clamp(43px,10vw,68px); }
+            .hero-copy > p { font-size:14px; }
+            .hero-image { height:430px; }
+            .hero-inset { width:112px; height:145px; right:-2px; top:-15px; }
+            .number-seal { width:105px; height:105px; left:-10px; }
+            .number-seal strong { font-size:24px; }
+            .manifesto-inner { padding-top:60px; padding-bottom:60px; }
+            .manifesto-images img { height:150px; }
+            .section { padding:65px 0; }
+            .section-heading { align-items:flex-start; flex-direction:column; gap:15px; margin-bottom:28px; }
+            .rooms,.product-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .room { min-height:350px; }
+            .room-copy { padding:18px; }
+            .room-copy h3 { font-size:29px; }
+            .product-image { height:230px; }
+            .services-grid,.hundred-grid { padding-top:62px; padding-bottom:62px; }
+            .process-grid { grid-template-columns:1fr; }
+            .process-card { padding:27px; }
+            .footer-columns { gap:30px; }
+        }
+        @media (max-width:520px) {
+            .logo { font-size:21px; }
+            .nav-actions .register-link { padding:10px 11px; }
+            .nav-actions { gap:8px; }
+            .hero-image { height:340px; }
+            .hero-actions { width:100%; }
+            .hero-actions .btn { flex:1 1 100%; }
+            .manifesto-images { grid-template-columns:1fr 1fr; gap:10px; }
+            .manifesto-images img { height:135px; }
+            .manifesto-images img:last-child { display:none; }
+            .rooms,.product-grid { grid-template-columns:1fr; }
+            .room { min-height:390px; }
+            .product-image { height:300px; }
+            .service-item { align-items:flex-start; }
+            .service-item strong { font-size:18px; }
+            .service-item span { max-width:48%; }
+            .hundred-card { padding:20px; }
+            .reservation-form { padding:18px; }
+            .reservation-fields { grid-template-columns:1fr; }
+            .reservation-field.full { grid-column:auto; }
+            .footer-columns { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+            .footer-bottom { flex-direction:column; }
+        }
+        @media (prefers-reduced-motion:reduce) {
+            html { scroll-behavior:auto; }
+            *,*::before,*::after { transition:none !important; }
+        }
+        .btn {
+                font-size: 9px;
+                padding: 8px 11px;
+            }
+
+    </style>
+</head>
+<body>
+<header class="site-header">
+    <div class="nav">
+        <a href="{% url 'customer_home' %}" class="logo">UNCOMMON<span>.</span></a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" onclick="toggleNav(this)">Menu ☰</button>
+        <nav class="nav-links" id="primary-nav">
+            <a href="#catalogue">The Rooms</a>
+            <a href="#services">Services</a>
+            <a href="#process">How It Works</a>
+            <a href="#hundred">The Hundred</a>
+        </nav>
+        <div class="nav-actions">
+            <a class="insolo-link" href="{% url 'section_products' 'HER' %}">INSOLO — for her ↗</a>
+            <a class="orders-link" href="/my-orders/" aria-label="View my orders">My Orders <span aria-hidden="true">↗</span></a>
+            <a class="bag-link" href="/bag/" aria-label="Open shopping bag">Bag <span aria-hidden="true">·</span> <span class="bag-count">0</span></a>
+            {% if customer %}
+                <span class="muted account-greeting" style="font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase">Hello, {{ customer.name }}</span>
+                 <form
+                action="{% url 'admin_logout' %}"
+                method="POST"
+                style="margin: 0;">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn">
+
+                    Logout
+
+                </button>
+
+            </form>
+            {% else %}
+                <a class="sign-in-link" href="{% url 'login' %}">Sign in</a>
+                <a class="register-link" href="{% url 'customer_register' %}">Register</a>
+            {% endif %}
+            
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="hero" id="top">
+        <div class="wrap hero-grid">
+            <div class="hero-copy">
+                <div class="eyebrow">Made once · Numbered to one name</div>
+                <h1>Not made for the many.<br><em>Made for one man. You.</em></h1>
+                <p>You have spent enough time owning what everyone else owns. Discover considered objects, uncommon details, and limited pieces chosen to feel distinctly yours.</p>
+                <div class="hero-actions">
+                    <a href="#catalogue" class="btn btn-dark">Enter the catalogue <span aria-hidden="true">→</span></a>
+                    <a href="#process" class="btn btn-outline">How buying works</a>
+                </div>
+                <div class="hero-note">Priced plainly on every shelf. A piece in your bag is held — invisible to every other buyer.</div>
+            </div>
+            <div class="hero-art">
+                <img class="hero-image" src="https://picsum.photos/id/91/1000/1100" alt="Editorial still life for the UNCOMMON collection" fetchpriority="high">
+                <img class="hero-inset" src="https://picsum.photos/id/145/500/640" alt="" loading="lazy">
+                <div class="number-seal"><strong>No. 001</strong><span>Yours alone</span></div>
+                <div class="art-caption">UNCOMMON — Objects beyond the ordinary</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="manifesto">
+        <div class="wrap manifesto-inner">
+            <div class="eyebrow">The UNCOMMON position</div>
+            <h2>You were never the target audience. You are the audience of one.</h2>
+            <p>Mass luxury is a contradiction. Discover pieces selected for him, explore INSOLO for her, or enter The Hundred for rare and limited finds. Each collection has its own character. The question is never what is popular. The question is what is yours.</p>
+            <div class="manifesto-images" aria-label="A glimpse into the collection">
+                <img src="https://picsum.photos/id/838/600/500" alt="Craft and materials" loading="lazy">
+                <img src="https://picsum.photos/id/447/600/500" alt="Details from the collection" loading="lazy">
+                <img src="https://picsum.photos/id/653/600/500" alt="Objects chosen with intention" loading="lazy">
+            </div>
+            <div class="manifesto-note">For the ones who stopped waiting to be the target audience.</div>
+        </div>
+    </section>
+
+    <section class="section" id="catalogue">
+        <div class="wrap">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">Three doors</div>
+                    <h2>Choose the room that already sounds like you.</h2>
+                </div>
+                <p>Three ways into the collection. Each opens onto its own point of view, with pieces chosen for individuality rather than the crowd.</p>
+            </div>
+            <div class="rooms">
+                <a class="room" href="{% url 'section_products' 'HIM' %}">
+                    <img src="https://picsum.photos/seed/uncommon-him/700/900" alt="Explore the UNCOMMON collection for him" loading="lazy">
+                    <div class="room-shade"></div>
+                    <div class="room-copy">
+                        <div class="room-count">Room 01 · {{ him_count }} available</div>
+                        <h3>Him.</h3>
+                        <p>Distinctive objects, considered details, and everyday essentials with a point of view.</p>
+                        <span class="room-link">Enter UNCOMMON for him →</span>
+                    </div>
+                </a>
+                <a class="room" href="{% url 'section_products' 'HER' %}">
+                    <img src="https://picsum.photos/seed/insolo-her/700/900" alt="Explore INSOLO for her" loading="lazy">
+                    <div class="room-shade"></div>
+                    <div class="room-copy">
+                        <div class="room-count">Room 02 · {{ her_count }} available</div>
+                        <h3>INSOLO — Her.</h3>
+                        <p>A separate point of view. Pieces chosen with individuality and quiet confidence in mind.</p>
+                        <span class="room-link">Enter INSOLO →</span>
+                    </div>
+                </a>
+                <a class="room" href="{% url 'section_products' 'RARE' %}">
+                    <img src="https://picsum.photos/seed/uncommon-hundred/700/900" alt="Explore rare and limited pieces in The Hundred" loading="lazy">
+                    <div class="room-shade"></div>
+                    <div class="room-copy">
+                        <div class="room-count">Room 03 · {{ rare_count }} available</div>
+                        <h3>The Hundred.</h3>
+                        <p>Rare finds and limited pieces, gathered in one carefully selected collection.</p>
+                        <span class="room-link">Discover the rare →</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="beginnings">
+        <div class="wrap">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">Noted in the register</div>
+                    <h2>Where it usually begins.</h2>
+                </div>
+                <p>No one plans their first number. It tends to find them — most often among the pieces below.</p>
+            </div>
+            <div class="product-grid">
+                {% for product in featured_products %}
+                    <article class="product">
+                        <a href="{% url 'section_products' product.category.section %}" aria-label="Explore {{ product.product_name }}">
+                            <div class="product-image-wrap">
+                                {% if product.image %}
+                                    <img class="product-image" src="{{ product.image.url }}" alt="{{ product.product_name }}" loading="lazy">
+                                {% else %}
+                                    <img class="product-image" src="https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700" alt="{{ product.product_name }}" loading="lazy">
+                                {% endif %}
+                                {% if product.is_rare or product.is_limited %}
+                                    <span class="product-flag">Rare / Limited</span>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <div class="product-category">{{ product.category.get_section_display }} · {{ product.category.category_name }}</div>
+                                <h3 class="product-name">{{ product.product_name }}</h3>
+                                <p class="product-description">{{ product.description|default:"A considered addition to the collection."|truncatewords:18 }}</p>
+                                <div class="product-bottom">
+                                    <span class="price">₹{{ product.price|floatformat:2 }}</span>
+                                    <span class="product-status">{% if product.stock > 0 %}Available{% else %}Out of stock{% endif %}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                {% empty %}
+                    <div class="empty">The catalogue is being prepared. Products added by the UNCOMMON team will appear here.</div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'section_products' 'HIM' %}" class="text-link">Browse the full catalogue <span aria-hidden="true">→</span></a>
+        </div>
+    </section>
+
+    <section class="services" id="services">
+        <div class="wrap services-grid">
+            <div class="services-copy">
+                <div class="eyebrow">Services · The story, nurtured</div>
+                <h2>A service is not an add-on. It is the next chapter of the story.</h2>
+                <p>Every piece has a story — its material, its making, its details. Thoughtful care and personal touches help that story stay with you. These are ideas for services that can sit alongside the collection as the house grows.</p>
+            </div>
+            <div class="service-list">
+                <div class="service-item"><strong>Monogramming</strong><span>Make the piece your own · Personal detail</span></div>
+                <div class="service-item"><strong>Signature Blend</strong><span>A scent with a point of view · Fragrance</span></div>
+                <div class="service-item"><strong>Patina Care</strong><span>Let the material age well · Leather care</span></div>
+                <div class="service-item"><strong>Heirloom Registry</strong><span>Keep the story with the piece · Registry</span></div>
+                <div class="service-item"><strong>The Host's Evening</strong><span>Objects made for gathering · The bar</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section process" id="process">
+        <div class="wrap">
+            <div class="eyebrow">A quiet way to buy</div>
+            <h2>The journey should feel as considered as the piece.</h2>
+            <div class="process-grid">
+                <article class="process-card">
+                    <div class="process-number">I — DISCOVER</div>
+                    <h3>Find the piece that feels like yours.</h3>
+                    <p>Explore the rooms, review the details, and choose something that speaks to your own taste.</p>
+                </article>
+                <article class="process-card">
+                    <div class="process-number">II — YOUR BAG</div>
+                    <h3>Review your selection.</h3>
+                    <p>Check your selected items and quantities before moving to checkout. Stock is confirmed when the order is placed.</p>
+                </article>
+                <article class="process-card">
+                    <div class="process-number">III — THE ORDER</div>
+                    <h3>Place your order with confidence.</h3>
+                    <p>Provide your delivery details and review the total before confirming your purchase.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="hundred" id="hundred">
+        <div class="wrap hundred-grid">
+            <div class="hundred-copy">
+                <div class="eyebrow">The Hundred — rare & limited</div>
+                <h2>Not everything is made to stay available.</h2>
+                <p>Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
+                <div class="hundred-actions">
+                    <a href="{% url 'section_products' 'RARE' %}" class="btn">Explore available pieces <span aria-hidden="true">→</span></a>
+                    <button type="button" class="btn reserve-open" data-open-reservation>Reserve an upcoming release <span aria-hidden="true">↗</span></button>
+                </div>
+            </div>
+            <div>
+                <div class="hundred-card">
+                    <div class="hundred-stat"><span>Collection</span><span>The Hundred</span></div>
+                    <div class="hundred-stat"><span>Rare and limited pieces</span><span>{{ rare_count }} AVAILABLE</span></div>
+                    <div class="hundred-stat"><span>Upcoming releases</span><span>RESERVATION REQUESTS</span></div>
+                    <div class="hundred-stat"><span>Confirmation</span><span>BY EMAIL</span></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Reservation request modal -->
+<div class="reserve-modal" id="reservation-modal" aria-hidden="true">
+    <section class="reserve-dialog" role="dialog" aria-modal="true" aria-labelledby="reserve-dialog-title">
+        <div class="reserve-dialog-head">
+            <div>
+                <div class="eyebrow">The Hundred · Early interest</div>
+                <h3 id="reserve-dialog-title">Be considered for what comes next.</h3>
+                <p class="reserve-dialog-intro">Leave your details for an upcoming release. We’ll email an acknowledgement when your request has been received. This is not a purchase or a guarantee of availability.</p>
+            </div>
+            <button type="button" class="reserve-close" data-close-reservation aria-label="Close reservation form">×</button>
+        </div>
+        <form method="post" action="{% url 'upcoming_reservation' %}" id="upcoming-reservation-form">
+            {% csrf_token %}
+            <div class="reservation-fields">
+                <div class="reservation-field">
+                    <label for="reservation-name">Your name</label>
+                    <input
+                        id="reservation-name"
+                        name="name"
+                        type="text"
+                        placeholder="Your name"
+                        value="{{ customer.name|default:'' }}"
+                        autocomplete="name"
+                        maxlength="120"
+                        {% if customer %}readonly{% else %}required{% endif %}
+                    >
+                </div>
+
+                <div class="reservation-field">
+                    <label for="reservation-email">Email address</label>
+                    <input
+                        id="reservation-email"
+                        name="email"
+                        type="email"
+                        placeholder="Your email address"
+                        value="{{ customer.email|default:'' }}"
+                        autocomplete="email"
+                        maxlength="254"
+                        {% if customer %}readonly{% else %}required{% endif %}
+                    >
+                </div>
+                <div class="reservation-field full">
+                    <label for="reservation-interest">What are you waiting for?</label>
+                    <select id="reservation-interest" name="interest" required>
+                        <option value="" selected disabled>Select an upcoming collection</option>
+                        <option value="The Hundred — next rare release">The Hundred — next rare release</option>
+                        <option value="Limited-edition product">A limited-edition piece</option>
+                        <option value="New product launch">A new product launch</option>
+                        <option value="Any upcoming release">Any upcoming release</option>
+                    </select>
+                </div>
+                <div class="reservation-field full">
+                    <label for="reservation-note">A note for the house <span style="color:#BEB8A8">(optional)</span></label>
+                    <textarea id="reservation-note" name="note" maxlength="1000" placeholder="Tell us what caught your attention…"></textarea>
+                </div>
+            </div>
+            <button class="reservation-submit" type="submit">Send reservation request →</button>
+            <p class="reservation-note">No payment is taken. We’ll send an email acknowledgement to the address you provide.</p>
+        </form>
+    </section>
+</div>
+
+<!-- Success / status alert populated from Django messages -->
+<div class="reserve-success" id="reservation-alert" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="reservation-alert-title">
+    <div class="success-card">
+        <div class="success-tick" id="reservation-alert-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div>
+        <h3 id="reservation-alert-title">Request received.</h3>
+        <p id="reservation-alert-text">Your reservation request has been recorded.</p>
+        <button type="button" class="btn" id="reservation-alert-close">Lovely, thank you</button>
+    </div>
+</div>
+<div class="django-flash" id="django-flash" aria-live="polite">
+    {% if messages %}{% for message in messages %}<div data-level="{{ message.tags|default:'info' }}">{{ message|escape }}</div>{% endfor %}{% endif %}
+    {% if reservation_success %}<div data-level="success">{{ reservation_success|escape }}</div>{% endif %}
+    {% if reservation_error %}<div data-level="error">{{ reservation_error|escape }}</div>{% endif %}
+</div>
+
+<footer>
+    <div class="wrap">
+        <div class="footer-main">
+            <div>
+                <a href="{% url 'customer_home' %}" class="footer-brand">UNCOMMON<span style="color:var(--forest)">.</span></a>
+                <div class="footer-tagline">Made once. Numbered to you.</div>
+            </div>
+            <div class="footer-columns">
+                <div class="footer-col">
+                    <strong>Collections</strong>
+                    <a href="{% url 'section_products' 'HIM' %}">For Him</a>
+                    <a href="{% url 'section_products' 'HER' %}">INSOLO — For Her</a>
+                    <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
+                </div>
+                <div class="footer-col">
+                    <strong>The House</strong>
+                    <a href="#process">How buying works</a>
+                    <a href="#services">Services</a>
+                    <a href="#hundred">The Hundred</a>
+                </div>
+                <div class="footer-col">
+                    <strong>Your account</strong>
+                    {% if customer %}
+                        <span class="muted" style="font-size:12px">Signed in as {{ customer.name }}</span>
+                    {% else %}
+                        <a href="{% url 'login' %}">Sign in</a>
+                        <a href="{% url 'customer_register' %}">Create an account</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 UNCOMMON — Made for one.</span>
+            <span>Considered objects. Uncommon details.</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function toggleNav(button) {
+        const nav = document.getElementById('primary-nav');
+        const isOpen = nav.classList.toggle('open');
+        button.setAttribute('aria-expanded', String(isOpen));
+        button.textContent = isOpen ? 'Close ×' : 'Menu ☰';
+    }
+
+    (() => {
+        const modal = document.getElementById('reservation-modal');
+        const alertBox = document.getElementById('reservation-alert');
+        const alertTitle = document.getElementById('reservation-alert-title');
+        const alertText = document.getElementById('reservation-alert-text');
+        const alertIcon = document.getElementById('reservation-alert-icon');
+        const closeAlert = document.getElementById('reservation-alert-close');
+        let lastFocus = null;
+
+        function openModal() {
+            lastFocus = document.activeElement;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            window.setTimeout(() => document.getElementById('reservation-name')?.focus(), 50);
+        }
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            if (lastFocus) lastFocus.focus();
+        }
+        function closeAlertBox() {
+            alertBox.classList.remove('is-open');
+            alertBox.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+        document.querySelectorAll('[data-open-reservation]').forEach(btn => btn.addEventListener('click', openModal));
+        document.querySelectorAll('[data-close-reservation]').forEach(btn => btn.addEventListener('click', closeModal));
+        modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
+        closeAlert.addEventListener('click', closeAlertBox);
+        alertBox.addEventListener('click', event => { if (event.target === alertBox) closeAlertBox(); });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                if (alertBox.classList.contains('is-open')) closeAlertBox();
+                else if (modal.classList.contains('is-open')) closeModal();
+            }
+        });
+
+        const flash = document.getElementById('django-flash');
+        const message = flash?.querySelector('[data-level]');
+        if (message) {
+            const level = (message.dataset.level || 'info').toLowerCase();
+            const text = message.textContent.trim();
+            const success = level.includes('success');
+            alertTitle.textContent = success ? 'Request received.' : 'A small update.';
+            alertText.textContent = text || (success ? 'Your request has been recorded.' : 'Please check your details and try again.');
+            if (!success) {
+                alertIcon.style.background = '#F5E8D9';
+                alertIcon.style.borderColor = '#D9B78A';
+                alertIcon.style.color = '#8A5A22';
+                alertIcon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 8v5m0 3h.01"/><circle cx="12" cy="12" r="9"/></svg>';
+                closeAlert.textContent = 'Got it';
+            }
+            alertBox.classList.add('is-open');
+            alertBox.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+    })();
+</script>
+</body>
+</html>
