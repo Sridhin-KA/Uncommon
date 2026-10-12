@@ -7,6 +7,9 @@ from django.db.models.deletion import ProtectedError
 from customer.models import *
 import json
 from customer.models import *
+from django.core.mail import send_mail
+from django.conf import settings
+from decimal import Decimal, InvalidOperation
 # Create your views here.
 
 
@@ -65,6 +68,8 @@ def admin_index(request):
 
     total_products = Product.objects.count()
     total_categories = Category.objects.count()
+    total_customers = Customer.objects.count()
+    total_orders = Order.objects.count()
 
     return render(
         request,
@@ -73,6 +78,8 @@ def admin_index(request):
             'admin': admin,
             'total_products': total_products,
             'total_categories': total_categories,
+            'total_customers': total_customers,
+            'total_orders': total_orders,
         }
     )
 
@@ -341,96 +348,208 @@ def view_products(request):
         }
     )
     
+
 def add_product(request):
-    
+
+    # Admin authentication
     if 'admin' not in request.session:
         return redirect('home')
 
-    if request.method == 'POST':
+    # Get submitted values
+    category_id = request.POST.get('category', '').strip()
+    product_name = request.POST.get('product_name', '').strip()
+    description = request.POST.get('description', '').strip()
+    price_input = request.POST.get('price', '').strip()
+    stock_input = request.POST.get('stock', '').strip()
+    image = request.FILES.get('image')
 
-        category_id = request.POST.get('category')
-        product_name = request.POST.get('product_name', '').strip()
-        description = request.POST.get('description', '').strip()
-        price = request.POST.get('price', '').strip()
-        stock = request.POST.get('stock', '').strip()
-        image = request.FILES.get('image')
+    is_rare = request.POST.get('is_rare') == 'on'
+    is_limited = request.POST.get('is_limited') == 'on'
 
-        is_rare = request.POST.get('is_rare') == 'on'
-        is_limited = request.POST.get('is_limited') == 'on'
+    # Validate required fields
+    if not category_id or not product_name:
+        messages.error(
+            request,
+            'Category and product name are required.'
+        )
+        return redirect('view_products')
 
-        if not category_id or not product_name:
-            messages.error(
-                request,
-                'Category and product name are required.'
-            )
-            return redirect('view_products')
+    if len(product_name) > 255:
+        messages.error(
+            request,
+            'Product name is too long.'
+        )
+        return redirect('view_products')
 
-        if not price:
-            messages.error(
-                request,
-                'Product price is required.'
-            )
-            return redirect('view_products')
+    if not price_input:
+        messages.error(
+            request,
+            'Product price is required.'
+        )
+        return redirect('view_products')
 
-        if not stock:
-            messages.error(
-                request,
-                'Product stock is required.'
-            )
-            return redirect('view_products')
+    if not stock_input:
+        messages.error(
+            request,
+            'Product stock is required.'
+        )
+        return redirect('view_products')
 
-        if not image:
-            messages.error(
-                request,
-                'Product image is required.'
-            )
-            return redirect('view_products')
+    if not image:
+        messages.error(
+            request,
+            'Product image is required.'
+        )
+        return redirect('view_products')
 
-        try:
-            category = Category.objects.get(
-                id=category_id
-            )
+    # Validate category, price and stock
+    try:
+        category = Category.objects.get(id=category_id)
 
-            price = float(price)
-            stock = int(stock)
+        price = Decimal(price_input)
+        stock = int(stock_input)
 
-            if price < 0:
-                raise ValueError
+        if not price.is_finite() or price < 0:
+            raise ValueError
 
-            if stock < 0:
-                raise ValueError
+        if stock < 0:
+            raise ValueError
 
-        except Category.DoesNotExist:
-            messages.error(
-                request,
-                'Selected category does not exist.'
-            )
-            return redirect('view_products')
+    except Category.DoesNotExist:
+        messages.error(
+            request,
+            'Selected category does not exist.'
+        )
+        return redirect('view_products')
 
-        except ValueError:
-            messages.error(
-                request,
-                'Please enter valid price and stock values.'
-            )
-            return redirect('view_products')
+    except (InvalidOperation, ValueError, TypeError):
+        messages.error(
+            request,
+            'Please enter valid price and stock values.'
+        )
+        return redirect('view_products')
 
-        Product.objects.create(
-            category=category,
-            product_name=product_name,
-            description=description,
-            price=price,
-            stock=stock,
-            image=image,
-            is_rare=is_rare,
-            is_limited=is_limited,
+    # Create the product
+    product = Product.objects.create(
+        category=category,
+        product_name=product_name,
+        description=description,
+        price=price,
+        stock=stock,
+        image=image,
+        is_rare=is_rare,
+        is_limited=is_limited,
+    )
+
+    messages.success(
+        request,
+        f'"{product.product_name}" added successfully.'
+    )
+
+    # Send availability notifications only when stock is available
+    if product.stock <= 0:
+        messages.info(
+            request,
+            'The product has no stock yet, so subscriber emails were not sent.'
+        )
+        return redirect('view_products')
+
+    # Build the list of matching subscriber interests
+    matching_interests = [
+        'New product launch',
+        'Any upcoming release',
+    ]
+
+    if product.is_rare:
+        matching_interests.append(
+            'The Hundred — next rare release'
         )
 
+    if product.is_limited:
+        matching_interests.append(
+            'Limited-edition product'
+        )
+
+    # Get matching subscribers
+    subscribers = UpcomingReservation.objects.filter(
+        interest__in=matching_interests
+    ).order_by('id')
+
+    # Notify each email address only once for this product creation
+    subscriber_emails = (
+        subscribers
+        .values_list('email', flat=True)
+        .distinct()
+    )
+
+    email_sent = 0
+    email_failed = 0
+
+    subject = (
+        f'INSOLO UNCOMMON | New Release: {product.product_name}'
+    )
+
+    for email in subscriber_emails:
+
+        # Find a subscriber record for the greeting
+        subscriber = subscribers.filter(
+            email=email
+        ).first()
+
+        customer_name = subscriber.name if subscriber else 'Customer'
+
+        body = f"""
+Hello {customer_name},
+
+Good news! A new product matching your interests is now available.
+
+Product: {product.product_name}
+Price: ₹{product.price}
+
+Your interest: {subscriber.interest if subscriber else 'Upcoming release'}
+
+Visit INSOLO UNCOMMON to explore our latest collection.
+
+Thank you for your interest.
+
+INSOLO UNCOMMON — The House
+        """.strip()
+
+        try:
+            send_mail(
+                subject=subject,
+                message=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+            email_sent += 1
+
+        except Exception:
+            email_failed += 1
+
+    # Report notification results to the admin
+    if email_sent:
         messages.success(
             request,
-            f'"{product_name}" added successfully.'
+            f'Availability notification sent to {email_sent} subscriber(s).'
+        )
+
+    if email_failed:
+        messages.warning(
+            request,
+            f'{email_failed} notification email(s) could not be sent.'
+        )
+
+    if email_sent == 0 and email_failed == 0:
+        messages.info(
+            request,
+            'No subscribers matched this product.'
         )
 
     return redirect('view_products')
+
 
 def edit_product(request, id):
     
@@ -831,17 +950,11 @@ def update_order_status(request, id):
     if 'admin' not in request.session:
         return redirect('home')
 
-    order = get_object_or_404(
-        Order,
-        id=id
-    )
+    order = get_object_or_404(Order, id=id)
 
     if request.method == 'POST':
 
-        new_status = request.POST.get(
-            'status',
-            ''
-        ).strip()
+        new_status = request.POST.get('status', '').strip()
 
         valid_statuses = [
             'PENDING',
@@ -852,25 +965,99 @@ def update_order_status(request, id):
         ]
 
         if new_status not in valid_statuses:
+            messages.error(request, 'Invalid order status.')
+            return redirect('view_orders')
 
-            messages.error(
+        old_status = order.status
+
+        # Update only if the status has actually changed.
+        if new_status == old_status:
+            messages.info(
                 request,
-                'Invalid order status.'
+                'The order already has this status.'
             )
-
             return redirect('view_orders')
 
         order.status = new_status
+        order.save(update_fields=['status', 'updated_at'])
 
-        order.save()
+        # Get the customer's email address.
+        customer_email = order.customer.email
 
-        messages.success(
-            request,
-            f'Order {order.order_number} status updated to '
-            f'{order.get_status_display()}.'
-        )
+        if customer_email:
+            status_messages = {
+                'PENDING': (
+                    'Your order is pending.',
+                    'We have received your order and it is awaiting confirmation.'
+                ),
+                'CONFIRMED': (
+                    'Your order has been confirmed!',
+                    'Great news! Your order has been confirmed and is being prepared.'
+                ),
+                'SHIPPED': (
+                    'Your order has been shipped!',
+                    'Your order is on its way. We will keep you updated.'
+                ),
+                'DELIVERED': (
+                    'Your order has been delivered!',
+                    'Your order has been marked as delivered. We hope you love your purchase!'
+                ),
+                'CANCELLED': (
+                    'Your order has been cancelled.',
+                    'Your order has been cancelled. Please contact us if you need assistance.'
+                ),
+            }
 
-    return redirect('view_orders')  
+            subject_text, message_text = status_messages[new_status]
+
+            subject = f'UNCOMMON | {subject_text}'
+
+            email_body = f"""
+Hello {getattr(order.customer, 'name', '') or 'Customer'},
+
+{message_text}
+
+Order Number: {order.order_number}
+Order Total: ₹{order.total_amount}
+Current Status: {order.get_status_display()}
+
+Thank you for choosing UNCOMMON.
+
+Regards,
+ UNCOMMON Team
+            """.strip()
+
+            try:
+                send_mail(
+                    subject=subject,
+                    message=email_body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[customer_email],
+                    fail_silently=False,
+                )
+
+                messages.success(
+                    request,
+                    f'Order status updated and email sent to {customer_email}.'
+                )
+
+            except Exception:
+                # The status is already saved even if email delivery fails.
+                messages.warning(
+                    request,
+                    'Order status updated, but the email could not be sent.'
+                )
+
+        else:
+            messages.warning(
+                request,
+                'Order status updated, but the customer has no email address.'
+            )
+
+        return redirect('view_orders')
+
+    return redirect('view_orders')
+
 def view_feedback(request):
     pass
 
