@@ -1079,3 +1079,31 @@ Regards,
 def view_feedback(request):
     pass
 
+
+
+from django.conf import settings
+from django.http import JsonResponse
+from django.core.mail import send_mail
+
+def test_email(request):
+    if 'admin' not in request.session:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    try:
+        sent = send_mail(
+            subject="Render Email Test",
+            message="Testing email from Django on Render.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.EMAIL_HOST_USER],
+            fail_silently=False,
+        )
+
+        return JsonResponse({"sent": sent})
+
+    except Exception as e:
+        import logging
+        logging.exception("Email test failed")
+        return JsonResponse({
+            "error": type(e).__name__,
+            "message": str(e),
+        }, status=500)

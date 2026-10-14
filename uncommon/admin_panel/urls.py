@@ -45,4 +45,5 @@ path(
     name='update_order_status'
 ),
     path('feedback/', view_feedback, name='view_feedback'),
+    path('test-email/', test_email, name='test_email'),
 ]
