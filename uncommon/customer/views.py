@@ -273,18 +273,11 @@ def get_bag(request):
     return request.session.get("bag", {})
 
 
+
 @require_POST
 def add_to_bag(request, product_id):
-    customer = get_logged_in_customer(request)
-
-    if not customer:
-        return JsonResponse({
-            "success": False,
-            "message": "Please log in to add products to your bag.",
-            "login_url": reverse("login"),
-        }, status=401)
-
     product = get_object_or_404(Product, id=product_id)
+
     bag = request.session.get("bag", {})
     key = str(product.id)
 
@@ -315,12 +308,9 @@ def add_to_bag(request, product_id):
         "bag_count": sum(int(qty) for qty in bag.values()),
     })
 
+
 def bag_view(request):
     customer = get_logged_in_customer(request)
-
-    if not customer:
-        messages.info(request, "Please log in to view your bag.")
-        return redirect("login")
 
     bag = request.session.get("bag", {})
     items = []
@@ -367,11 +357,7 @@ def bag_view(request):
 
 @require_POST
 def update_bag_quantity(request, product_id):
-    customer = get_logged_in_customer(request)
-
-    if not customer:
-        messages.info(request, "Please log in to manage your bag.")
-        return redirect("login")
+    
 
     bag = request.session.get("bag", {})
     product = get_object_or_404(Product, id=product_id)
@@ -420,11 +406,7 @@ def update_bag_quantity(request, product_id):
 
 @require_POST
 def remove_from_bag(request, product_id):
-    customer = get_logged_in_customer(request)
-
-    if not customer:
-        messages.info(request, "Please log in to manage your bag.")
-        return redirect("login")
+    
 
     bag = request.session.get("bag", {})
     key = str(product_id)
@@ -445,6 +427,10 @@ def checkout(request):
     customer = get_logged_in_customer(request)
 
     if not customer:
+        # Remember where the guest wants to go after login
+        request.session["next_after_login"] = "checkout"
+        request.session.modified = True
+
         messages.info(request, "Please log in before checkout.")
         return redirect("login")
 

@@ -18,10 +18,19 @@ def home(request):
 
 
 
+
+
 def login(request):
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
+
+        # Save guest bag and intended destination before login
+        guest_bag = request.session.get('bag', {})
+        next_page = request.session.get(
+            'next_after_login',
+            'customer_home'
+        )
 
         # 1. Check Admin
         try:
@@ -30,6 +39,7 @@ def login(request):
             if admin.password == password:
                 request.session.flush()
                 request.session['admin'] = admin.id
+
                 return redirect('admin_index')
 
         except Admin.DoesNotExist:
@@ -40,8 +50,17 @@ def login(request):
             customer = Customer.objects.get(email=email)
 
             if customer.password == password:
+                # Clear old session data
                 request.session.flush()
+
+                # Restore customer session
                 request.session['customer_id'] = customer.id
+                request.session['bag'] = guest_bag
+
+                # Redirect to the intended page
+                if next_page == 'checkout':
+                    return redirect('checkout')
+
                 return redirect('customer_home')
 
         except Customer.DoesNotExist:
@@ -55,7 +74,6 @@ def login(request):
         )
 
     return render(request, 'admin_panel/auth_page.html')
-
 
 def admin_index(request):
     
