@@ -3,7 +3,7 @@ from django.urls import path,include
 from admin_panel.views import *
 
 urlpatterns = [
-    path('first',home),
+    path('first',home,name='home'),
     path('login',login,name='login'),
     path('logout/', admin_logout, name='admin_logout'),
     path('index/', admin_index, name='admin_index'),
