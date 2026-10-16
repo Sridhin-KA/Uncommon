@@ -10,6 +10,8 @@ from customer.models import *
 from django.core.mail import send_mail
 from django.conf import settings
 from decimal import Decimal, InvalidOperation
+import logging
+import requests
 # Create your views here.
 
 
@@ -963,8 +965,11 @@ def view_orders(request):
         }
     )
     
+logger = logging.getLogger(__name__)
+
+
 def update_order_status(request, id):
-    
+
     if 'admin' not in request.session:
         return redirect('home')
 
@@ -1003,6 +1008,7 @@ def update_order_status(request, id):
         customer_email = order.customer.email
 
         if customer_email:
+
             status_messages = {
                 'PENDING': (
                     'Your order is pending.',
@@ -1042,28 +1048,57 @@ Current Status: {order.get_status_display()}
 Thank you for choosing UNCOMMON.
 
 Regards,
- UNCOMMON Team
+UNCOMMON Team
             """.strip()
 
             try:
-                send_mail(
-                    subject=subject,
-                    message=email_body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[customer_email],
-                    fail_silently=False,
+                # Check Brevo configuration.
+                api_key = settings.BREVO_API_KEY
+                sender_email = settings.BREVO_SENDER_EMAIL
+
+                if not api_key or not sender_email:
+                    raise ValueError(
+                        "Brevo API key or sender email is not configured."
+                    )
+
+                # Send email through Brevo HTTPS API.
+                response = requests.post(
+                    'https://api.brevo.com/v3/smtp/email',
+                    headers={
+                        'accept': 'application/json',
+                        'api-key': api_key,
+                        'content-type': 'application/json',
+                    },
+                    json={
+                        'sender': {
+                            'name': 'UNCOMMON Team',
+                            'email': sender_email,
+                        },
+                        'to': [
+                            {'email': customer_email}
+                        ],
+                        'subject': subject,
+                        'textContent': email_body,
+                    },
+                    timeout=15,
                 )
+
+                # Raise an exception for HTTP errors.
+                response.raise_for_status()
 
                 messages.success(
                     request,
-                    f'Order status updated and email sent to {customer_email}.'
+                    f'Order status updated and email submitted to Brevo for {customer_email}.'
                 )
 
             except Exception:
-                # The status is already saved even if email delivery fails.
+                logger.exception(
+                    "Failed to send order status email through Brevo"
+                )
+
                 messages.warning(
                     request,
-                    'Order status updated, but the email could not be sent.'
+                    'Order status updated, but the email could not be sent. Check server logs.'
                 )
 
         else:
