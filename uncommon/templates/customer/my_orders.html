@@ -1,4 +1,5 @@
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,91 +7,217 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders | INSOLO UNCOMMON</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --bg: #F3EEE4;
+            --card: #FBF8F1;
+            --ink: #241E14;
+            --muted: #6F6350;
+            --border: #D6CCB5;
+            --gold: #A0763A;
+            --green: #3E4A3A;
+            --red: #7E3324;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Archivo', sans-serif;
-            background: #F3EEE4;
-            color: #241E14;
+        html {
+            scroll-behavior: smooth;
         }
 
-        header {
-            height: 85px;
-            padding: 0 7%;
+        body {
+            font-family: 'Archivo', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* LOADER */
+        .site-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 22px;
+            background: var(--bg);
+            transition: opacity .45s ease, visibility .45s ease;
+        }
+
+        .site-loader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            width: 150px;
+            max-width: 45vw;
+            height: auto;
+            object-fit: contain;
+            animation: logoPulse 1.2s ease-in-out infinite;
+        }
+
+        .loader-track {
+            width: 150px;
+            height: 2px;
+            overflow: hidden;
+            background: var(--border);
+        }
+
+        .loader-progress {
+            width: 40%;
+            height: 100%;
+            background: var(--gold);
+            animation: loading 1.1s ease-in-out infinite;
+        }
+
+        .loader-caption {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--muted);
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { opacity: .65; transform: scale(.97); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(350%); }
+        }
+
+        /* HEADER */
+        .site-header {
+            min-height: 88px;
+            padding: 16px 7%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #DED5C7;
+            gap: 25px;
+            border-bottom: 1px solid var(--border);
         }
 
         .brand {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 29px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: #241E14;
+            display: inline-flex;
+            align-items: center;
             text-decoration: none;
         }
 
-        nav a {
-            margin-left: 25px;
-            font-size: 12px;
-            letter-spacing: 1px;
-            text-decoration: none;
-            color: #241E14;
+        .brand img {
+            display: block;
+            width: 155px;
+            max-height: 58px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
         }
 
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            flex-wrap: wrap;
+        }
+
+        .site-nav a {
+            font-size: 10px;
+            letter-spacing: 1.4px;
+            text-decoration: none;
+            transition: color .2s ease;
+        }
+
+        .site-nav a:hover,
+        .footer-links button:hover {
+            color: var(--gold);
+        }
+
+        /* MAIN */
         .container {
-            max-width: 1050px;
-            margin: 65px auto;
+            width: min(1050px, 100%);
+            margin: 65px auto 100px;
             padding: 0 25px;
         }
 
         .eyebrow {
-            color: #A0763A;
-            font-size: 11px;
+            color: var(--gold);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
             letter-spacing: 3px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
-        h1 {
+        h1, .empty h2, .modal-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 48px;
             font-weight: 600;
         }
 
-        .subtitle {
-            color: #786F62;
-            margin-top: 8px;
-            margin-bottom: 35px;
-            font-size: 14px;
+        h1 {
+            font-size: clamp(38px, 5vw, 52px);
+            line-height: 1.1;
         }
 
-        .message {
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            background: #E5E9DC;
-            color: #35472B;
+        .subtitle {
+            color: var(--muted);
+            margin-top: 10px;
+            margin-bottom: 35px;
             font-size: 13px;
         }
 
-        .error {
-            background: #F2DEDA;
-            color: #7E3324;
+        .messages {
+            margin-bottom: 22px;
         }
 
+        .message {
+            padding: 13px 17px;
+            margin-bottom: 10px;
+            background: #E5E9DC;
+            color: var(--green);
+            font-size: 12px;
+            border-left: 3px solid var(--green);
+        }
+
+        .message.error {
+            background: #F2DEDA;
+            color: var(--red);
+            border-left-color: var(--red);
+        }
+
+        /* ORDER CARDS */
         .order-card {
-            background: #FAF8F3;
-            border: 1px solid #DED5C7;
-            padding: 25px;
-            margin-bottom: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 26px;
+            margin-bottom: 18px;
+            transition: border-color .2s ease, transform .2s ease;
+        }
+
+        .order-card:hover {
+            border-color: #B9A782;
+            transform: translateY(-2px);
         }
 
         .order-header,
@@ -103,48 +230,57 @@
         }
 
         .order-number {
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
             overflow-wrap: anywhere;
         }
 
         .order-date {
-            font-size: 12px;
-            color: #786F62;
-            margin-top: 9px;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 7px;
         }
 
         .status {
             display: inline-block;
-            padding: 9px 12px;
+            padding: 8px 12px;
             background: #EAE2D4;
-            font-size: 10px;
+            color: var(--ink);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
             letter-spacing: 1px;
-            font-weight: 600;
+            font-weight: 500;
         }
 
         .status-cancelled {
             background: #F2DEDA;
-            color: #7E3324;
+            color: var(--red);
         }
 
         .status-delivered {
             background: #E0E9DA;
-            color: #35472B;
+            color: var(--green);
+        }
+
+        .status-shipped,
+        .status-confirmed {
+            background: #E3E8ED;
+            color: #344C61;
         }
 
         .order-footer {
-            border-top: 1px solid #DED5C7;
-            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            padding-top: 21px;
             margin-top: 23px;
         }
 
         .total-label {
-            color: #786F62;
-            font-size: 11px;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
         }
 
         .total {
@@ -155,97 +291,330 @@
         .actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
+        .actions form {
+            margin: 0;
+        }
+
         .button {
-            display: inline-block;
-            padding: 12px 17px;
-            font-family: inherit;
-            font-size: 11px;
-            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 11px 16px;
+            font-family: 'Archivo', sans-serif;
+            font-size: 9px;
+            letter-spacing: 1.1px;
             text-decoration: none;
             cursor: pointer;
-            border: 1px solid #241E14;
+            border: 1px solid var(--ink);
+            transition: background .2s ease, color .2s ease, border-color .2s ease;
         }
 
         .view-button {
-            background: #241E14;
-            color: #F3EEE4;
+            background: var(--ink);
+            color: var(--bg);
+        }
+
+        .view-button:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: white;
         }
 
         .cancel-button {
             background: transparent;
-            color: #7E3324;
-            border-color: #7E3324;
+            color: var(--red);
+            border-color: var(--red);
         }
 
         .cancel-button:hover {
-            background: #7E3324;
+            background: var(--red);
             color: white;
         }
 
+        /* EMPTY STATE */
         .empty {
             text-align: center;
-            background: #FAF8F3;
-            border: 1px solid #DED5C7;
-            padding: 65px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 70px 20px;
+        }
+
+        .empty-symbol {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--gold);
+            font-size: 42px;
+            margin-bottom: 8px;
         }
 
         .empty h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 34px;
+            margin-bottom: 8px;
         }
 
         .empty p {
-            color: #786F62;
+            color: var(--muted);
             margin-bottom: 25px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
-        footer {
-            text-align: center;
-            border-top: 1px solid #DED5C7;
-            padding: 28px 15px;
-            margin-top: 80px;
-            font-size: 10px;
+        /* FOOTER */
+        .site-footer {
+            border-top: 1px solid var(--border);
+            background: #EDE6D9;
+            padding: 55px 7% 22px;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 35px;
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .footer-brand img {
+            width: 155px;
+            max-height: 65px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+            margin-bottom: 14px;
+        }
+
+        .footer-brand p {
+            max-width: 240px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .footer-heading {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--gold);
+            font-size: 9px;
             letter-spacing: 2px;
-            color: #786F62;
+            margin-bottom: 17px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .footer-links a,
+        .footer-links button {
+            border: 0;
+            padding: 0;
+            background: transparent;
+            color: var(--ink);
+            text-align: left;
+            font-family: inherit;
+            font-size: 11px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color .2s ease;
+        }
+
+        .footer-bottom {
+            max-width: 1250px;
+            margin: 38px auto 0;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        /* POLICY MODALS */
+        .legal-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(25, 21, 15, .65);
+        }
+
+        .legal-modal.is-open {
+            display: flex;
+        }
+
+        .modal-panel {
+            position: relative;
+            width: min(600px, 100%);
+            max-height: 85vh;
+            overflow-y: auto;
+            background: var(--bg);
+            padding: 35px;
+            border: 1px solid var(--border);
+            animation: modalIn .22s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 17px;
+            width: 35px;
+            height: 35px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 21px;
+        }
+
+        .modal-title {
+            font-size: 35px;
+            padding-right: 35px;
+            margin-bottom: 16px;
+        }
+
+        .modal-content {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .modal-content p {
+            margin-bottom: 12px;
+        }
+
+        .modal-content strong {
+            color: var(--ink);
+        }
+
+        .modal-content a {
+            color: var(--gold);
+            overflow-wrap: anywhere;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            z-index: 100001;
+            right: 22px;
+            bottom: 22px;
+            width: min(360px, calc(100% - 44px));
+            padding: 15px 18px;
+            background: var(--ink);
+            color: var(--bg);
+            font-size: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 850px) {
+            .footer-main {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+            }
         }
 
         @media (max-width: 600px) {
-            header {
-                height: auto;
-                min-height: 75px;
-                padding: 18px 5%;
+            .site-header {
+                padding: 17px 5%;
                 align-items: flex-start;
-                gap: 15px;
                 flex-direction: column;
+                gap: 15px;
             }
 
-            nav a {
-                margin-left: 0;
-                margin-right: 15px;
+            .brand img {
+                width: 135px;
+            }
+
+            .site-nav {
+                gap: 19px;
+            }
+
+            .site-nav a {
+                font-size: 9px;
             }
 
             .container {
                 margin-top: 38px;
+                margin-bottom: 65px;
                 padding: 0 16px;
-            }
-
-            h1 {
-                font-size: 38px;
             }
 
             .order-card {
                 padding: 18px;
             }
 
+            .order-header {
+                align-items: flex-start;
+            }
+
             .order-footer {
                 align-items: flex-start;
                 flex-direction: column;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .actions .button,
+            .actions form,
+            .actions form .button {
+                width: 100%;
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr 1fr;
+                gap: 28px 18px;
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+            }
+
+            .site-footer {
+                padding: 40px 6% 20px;
+            }
+
+            .modal-panel {
+                padding: 28px 22px;
+            }
+
+            .modal-title {
+                font-size: 30px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
             }
         }
     </style>
@@ -253,31 +622,51 @@
 
 <body>
 
-<header>
-    <a href="{% url 'customer_home' %}" class="brand">
-        INSOLO UNCOMMON
+<!-- PAGE LOADER -->
+<div class="site-loader" id="siteLoader" aria-label="Loading page">
+    <img
+        src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+        alt="INSOLO UNCOMMON"
+        class="loader-logo"
+    >
+    <div class="loader-track">
+        <div class="loader-progress"></div>
+    </div>
+    <p class="loader-caption">PREPARING YOUR EXPERIENCE</p>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+    <a href="{% url 'customer_home' %}" class="brand" aria-label="INSOLO UNCOMMON home">
+        <img
+            src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+            alt="INSOLO UNCOMMON"
+        >
     </a>
 
-    <nav>
+    <nav class="site-nav" aria-label="Main navigation">
         <a href="{% url 'customer_home' %}">HOME</a>
         <a href="{% url 'my_orders' %}">MY ORDERS</a>
         <a href="{% url 'bag_view' %}">MY BAG</a>
     </nav>
 </header>
 
+<!-- MAIN CONTENT -->
 <main class="container">
-    <p class="eyebrow">YOUR ACCOUNT</p>
+    <p class="eyebrow">YOUR ACCOUNT / PURCHASE HISTORY</p>
     <h1>My Orders</h1>
     <p class="subtitle">
         Track your purchases and manage your orders.
     </p>
 
     {% if messages %}
-        {% for message in messages %}
-            <div class="message {% if message.tags == 'error' %}error{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
+        <div class="messages" id="djangoMessages">
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'error' %}error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 
     {% for order in orders %}
@@ -297,6 +686,8 @@
                 <span class="status
                     {% if order.status == 'CANCELLED' %}status-cancelled
                     {% elif order.status == 'DELIVERED' %}status-delivered
+                    {% elif order.status == 'SHIPPED' %}status-shipped
+                    {% elif order.status == 'CONFIRMED' %}status-confirmed
                     {% endif %}">
                     {{ order.get_status_display|upper }}
                 </span>
@@ -311,19 +702,21 @@
                 </div>
 
                 <div class="actions">
-                    <a href="{% url 'order_detail' order.order_number %}"
-                       class="button view-button">
-                        VIEW DETAILS →
+                    <a
+                        href="{% url 'order_detail' order.order_number %}"
+                        class="button view-button"
+                    >
+                        VIEW DETAILS &rarr;
                     </a>
 
                     {% if order.status == 'PENDING' %}
-                        <form method="POST"
-                              action="{% url 'cancel_order' order.order_number %}"
-                              onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                        <form
+                            method="POST"
+                            action="{% url 'cancel_order' order.order_number %}"
+                            class="cancel-form"
+                        >
                             {% csrf_token %}
-
-                            <button type="submit"
-                                    class="button cancel-button">
+                            <button type="submit" class="button cancel-button">
                                 CANCEL ORDER
                             </button>
                         </form>
@@ -334,20 +727,341 @@
         </article>
     {% empty %}
         <div class="empty">
+            <div class="empty-symbol" aria-hidden="true">✳</div>
             <h2>No orders yet</h2>
             <p>Your next favourite piece is waiting for you.</p>
 
-            <a href="{% url 'customer_home' %}"
-               class="button view-button">
+            <a
+                href="{% url 'customer_home' %}"
+                class="button view-button"
+            >
                 EXPLORE COLLECTION
             </a>
         </div>
     {% endfor %}
 </main>
 
-<footer>
-    INSOLO UNCOMMON &mdash; DESIGNED TO BE DIFFERENT
+<!-- PREMIUM FOOTER -->
+<footer class="site-footer">
+    <div class="footer-main">
+
+        <div class="footer-brand">
+            <a href="{% url 'customer_home' %}" aria-label="INSOLO UNCOMMON home">
+                <img
+                    src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                    alt="INSOLO UNCOMMON"
+                    loading="lazy"
+                >
+            </a>
+            <p>
+                Thoughtfully selected pieces for those who choose to be different.
+                Discover your style with INSOLO UNCOMMON.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">EXPLORE</h3>
+            <div class="footer-links">
+                <a href="{% url 'customer_home' %}">Home</a>
+                <a href="{% url 'section_products' 'HIM' %}">For Him</a>
+                <a href="{% url 'section_products' 'HER' %}">For Her</a>
+                <a href="{% url 'section_products' 'RARE' %}">Rare Collection</a>
+                <a href="{% url 'bag_view' %}">My Bag</a>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">INFORMATION</h3>
+            <div class="footer-links">
+                <button type="button" data-open-legal="about-modal">About Us</button>
+                <button type="button" data-open-legal="contact-modal">Contact Us</button>
+                <button type="button" data-open-legal="privacy-modal">Privacy Policy</button>
+                <button type="button" data-open-legal="terms-modal">Terms &amp; Conditions</button>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">CUSTOMER CARE</h3>
+            <div class="footer-links">
+                <button type="button" data-open-legal="shipping-modal">Shipping Policy</button>
+                <button type="button" data-open-legal="refund-modal">Returns &amp; Refunds</button>
+                <button type="button" data-open-legal="contact-modal">Get in Touch</button>
+                <a href="{% url 'my_orders' %}">Track My Orders</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <span>&copy; {% now "Y" %} INSOLO UNCOMMON</span>
+        <span>DESIGNED TO BE DIFFERENT</span>
+    </div>
 </footer>
+
+<!-- ABOUT MODAL -->
+<div class="legal-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">OUR STORY</p>
+        <h2 class="modal-title" id="about-title">About INSOLO UNCOMMON</h2>
+        <div class="modal-content">
+            <p>
+                INSOLO UNCOMMON is built around individual style and thoughtfully
+                selected pieces. We believe what you wear can express who you are.
+            </p>
+            <p>
+                Explore our collections and discover pieces that feel distinctly you.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="legal-modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">WE'RE HERE TO HELP</p>
+        <h2 class="modal-title" id="contact-title">Contact Us</h2>
+        <div class="modal-content">
+            <p>Have a question about an order or product? Reach out to our team.</p>
+            <p><strong>Email:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+917051259897">+91 7051259897</a></p>
+            <p>Please include your order number when contacting us about a purchase.</p>
+        </div>
+    </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div class="legal-modal" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">YOUR INFORMATION</p>
+        <h2 class="modal-title" id="privacy-title">Privacy Policy</h2>
+        <div class="modal-content">
+            <p>
+                We use the information you provide to operate your account,
+                process orders, communicate about purchases, and support your
+                experience on our website.
+            </p>
+            <p>
+                We do not recommend entering sensitive personal information into
+                optional message fields. Access to personal information should be
+                limited to authorised personnel who need it to provide the service.
+            </p>
+            <p>
+                For questions about your information or a privacy-related request,
+                contact us using the details in our Contact Us section.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div class="legal-modal" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">PLEASE READ</p>
+        <h2 class="modal-title" id="terms-title">Terms &amp; Conditions</h2>
+        <div class="modal-content">
+            <p>
+                By using this website, you agree to provide accurate account and
+                order information and to use the website lawfully.
+            </p>
+            <p>
+                Product availability, prices, and order status may change as an
+                order is processed. Submitting an order does not necessarily mean
+                it has been confirmed for fulfilment.
+            </p>
+            <p>
+                Orders and cancellation requests are subject to the status of the
+                order and the store's applicable policies.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- REFUND MODAL -->
+<div class="legal-modal" id="refund-modal" role="dialog" aria-modal="true" aria-labelledby="refund-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">AFTER YOUR PURCHASE</p>
+        <h2 class="modal-title" id="refund-title">Returns &amp; Refunds</h2>
+        <div class="modal-content">
+            <p>
+                If you receive a damaged, defective, or incorrect item, contact
+                our support team with your order number and relevant details.
+            </p>
+            <p>
+                Return eligibility, timelines, and refund processing depend on the
+                store's confirmed policy and the circumstances of the order.
+                Please contact support before sending an item back.
+            </p>
+            <p>
+                Do not treat this summary as confirmation that every product is
+                eligible for return or refund.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- SHIPPING MODAL -->
+<div class="legal-modal" id="shipping-modal" role="dialog" aria-modal="true" aria-labelledby="shipping-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">DELIVERY INFORMATION</p>
+        <h2 class="modal-title" id="shipping-title">Shipping Policy</h2>
+        <div class="modal-content">
+            <p>
+                Orders are processed after the required order checks are complete.
+                Dispatch and delivery times can vary depending on product
+                availability, delivery location, and courier operations.
+            </p>
+            <p>
+                Please make sure your shipping address and contact details are
+                accurate when placing an order.
+            </p>
+            <p>
+                For an update on a particular purchase, open the order details
+                page or contact support with your order number.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="siteToast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    "use strict";
+
+    /* LOADER: minimum display time, with a fallback to prevent getting stuck */
+    const loader = document.getElementById("siteLoader");
+    const loaderStartedAt = Date.now();
+    const MIN_LOADER_TIME = 2500;
+    let loaderHidden = false;
+
+    function hideLoader() {
+        if (loaderHidden || !loader) return;
+
+        loaderHidden = true;
+        const elapsed = Date.now() - loaderStartedAt;
+        const remaining = Math.max(0, MIN_LOADER_TIME - elapsed);
+
+        window.setTimeout(function () {
+            loader.classList.add("is-hidden");
+        }, remaining);
+    }
+
+    window.uncommonLoader = {
+        hide: hideLoader
+    };
+
+    window.addEventListener("load", hideLoader, { once: true });
+    window.setTimeout(hideLoader, 12000);
+
+    /* ORDER CANCELLATION CONFIRMATION */
+    document.querySelectorAll(".cancel-form").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            const confirmed = window.confirm(
+                "Are you sure you want to cancel this order?"
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    /* TOAST FOR DJANGO MESSAGES */
+    const toast = document.getElementById("siteToast");
+    const messages = document.querySelectorAll("#djangoMessages .message");
+    let toastTimer;
+
+    function showToast(message) {
+        if (!toast || !message) return;
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+            toast.classList.remove("show");
+        }, 4000);
+    }
+
+    if (messages.length) {
+        const firstMessage = messages[0];
+        const messageText = firstMessage.textContent.trim();
+
+        if (messageText) {
+            window.setTimeout(function () {
+                showToast(messageText);
+            }, 300);
+        }
+    }
+
+    /* POLICY MODALS */
+    const modals = document.querySelectorAll(".legal-modal");
+    let lastFocusedElement = null;
+
+    function openModal(modal) {
+        if (!modal) return;
+
+        lastFocusedElement = document.activeElement;
+        modal.classList.add("is-open");
+        document.body.classList.add("modal-open");
+
+        const closeButton = modal.querySelector(".modal-close");
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+
+        modal.classList.remove("is-open");
+
+        const anyOpen = document.querySelector(".legal-modal.is-open");
+        if (!anyOpen) {
+            document.body.classList.remove("modal-open");
+        }
+
+        if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+            lastFocusedElement.focus();
+        }
+    }
+
+    document.querySelectorAll("[data-open-legal]").forEach(function (trigger) {
+        trigger.addEventListener("click", function () {
+            const modalId = trigger.getAttribute("data-open-legal");
+            openModal(document.getElementById(modalId));
+        });
+    });
+
+    modals.forEach(function (modal) {
+        const closeButton = modal.querySelector(".modal-close");
+
+        if (closeButton) {
+            closeButton.addEventListener("click", function () {
+                closeModal(modal);
+            });
+        }
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            const openModalElement = document.querySelector(".legal-modal.is-open");
+            if (openModalElement) closeModal(openModalElement);
+        }
+    });
+})();
+</script>
 
 </body>
 </html>

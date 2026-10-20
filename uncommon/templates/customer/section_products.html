@@ -1,11 +1,9 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>{{ title }} — UNCOMMON</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -28,6 +26,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
             background: var(--bg);
@@ -40,9 +42,12 @@
             text-decoration: none;
         }
 
-        button,
-        input {
+        button, input {
             font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
         }
 
         .wrap {
@@ -66,9 +71,16 @@
         }
 
         .logo {
-            font: 25px var(--serif);
-            letter-spacing: .14em;
-            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 76px;
+            height: 52px;
+            object-fit: contain;
+            display: block;
         }
 
         .section-nav {
@@ -173,6 +185,7 @@
             letter-spacing: .1em;
             text-transform: uppercase;
             cursor: pointer;
+            transition: .2s;
         }
 
         .search button:hover {
@@ -209,12 +222,23 @@
             box-shadow: 0 12px 30px rgba(36, 30, 20, .07);
         }
 
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+            background: #E9E0CD;
+        }
+
         .product-image {
             width: 100%;
             height: 310px;
             display: block;
             object-fit: cover;
             background: #E9E0CD;
+            transition: transform .4s ease;
+        }
+
+        .product:hover .product-image {
+            transform: scale(1.025);
         }
 
         .info {
@@ -298,6 +322,42 @@
             font-size: 15px;
         }
 
+        /* WISHLIST HEART */
+
+        .wishlist-form {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 5;
+            margin: 0;
+        }
+
+        .wishlist-heart {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid #DED5C5;
+            background: #FFFCF7;
+            color: #241E14;
+            font-size: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .25s ease;
+            box-shadow: 0 2px 8px rgba(36, 30, 20, .08);
+        }
+
+        .wishlist-heart:hover {
+            color: #8B3028;
+            transform: scale(1.1);
+            border-color: #8B3028;
+        }
+
+        .wishlist-heart:active {
+            transform: scale(.94);
+        }
+
         /* EMPTY RESULTS */
 
         .empty {
@@ -309,7 +369,19 @@
             background: var(--card);
         }
 
-        /* MODERN BAG NOTIFICATION */
+        .empty h2 {
+            color: var(--ink);
+        }
+
+        .empty a {
+            display: inline-block;
+            margin-top: 12px;
+            color: var(--ink);
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 4px;
+        }
+
+        /* BAG TOAST */
 
         .bag-toast {
             position: fixed;
@@ -329,10 +401,7 @@
             opacity: 0;
             visibility: hidden;
             transform: translateY(12px);
-            transition:
-                opacity .25s ease,
-                transform .25s ease,
-                visibility .25s;
+            transition: opacity .25s ease, transform .25s ease, visibility .25s;
         }
 
         .bag-toast.show {
@@ -401,13 +470,190 @@
             color: var(--ink);
         }
 
-        /* FOOTER */
+        /* GLOBAL LOADER */
 
-        footer {
-            padding: 25px 0;
+        #uncommon-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            background: var(--bg);
+            transition: opacity .45s ease, visibility .45s ease;
+        }
+
+        #uncommon-loader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            animation: logoPulse 1.25s ease-in-out infinite;
+        }
+
+        .loader-track {
+            width: 150px;
+            height: 2px;
+            background: var(--border);
+            overflow: hidden;
+        }
+
+        .loader-progress {
+            width: 40%;
+            height: 100%;
+            background: var(--gold);
+            animation: loaderMove 1.1s ease-in-out infinite;
+        }
+
+        .loader-label {
+            font: 9px var(--mono);
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(.96); opacity: .72; }
+            50% { transform: scale(1.04); opacity: 1; }
+        }
+
+        @keyframes loaderMove {
+            from { transform: translateX(-120%); }
+            to { transform: translateX(380%); }
+        }
+
+        /* PREMIUM FOOTER */
+
+        .site-footer {
+            margin-top: 20px;
+            padding: 52px 0 22px;
+            border-top: 1px solid var(--border);
+            background: #E9E3D6;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 34px;
+            padding-bottom: 38px;
+        }
+
+        .footer-brand img {
+            width: 74px;
+            height: 74px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .footer-brand p {
+            max-width: 260px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .footer-heading {
+            margin: 0 0 16px;
+            font: 10px var(--mono);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+
+        .footer-links {
+            display: grid;
+            gap: 12px;
+        }
+
+        .footer-links a,
+        .footer-links button {
+            width: fit-content;
+            max-width: 100%;
+            padding: 0;
+            border: 0;
+            border-bottom: 1px solid transparent;
+            background: none;
+            color: var(--muted);
+            font: 11px var(--sans);
+            text-align: left;
+            cursor: pointer;
+            overflow-wrap: anywhere;
+        }
+
+        .footer-links a:hover,
+        .footer-links button:hover {
+            color: var(--ink);
+            border-bottom-color: var(--gold);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-top: 20px;
             border-top: 1px solid var(--border);
             color: var(--muted);
-            font: 10px var(--mono);
+            font: 9px var(--mono);
+            letter-spacing: .05em;
+        }
+
+        /* POLICY MODALS */
+
+        .legal-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(25, 22, 17, .62);
+        }
+
+        .legal-modal.is-open {
+            display: flex;
+        }
+
+        .legal-dialog {
+            position: relative;
+            width: min(620px, 100%);
+            max-height: min(78vh, 720px);
+            overflow-y: auto;
+            padding: 34px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 70px rgba(0, 0, 0, .2);
+        }
+
+        .legal-dialog h2 {
+            margin: 0 35px 18px 0;
+            font: 30px/1.2 var(--serif);
+        }
+
+        .legal-dialog p,
+        .legal-dialog li {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.85;
+        }
+
+        .legal-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            border: 0;
+            background: transparent;
+            color: var(--ink);
+            font-size: 25px;
+            cursor: pointer;
         }
 
         /* RESPONSIVE */
@@ -428,6 +674,14 @@
             .grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+            }
         }
 
         @media (max-width: 600px) {
@@ -439,8 +693,9 @@
                 padding: 18px 0;
             }
 
-            .logo {
-                font-size: 22px;
+            .logo img {
+                width: 65px;
+                height: 46px;
             }
 
             .section-nav {
@@ -494,6 +749,21 @@
             .back-link {
                 font-size: 9px;
             }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 28px 20px;
+            }
+
+            .footer-bottom {
+                align-items: flex-start;
+                flex-direction: column;
+                line-height: 1.8;
+            }
+
+            .legal-dialog {
+                padding: 27px 22px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -502,76 +772,66 @@
             *::after {
                 transition-duration: .01ms !important;
                 animation-duration: .01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            #uncommon-loader,
+            .loader-logo,
+            .loader-progress {
+                animation: none !important;
+                transition: none !important;
             }
         }
-
-/* Product wishlist heart */
-.product-image-container {
-    position: relative;
-}
-
-.wishlist-form {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 5;
-}
-
-.wishlist-heart {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid #DED5C5;
-    background: #FFFCF7;
-    color: #241E14;
-    font-size: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(36, 30, 20, 0.08);
-}
-
-.wishlist-heart:hover {
-    color: #8B3028;
-    transform: scale(1.1);
-    border-color: #8B3028;
-}
-
-.wishlist-heart:active {
-    transform: scale(0.94);
-}
-
     </style>
 </head>
 
 <body>
 
+<!-- GLOBAL PAGE LOADER -->
+<div id="uncommon-loader" aria-label="Loading UNCOMMON" role="status">
+    <img
+        class="loader-logo"
+        src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+        alt="UNCOMMON"
+    >
+    <div class="loader-track">
+        <div class="loader-progress"></div>
+    </div>
+    <span class="loader-label">Preparing your collection</span>
+</div>
+
+<!-- NAVBAR -->
 <header>
     <div class="wrap nav">
 
-        <a href="{% url 'customer_home' %}" class="logo">
-            UNCOMMON.
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">
+            <img
+                src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                alt="UNCOMMON"
+            >
         </a>
 
         <nav class="section-nav" aria-label="Collections">
-
-            <a href="{% url 'section_products' 'HIM' %}"
-               class="{% if section == 'HIM' %}active{% endif %}">
+            <a
+                href="{% url 'section_products' 'HIM' %}"
+                class="{% if section == 'HIM' %}active{% endif %}"
+            >
                 INSOLO — For Him ↗
             </a>
 
-            <a href="{% url 'section_products' 'HER' %}"
-               class="{% if section == 'HER' %}active{% endif %}">
+            <a
+                href="{% url 'section_products' 'HER' %}"
+                class="{% if section == 'HER' %}active{% endif %}"
+            >
                 INSOLO — For Her ↗
             </a>
 
-            <a href="{% url 'section_products' 'RARE' %}"
-               class="{% if section == 'RARE' %}active{% endif %}">
+            <a
+                href="{% url 'section_products' 'RARE' %}"
+                class="{% if section == 'RARE' %}active{% endif %}"
+            >
                 The Hundred
             </a>
-
         </nav>
 
         <a href="{% url 'bag_view' %}" class="bag-nav-link">
@@ -585,6 +845,7 @@
     </div>
 </header>
 
+<!-- MAIN COLLECTION -->
 <main class="wrap">
 
     <section class="intro">
@@ -603,6 +864,7 @@
 
         <p>{{ subtitle }}</p>
 
+        <!-- PRODUCT SEARCH -->
         <form method="get" class="search">
             <input
                 type="search"
@@ -611,7 +873,6 @@
                 placeholder="Search products, descriptions, categories..."
                 aria-label="Search products"
             >
-
             <button type="submit">Search ↗</button>
         </form>
 
@@ -621,27 +882,49 @@
 
     </section>
 
+    <!-- PRODUCTS -->
     <section class="grid" aria-label="Products">
 
         {% for product in products %}
 
             <article class="product">
 
-                {% if product.image %}
-                    <img
-                        class="product-image"
-                        src="{{ product.image.url }}"
-                        alt="{{ product.product_name }}"
-                        loading="lazy"
+                <!-- Product image and wishlist -->
+                <div class="product-image-container">
+
+                    {% if product.image %}
+                        <img
+                            class="product-image"
+                            src="{{ product.image.url }}"
+                            alt="{{ product.product_name }}"
+                            loading="lazy"
+                        >
+                    {% else %}
+                        <img
+                            class="product-image"
+                            src="https://picsum.photos/seed/product-{{ product.id }}/600/700"
+                            alt="{{ product.product_name }}"
+                            loading="lazy"
+                        >
+                    {% endif %}
+
+                    <form
+                        method="POST"
+                        action="{% url 'add_to_wishlist' product.id %}"
+                        class="wishlist-form"
                     >
-                {% else %}
-                    <img
-                        class="product-image"
-                        src="https://picsum.photos/seed/product-{{ product.id }}/600/700"
-                        alt="{{ product.product_name }}"
-                        loading="lazy"
-                    >
-                {% endif %}
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="wishlist-heart"
+                            title="Add to Wishlist"
+                            aria-label="Add {{ product.product_name }} to wishlist"
+                        >
+                            ♡
+                        </button>
+                    </form>
+
+                </div>
 
                 <div class="info">
 
@@ -662,9 +945,7 @@
                         </span>
 
                         {% if product.is_rare or product.is_limited %}
-                            <span class="badge">
-                                Rare / Limited
-                            </span>
+                            <span class="badge">Rare / Limited</span>
                         {% else %}
                             <span class="badge">
                                 In stock: {{ product.stock }}
@@ -673,6 +954,7 @@
 
                     </div>
 
+                    <!-- AJAX ADD TO BAG -->
                     <button
                         type="button"
                         class="add-to-bag"
@@ -687,17 +969,6 @@
                             <span class="button-arrow" aria-hidden="true">↗</span>
                         {% endif %}
                     </button>
-                    <form method="POST"
-                        action="{% url 'add_to_wishlist' product.id %}"
-                        class="wishlist-form">
-                        {% csrf_token %}
-                        <button type="submit"
-                                class="wishlist-heart"
-                                title="Add to Wishlist"
-                                aria-label="Add {{ product.product_name }} to wishlist">
-                            ♡
-                        </button>
-                    </form>
 
                 </div>
 
@@ -707,6 +978,7 @@
 
             <div class="empty">
                 <h2>No pieces found.</h2>
+
                 <p>
                     No available products were found in this collection.
                     Try a different search or return later for new additions.
@@ -723,13 +995,261 @@
 
 </main>
 
-<footer>
+<!-- PREMIUM FOOTER -->
+<footer class="site-footer">
     <div class="wrap">
-        © 2026 UNCOMMON — Made for one.
+
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+                <img
+                    src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                    alt="UNCOMMON logo"
+                    loading="lazy"
+                >
+
+                <p>
+                    Considered pieces, selected with intention.
+                    Some things are better when they are uncommon.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="footer-heading">Explore</h3>
+
+                <div class="footer-links">
+                    <a href="{% url 'customer_home' %}">Home</a>
+                    <a href="{% url 'section_products' 'HIM' %}">Insolo — For Him</a>
+                    <a href="{% url 'section_products' 'HER' %}">Insolo — For Her</a>
+                    <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
+                    <a href="{% url 'bag_view' %}">Your Bag</a>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="footer-heading">Information</h3>
+
+                <div class="footer-links">
+                    <button type="button" data-open-legal="about-modal">
+                        About UNCOMMON
+                    </button>
+
+                    <button type="button" data-open-legal="contact-modal">
+                        Contact
+                    </button>
+
+                    <button type="button" data-open-legal="privacy-modal">
+                        Privacy Policy
+                    </button>
+
+                    <button type="button" data-open-legal="terms-modal">
+                        Terms &amp; Conditions
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="footer-heading">Customer Care</h3>
+
+                <div class="footer-links">
+                    <button type="button" data-open-legal="shipping-modal">
+                        Shipping Policy
+                    </button>
+
+                    <button type="button" data-open-legal="refund-modal">
+                        Returns &amp; Refunds
+                    </button>
+
+                    <a href="{% url 'bag_view' %}">Bag &amp; Checkout</a>
+
+                    <a href="mailto:Contact@uncommen.in">
+                        Contact@uncommen.in
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <span>© 2026 UNCOMMON — Made for one.</span>
+            <span>NUMBERED ONCE. RECORDED TO A SINGLE NAME.</span>
+        </div>
+
     </div>
 </footer>
 
-<!-- CSRF token for Django AJAX requests -->
+<!-- ABOUT MODAL -->
+<div
+    class="legal-modal"
+    id="about-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="about-title"
+>
+    <div class="legal-dialog">
+        <button class="legal-close" type="button" aria-label="Close">×</button>
+
+        <h2 id="about-title">About UNCOMMON</h2>
+
+        <p>
+            UNCOMMON is built around considered style, distinctive finds,
+            and pieces chosen with intention. Our collections bring together
+            everyday essentials and limited selections.
+        </p>
+
+        <p>
+            We aim to make every part of your experience thoughtful,
+            from discovering a piece to receiving it.
+        </p>
+    </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div
+    class="legal-modal"
+    id="contact-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="contact-title"
+>
+    <div class="legal-dialog">
+        <button class="legal-close" type="button" aria-label="Close">×</button>
+
+        <h2 id="contact-title">Contact Us</h2>
+
+        <p>
+            Need help with a product, order, or delivery?
+            Contact our team using the details below.
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+        </p>
+
+        <p>
+            <strong>Phone:</strong>
+            <a href="tel:+917051259897">+91 7051259897</a>
+        </p>
+
+        <p>
+            Replace or confirm these details and support hours before publishing.
+        </p>
+    </div>
+</div>
+
+<!-- PRIVACY POLICY MODAL -->
+<div
+    class="legal-modal"
+    id="privacy-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="privacy-title"
+>
+    <div class="legal-dialog">
+        <button class="legal-close" type="button" aria-label="Close">×</button>
+
+        <h2 id="privacy-title">Privacy Policy</h2>
+
+        <p>
+            We use the information you provide to manage your account,
+            process orders, respond to enquiries, and improve the shopping
+            experience.
+        </p>
+
+        <p>
+            Account and order information should be accessed only by
+            authorised personnel and retained only as needed for legitimate
+            business or legal purposes. Review this text against your actual
+            data practices before publishing.
+        </p>
+    </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div
+    class="legal-modal"
+    id="terms-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="terms-title"
+>
+    <div class="legal-dialog">
+        <button class="legal-close" type="button" aria-label="Close">×</button>
+
+        <h2 id="terms-title">Terms &amp; Conditions</h2>
+
+        <p>
+            Product descriptions, images, prices, and stock information
+            are provided to help customers make informed choices.
+            Orders are subject to availability and confirmation.
+        </p>
+
+        <p>
+            Customers should provide accurate account, contact, and delivery
+            details. Final terms on payment, cancellations, warranties,
+            and liability must reflect your actual business practices
+            and applicable law.
+        </p>
+    </div>
+</div>
+
+<!-- SHIPPING POLICY MODAL -->
+<div
+    class="legal-modal"
+    id="shipping-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="shipping-title"
+>
+    <div class="legal-dialog">
+        <button class="legal-close" type="button" aria-label="Close">×</button>
+
+        <h2 id="shipping-title">Shipping Policy</h2>
+
+        <p>
+            Orders are prepared for dispatch after confirmation.
+            Delivery timelines may vary based on destination,
+            product availability, and courier operations.
+        </p>
+
+        <p>
+            Publish your confirmed shipping charges, serviceable locations,
+            estimated delivery times, and tracking process here before
+            accepting customer orders.
+        </p>
+    </div>
+</div>
+
+<!-- RETURNS AND REFUNDS MODAL -->
+<div
+    class="legal-modal"
+    id="refund-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="refund-title"
+>
+    <div class="legal-dialog">
+        <button class="legal-close" type="button" aria-label="Close">×</button>
+
+        <h2 id="refund-title">Returns &amp; Refunds</h2>
+
+        <p>
+            For help with an incorrect, damaged, or eligible item,
+            contact customer care with your order number and details
+            of the issue.
+        </p>
+
+        <p>
+            Set out your actual return window, item eligibility,
+            condition requirements, refund timeline, and return-shipping
+            responsibility here. This starter copy is not a substitute
+            for a final policy.
+        </p>
+    </div>
+</div>
+
+<!-- CSRF TOKEN FOR AJAX REQUESTS -->
 <form hidden aria-hidden="true">
     {% csrf_token %}
 </form>
@@ -746,6 +1266,7 @@
 
     <div class="toast-copy">
         <strong id="toast-title">Added to your bag</strong>
+
         <span id="toast-message">
             Your selection is waiting for you.
         </span>
@@ -766,6 +1287,8 @@
 </div>
 
 <script>
+    /* BAG TOAST ELEMENTS */
+
     const bagToast = document.getElementById("bag-toast");
     const toastTitle = document.getElementById("toast-title");
     const toastMessage = document.getElementById("toast-message");
@@ -797,6 +1320,8 @@
         bagToast.classList.remove("show");
     });
 
+    /* GET DJANGO CSRF TOKEN */
+
     function getCsrfToken() {
         const input = document.querySelector(
             '[name="csrfmiddlewaretoken"]'
@@ -805,10 +1330,10 @@
         return input ? input.value : "";
     }
 
+    /* AJAX ADD TO BAG */
+
     document.querySelectorAll(".add-to-bag").forEach(button => {
-
         button.addEventListener("click", async () => {
-
             if (button.disabled) {
                 return;
             }
@@ -844,19 +1369,21 @@
                     );
                 }
 
-                // Update navbar bag count without reloading.
                 const bagCount = document.getElementById("bag-count");
 
                 if (bagCount) {
                     bagCount.textContent = data.bag_count;
                 }
 
-                // Show the success popup.
-                showBagToast(data.message, true);
+                showBagToast(
+                    data.message || "Your item was added to the bag.",
+                    true
+                );
 
             } catch (error) {
                 showBagToast(
-                    error.message || "Something went wrong. Please try again.",
+                    error.message ||
+                    "Something went wrong. Please try again.",
                     false
                 );
 
@@ -864,10 +1391,111 @@
                 button.disabled = false;
                 button.innerHTML = originalHTML;
             }
+        });
+    });
 
+    /* GLOBAL PAGE LOADER */
+
+    (() => {
+        const loader = document.getElementById("uncommon-loader");
+
+        if (!loader) {
+            return;
+        }
+
+        let hidden = false;
+        const startedAt = Date.now();
+
+        function hideLoader() {
+            if (hidden) {
+                return;
+            }
+
+            hidden = true;
+
+            const remaining = Math.max(
+                0,
+                2500 - (Date.now() - startedAt)
+            );
+
+            setTimeout(() => {
+                loader.classList.add("is-hidden");
+            }, remaining);
+        }
+
+        window.uncommonLoader = {
+            hide: hideLoader
+        };
+
+        window.addEventListener("load", hideLoader, { once: true });
+
+        // Fallback in case the load event is delayed.
+        setTimeout(hideLoader, 12000);
+    })();
+
+    /* FOOTER POLICY MODALS */
+
+    (() => {
+        const modals = document.querySelectorAll(".legal-modal");
+        let previouslyFocused = null;
+
+        function closeModal(modal) {
+            modal.classList.remove("is-open");
+
+            if (previouslyFocused) {
+                previouslyFocused.focus();
+            }
+        }
+
+        document.querySelectorAll("[data-open-legal]").forEach(trigger => {
+            trigger.addEventListener("click", () => {
+                const modal = document.getElementById(
+                    trigger.dataset.openLegal
+                );
+
+                if (!modal) {
+                    return;
+                }
+
+                previouslyFocused = trigger;
+                modal.classList.add("is-open");
+
+                const closeButton = modal.querySelector(".legal-close");
+
+                if (closeButton) {
+                    closeButton.focus();
+                }
+            });
         });
 
-    });
+        modals.forEach(modal => {
+            const closeButton = modal.querySelector(".legal-close");
+
+            if (closeButton) {
+                closeButton.addEventListener("click", () => {
+                    closeModal(modal);
+                });
+            }
+
+            // Close when clicking the backdrop.
+            modal.addEventListener("click", event => {
+                if (event.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        // Close an open modal with Escape.
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                modals.forEach(modal => {
+                    if (modal.classList.contains("is-open")) {
+                        closeModal(modal);
+                    }
+                });
+            }
+        });
+    })();
 </script>
 
 </body>

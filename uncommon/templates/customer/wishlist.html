@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Wishlist | UNCOMMON</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -18,6 +17,9 @@
             --white: #FFFCF7;
             --muted: #777064;
             --red: #8B3028;
+            --forest: #232E22;
+            --serif: 'Libre Caslon Text', serif;
+            --mono: 'IBM Plex Mono', monospace;
         }
 
         * {
@@ -41,6 +43,8 @@
             font: inherit;
         }
 
+        /* NAVBAR */
+
         .navbar {
             min-height: 76px;
             padding: 18px 7%;
@@ -52,20 +56,37 @@
         }
 
         .brand {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: 5px;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .brand img {
+            width: 76px;
+            height: 52px;
+            object-fit: contain;
+            display: block;
         }
 
         .nav-links {
             display: flex;
             gap: 24px;
             align-items: center;
-            font-size: 12px;
+            font: 10px var(--mono);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
+        .nav-links a {
+            color: var(--muted);
+            transition: color .2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        /* MAIN PAGE */
 
         .page {
             max-width: 1250px;
@@ -76,17 +97,15 @@
 
         .eyebrow {
             color: var(--gold);
-            font-size: 11px;
+            font: 10px var(--mono);
             letter-spacing: 3px;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(42px, 6vw, 66px);
-            font-weight: 500;
-            line-height: 1;
+            font: clamp(42px, 6vw, 66px)/1.1 var(--serif);
+            font-weight: 400;
         }
 
         .intro {
@@ -98,9 +117,11 @@
 
         .count {
             color: var(--gold);
-            font-size: 13px;
+            font: 11px var(--mono);
             margin-top: 20px;
         }
+
+        /* DJANGO MESSAGES */
 
         .messages {
             margin-top: 25px;
@@ -112,7 +133,10 @@
             padding: 13px 16px;
             margin-bottom: 8px;
             font-size: 13px;
+            line-height: 1.6;
         }
+
+        /* PRODUCT GRID */
 
         .grid {
             display: grid;
@@ -145,6 +169,18 @@
             transform: scale(1.04);
         }
 
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            font: 12px var(--mono);
+            letter-spacing: 3px;
+        }
+
+        /* REMOVE WISHLIST HEART */
+
         .heart {
             position: absolute;
             top: 12px;
@@ -159,7 +195,15 @@
             font-size: 20px;
             color: var(--red);
             cursor: pointer;
+            transition: transform .2s, background .2s;
         }
+
+        .heart:hover {
+            transform: scale(1.08);
+            background: #F7E6E2;
+        }
+
+        /* PRODUCT DETAILS */
 
         .product-info {
             padding-top: 17px;
@@ -168,40 +212,39 @@
         .category {
             color: var(--gold);
             text-transform: uppercase;
-            font-size: 10px;
+            font: 9px var(--mono);
             letter-spacing: 1.7px;
-            margin-bottom: 7px;
+            margin-bottom: 9px;
         }
 
         .product-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 25px;
-            font-weight: 600;
-            line-height: 1.2;
+            font: 24px/1.3 var(--serif);
+            font-weight: 400;
         }
 
         .description {
             color: var(--muted);
             font-size: 12px;
-            line-height: 1.6;
+            line-height: 1.7;
             margin-top: 8px;
         }
 
         .price {
-            font-size: 15px;
-            font-weight: 600;
-            margin-top: 12px;
+            font: 12px var(--mono);
+            margin-top: 14px;
         }
 
         .availability {
-            font-size: 11px;
-            margin-top: 8px;
-            color: var(--muted);
+            font: 10px var(--mono);
+            margin-top: 10px;
+            color: #526548;
         }
 
         .availability.out {
             color: var(--red);
         }
+
+        /* PRODUCT ACTIONS */
 
         .actions {
             display: flex;
@@ -209,31 +252,38 @@
             margin-top: 17px;
         }
 
+        .actions form {
+            min-width: 0;
+        }
+
         .btn {
             border: 1px solid var(--ink);
             padding: 12px 10px;
             text-align: center;
             cursor: pointer;
-            font-size: 10px;
+            font: 9px var(--mono);
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: .2s ease;
+            min-height: 42px;
         }
 
         .btn-bag {
             background: var(--ink);
             color: var(--white);
-            flex: 1;
+            width: 100%;
         }
 
-        .btn-bag:hover {
+        .btn-bag:hover:not(:disabled) {
             background: var(--gold);
             border-color: var(--gold);
+            color: var(--ink);
         }
 
         .btn-remove {
             background: transparent;
             color: var(--ink);
+            width: 100%;
         }
 
         .btn-remove:hover {
@@ -245,6 +295,8 @@
             opacity: .45;
             cursor: not-allowed;
         }
+
+        /* EMPTY WISHLIST */
 
         .empty {
             text-align: center;
@@ -261,35 +313,96 @@
         }
 
         .empty h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 38px;
-            font-weight: 500;
+            font: 36px/1.3 var(--serif);
+            font-weight: 400;
         }
 
         .empty p {
             color: var(--muted);
             margin: 12px 0 25px;
             font-size: 13px;
+            line-height: 1.7;
         }
 
         .shop-btn {
             display: inline-block;
             padding: 14px 22px;
-            background: var(--ink);
+            background: var(--forest);
             color: var(--white);
-            font-size: 11px;
+            font: 10px var(--mono);
             text-transform: uppercase;
             letter-spacing: 1.5px;
+            transition: background .2s;
         }
 
-        footer {
-            padding: 27px 7%;
-            border-top: 1px solid var(--line);
+        .shop-btn:hover {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        /* GLOBAL LOADER */
+
+        #uncommon-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
             display: flex;
-            justify-content: space-between;
-            gap: 15px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            background: var(--cream);
+            transition: opacity .45s ease, visibility .45s ease;
+        }
+
+        #uncommon-loader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            animation: logoPulse 1.25s ease-in-out infinite;
+        }
+
+        .loader-track {
+            width: 150px;
+            height: 2px;
+            background: var(--line);
+            overflow: hidden;
+        }
+
+        .loader-progress {
+            width: 40%;
+            height: 100%;
+            background: var(--gold);
+            animation: loaderMove 1.1s ease-in-out infinite;
+        }
+
+        .loader-label {
+            font: 9px var(--mono);
+            letter-spacing: .2em;
+            text-transform: uppercase;
             color: var(--muted);
-            font-size: 11px;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% {
+                transform: scale(.96);
+                opacity: .72;
+            }
+            50% {
+                transform: scale(1.04);
+                opacity: 1;
+            }
+        }
+
+        @keyframes loaderMove {
+            from { transform: translateX(-120%); }
+            to { transform: translateX(380%); }
         }
 
         @keyframes appear {
@@ -300,6 +413,151 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* PREMIUM FOOTER */
+
+        .site-footer {
+            margin-top: 20px;
+            padding: 52px 0 22px;
+            border-top: 1px solid var(--line);
+            background: #E9E3D6;
+        }
+
+        .footer-wrap {
+            max-width: 1250px;
+            margin: auto;
+            padding: 0 7%;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 34px;
+            padding-bottom: 38px;
+        }
+
+        .footer-brand img {
+            width: 74px;
+            height: 74px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .footer-brand p {
+            max-width: 260px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .footer-heading {
+            margin: 0 0 16px;
+            font: 10px var(--mono);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+
+        .footer-links {
+            display: grid;
+            gap: 12px;
+        }
+
+        .footer-links a,
+        .footer-links button {
+            width: fit-content;
+            max-width: 100%;
+            padding: 0;
+            border: 0;
+            border-bottom: 1px solid transparent;
+            background: none;
+            color: var(--muted);
+            font: 11px 'Archivo', sans-serif;
+            text-align: left;
+            cursor: pointer;
+            overflow-wrap: anywhere;
+        }
+
+        .footer-links a:hover,
+        .footer-links button:hover {
+            color: var(--ink);
+            border-bottom-color: var(--gold);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font: 9px var(--mono);
+            letter-spacing: .05em;
+        }
+
+        /* POLICY MODALS */
+
+        .legal-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(25, 22, 17, .62);
+        }
+
+        .legal-modal.is-open {
+            display: flex;
+        }
+
+        .legal-dialog {
+            position: relative;
+            width: min(620px, 100%);
+            max-height: min(78vh, 720px);
+            overflow-y: auto;
+            padding: 34px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            box-shadow: 0 20px 70px rgba(0, 0, 0, .2);
+        }
+
+        .legal-dialog h2 {
+            margin: 0 35px 18px 0;
+            font: 30px/1.3 var(--serif);
+        }
+
+        .legal-dialog p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.85;
+            margin: 0 0 13px;
+        }
+
+        .legal-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            border: 0;
+            background: transparent;
+            color: var(--ink);
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
             }
         }
 
@@ -315,7 +573,7 @@
 
             .nav-links {
                 gap: 12px;
-                font-size: 10px;
+                font-size: 9px;
             }
 
             .page {
@@ -324,21 +582,23 @@
         }
 
         @media (max-width: 480px) {
-            .brand {
-                font-size: 25px;
-                letter-spacing: 3px;
+            .brand img {
+                width: 65px;
+                height: 46px;
             }
 
             .nav-links {
                 gap: 10px;
+                font-size: 8px;
             }
 
             .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 23px 10px;
             }
 
             .product-name {
-                font-size: 21px;
+                font-size: 20px;
             }
 
             .actions {
@@ -349,13 +609,26 @@
                 padding: 12px 5px;
             }
 
-            footer {
+            .footer-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 28px 20px;
+            }
+
+            .footer-bottom {
+                align-items: flex-start;
                 flex-direction: column;
+                line-height: 1.8;
+            }
+
+            .legal-dialog {
+                padding: 27px 22px;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+            *,
+            *::before,
+            *::after {
                 animation: none !important;
                 transition: none !important;
             }
@@ -365,19 +638,45 @@
 
 <body>
 
+<!-- GLOBAL PAGE LOADER -->
+<div id="uncommon-loader" aria-label="Loading UNCOMMON" role="status">
+    <img
+        class="loader-logo"
+        src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+        alt="UNCOMMON"
+    >
+    <div class="loader-track">
+        <div class="loader-progress"></div>
+    </div>
+    <span class="loader-label">Preparing your collection</span>
+</div>
+
+<!-- NAVBAR -->
 <nav class="navbar">
-    <a href="{% url 'customer_home' %}" class="brand">INSOLO</a>
+    <a href="{% url 'customer_home' %}" class="brand" aria-label="UNCOMMON home">
+        <img
+            src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+            alt="UNCOMMON"
+        >
+    </a>
 
     <div class="nav-links">
         <a href="{% url 'customer_home' %}">Shop</a>
         <a href="{% url 'bag_view' %}">Bag</a>
-        <a href="{% url 'wishlist_view' %}">Wishlist ({{ wishlist_count }})</a>
+        <a href="{% url 'wishlist_view' %}">
+            Wishlist ({{ wishlist_count }})
+        </a>
     </div>
 </nav>
 
+<!-- WISHLIST CONTENT -->
 <main class="page">
+
     <p class="eyebrow">Your personal collection</p>
-    <h1>My Wishlist<span style="color: var(--gold);">.</span></h1>
+
+    <h1>
+        My Wishlist<span style="color: var(--gold);">.</span>
+    </h1>
 
     <p class="intro">
         The pieces you love, saved for whenever you're ready.
@@ -387,6 +686,7 @@
         {{ wishlist_count }} saved item{{ wishlist_count|pluralize }}
     </p>
 
+    <!-- DJANGO MESSAGES -->
     {% if messages %}
         <div class="messages">
             {% for message in messages %}
@@ -396,13 +696,20 @@
     {% endif %}
 
     {% if wishlist_products %}
+
         <section class="grid">
+
             {% for product in wishlist_products %}
+
                 <article class="product">
 
+                    <!-- PRODUCT IMAGE AND REMOVE HEART -->
                     <div class="image-wrap">
-                        <a href="{% url 'section_products' 'HIM' %}"
-                           aria-label="Browse products">
+
+                        <a
+                            href="{% url 'section_products' 'HIM' %}"
+                            aria-label="Browse products"
+                        >
                             {% if product.image %}
                                 <img
                                     class="product-image"
@@ -411,25 +718,33 @@
                                     loading="lazy"
                                 >
                             {% else %}
-                                <div style="height:100%;display:grid;place-items:center;color:#777064;">
+                                <div class="image-placeholder">
                                     INSOLO
                                 </div>
                             {% endif %}
                         </a>
 
-                        <form method="POST"
-                              action="{% url 'remove_from_wishlist' product.id %}">
+                        <form
+                            method="POST"
+                            action="{% url 'remove_from_wishlist' product.id %}"
+                        >
                             {% csrf_token %}
-                            <button class="heart"
-                                    type="submit"
-                                    aria-label="Remove {{ product.product_name }} from wishlist"
-                                    title="Remove from wishlist">
+
+                            <button
+                                class="heart"
+                                type="submit"
+                                aria-label="Remove {{ product.product_name }} from wishlist"
+                                title="Remove from wishlist"
+                            >
                                 ♥
                             </button>
                         </form>
+
                     </div>
 
+                    <!-- PRODUCT DETAILS -->
                     <div class="product-info">
+
                         {% if product.category %}
                             <p class="category">
                                 {{ product.category.category_name }}
@@ -446,58 +761,520 @@
                             </p>
                         {% endif %}
 
-                        <p class="price">₹{{ product.price|floatformat:2 }}</p>
+                        <p class="price">
+                            ₹{{ product.price|floatformat:2 }}
+                        </p>
 
                         {% if product.stock > 0 %}
-                            <p class="availability">Available</p>
+                            <p class="availability">
+                                Available
+                            </p>
                         {% else %}
-                            <p class="availability out">Currently out of stock</p>
+                            <p class="availability out">
+                                Currently out of stock
+                            </p>
                         {% endif %}
 
+                        <!-- PRODUCT ACTIONS -->
                         <div class="actions">
-                            <form method="POST"
-                                  action="{% url 'move_to_bag' product.id %}"
-                                  style="display:contents;">
+
+                            <form
+                                method="POST"
+                                action="{% url 'move_to_bag' product.id %}"
+                            >
                                 {% csrf_token %}
-                                <button class="btn btn-bag"
-                                        type="submit"
-                                        {% if product.stock < 1 %}disabled{% endif %}>
+
+                                <button
+                                    class="btn btn-bag"
+                                    type="submit"
+                                    {% if product.stock < 1 %}disabled{% endif %}
+                                >
                                     Move to Bag
                                 </button>
                             </form>
 
-                            <form method="POST"
-                                  action="{% url 'remove_from_wishlist' product.id %}"
-                                  style="display:contents;">
+                            <form
+                                method="POST"
+                                action="{% url 'remove_from_wishlist' product.id %}"
+                            >
                                 {% csrf_token %}
-                                <button class="btn btn-remove" type="submit">
+
+                                <button
+                                    class="btn btn-remove"
+                                    type="submit"
+                                >
                                     Remove
                                 </button>
                             </form>
+
                         </div>
+
                     </div>
+
                 </article>
+
             {% endfor %}
+
         </section>
 
     {% else %}
+
+        <!-- EMPTY WISHLIST -->
         <section class="empty">
+
             <div class="empty-heart">♡</div>
+
             <h2>Nothing saved. Yet.</h2>
+
             <p>
                 Explore the collection and save the pieces that catch your eye.
             </p>
-            <a href="{% url 'customer_home' %}" class="shop-btn">
+
+            <a
+                href="{% url 'customer_home' %}"
+                class="shop-btn"
+            >
                 Explore Collection
             </a>
+
         </section>
+
     {% endif %}
+
 </main>
 
-<footer>
-    <span>© {% now "Y" %} INSOLO. All rights reserved.</span>
-    <span>Considered pieces. Individual style.</span>
+<!-- PREMIUM FOOTER -->
+<footer class="site-footer">
+
+    <div class="footer-wrap">
+
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+
+                <img
+                    src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                    alt="UNCOMMON logo"
+                    loading="lazy"
+                >
+
+                <p>
+                    Considered pieces, selected with intention.
+                    Some things are better when they are uncommon.
+                </p>
+
+            </div>
+
+            <div>
+                <h3 class="footer-heading">Explore</h3>
+
+                <div class="footer-links">
+                    <a href="{% url 'customer_home' %}">Home</a>
+                    <a href="{% url 'section_products' 'HIM' %}">
+                        Insolo — For Him
+                    </a>
+                    <a href="{% url 'section_products' 'HER' %}">
+                        Insolo — For Her
+                    </a>
+                    <a href="{% url 'section_products' 'RARE' %}">
+                        The Hundred
+                    </a>
+                    <a href="{% url 'bag_view' %}">Your Bag</a>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="footer-heading">Information</h3>
+
+                <div class="footer-links">
+                    <button
+                        type="button"
+                        data-open-legal="about-modal"
+                    >
+                        About UNCOMMON
+                    </button>
+
+                    <button
+                        type="button"
+                        data-open-legal="contact-modal"
+                    >
+                        Contact
+                    </button>
+
+                    <button
+                        type="button"
+                        data-open-legal="privacy-modal"
+                    >
+                        Privacy Policy
+                    </button>
+
+                    <button
+                        type="button"
+                        data-open-legal="terms-modal"
+                    >
+                        Terms &amp; Conditions
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="footer-heading">Customer Care</h3>
+
+                <div class="footer-links">
+                    <button
+                        type="button"
+                        data-open-legal="shipping-modal"
+                    >
+                        Shipping Policy
+                    </button>
+
+                    <button
+                        type="button"
+                        data-open-legal="refund-modal"
+                    >
+                        Returns &amp; Refunds
+                    </button>
+
+                    <a href="{% url 'wishlist_view' %}">
+                        My Wishlist
+                    </a>
+
+                    <a href="mailto:Contact@uncommen.in">
+                        Contact@uncommen.in
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <span>
+                © {% now "Y" %} UNCOMMON — Made for one.
+            </span>
+
+            <span>
+                NUMBERED ONCE. RECORDED TO A SINGLE NAME.
+            </span>
+        </div>
+
+    </div>
+
 </footer>
+
+<!-- ABOUT MODAL -->
+<div
+    class="legal-modal"
+    id="about-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="about-title"
+>
+    <div class="legal-dialog">
+
+        <button
+            class="legal-close"
+            type="button"
+            aria-label="Close"
+        >×</button>
+
+        <h2 id="about-title">About UNCOMMON</h2>
+
+        <p>
+            UNCOMMON is built around considered style, distinctive finds,
+            and pieces chosen with intention. Our collections bring together
+            everyday essentials and limited selections.
+        </p>
+
+        <p>
+            We aim to make every part of your experience thoughtful,
+            from discovering a piece to receiving it.
+        </p>
+
+    </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div
+    class="legal-modal"
+    id="contact-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="contact-title"
+>
+    <div class="legal-dialog">
+
+        <button
+            class="legal-close"
+            type="button"
+            aria-label="Close"
+        >×</button>
+
+        <h2 id="contact-title">Contact Us</h2>
+
+        <p>
+            Need help with a product, order, or delivery?
+            Contact our team using the details below.
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            <a href="mailto:Contact@uncommen.in">
+                Contact@uncommen.in
+            </a>
+        </p>
+
+        <p>
+            <strong>Phone:</strong>
+            <a href="tel:+917051259897">
+                +91 7051259897
+            </a>
+        </p>
+
+        <p>
+            Confirm these contact details and support hours before publishing.
+        </p>
+
+    </div>
+</div>
+
+<!-- PRIVACY POLICY MODAL -->
+<div
+    class="legal-modal"
+    id="privacy-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="privacy-title"
+>
+    <div class="legal-dialog">
+
+        <button
+            class="legal-close"
+            type="button"
+            aria-label="Close"
+        >×</button>
+
+        <h2 id="privacy-title">Privacy Policy</h2>
+
+        <p>
+            We use information you provide to manage your account,
+            process orders, respond to enquiries, and improve the
+            shopping experience.
+        </p>
+
+        <p>
+            Account and order information should be accessed only by
+            authorised personnel and retained only as needed for legitimate
+            business or legal purposes. Ensure this policy reflects your
+            actual data practices before publishing.
+        </p>
+
+    </div>
+</div>
+
+<!-- TERMS AND CONDITIONS MODAL -->
+<div
+    class="legal-modal"
+    id="terms-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="terms-title"
+>
+    <div class="legal-dialog">
+
+        <button
+            class="legal-close"
+            type="button"
+            aria-label="Close"
+        >×</button>
+
+        <h2 id="terms-title">Terms &amp; Conditions</h2>
+
+        <p>
+            Product descriptions, images, prices, and stock information
+            are provided to help customers make informed choices.
+            Orders are subject to availability and confirmation.
+        </p>
+
+        <p>
+            Customers should provide accurate account, contact, and delivery
+            details. Final terms on payment, cancellations, warranties,
+            and liability must reflect your actual business practices
+            and applicable law.
+        </p>
+
+    </div>
+</div>
+
+<!-- SHIPPING POLICY MODAL -->
+<div
+    class="legal-modal"
+    id="shipping-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="shipping-title"
+>
+    <div class="legal-dialog">
+
+        <button
+            class="legal-close"
+            type="button"
+            aria-label="Close"
+        >×</button>
+
+        <h2 id="shipping-title">Shipping Policy</h2>
+
+        <p>
+            Orders are prepared for dispatch after confirmation.
+            Delivery timelines may vary based on destination,
+            product availability, and courier operations.
+        </p>
+
+        <p>
+            Publish your confirmed shipping charges, serviceable locations,
+            estimated delivery times, and tracking process here before
+            accepting customer orders.
+        </p>
+
+    </div>
+</div>
+
+<!-- RETURNS AND REFUNDS MODAL -->
+<div
+    class="legal-modal"
+    id="refund-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="refund-title"
+>
+    <div class="legal-dialog">
+
+        <button
+            class="legal-close"
+            type="button"
+            aria-label="Close"
+        >×</button>
+
+        <h2 id="refund-title">Returns &amp; Refunds</h2>
+
+        <p>
+            For help with an incorrect, damaged, or eligible item,
+            contact customer care with your order number and details
+            of the issue.
+        </p>
+
+        <p>
+            Set out your actual return window, item eligibility,
+            condition requirements, refund timeline, and return-shipping
+            responsibility here. This starter copy is not a substitute
+            for a final policy.
+        </p>
+
+    </div>
+</div>
+
+<!-- PAGE LOADER AND POLICY MODAL JAVASCRIPT -->
+<script>
+    /* Global page loader */
+    (() => {
+        const loader = document.getElementById("uncommon-loader");
+
+        if (!loader) {
+            return;
+        }
+
+        let hidden = false;
+        const startedAt = Date.now();
+
+        function hideLoader() {
+            if (hidden) {
+                return;
+            }
+
+            hidden = true;
+
+            const remaining = Math.max(
+                0,
+                2500 - (Date.now() - startedAt)
+            );
+
+            setTimeout(() => {
+                loader.classList.add("is-hidden");
+            }, remaining);
+        }
+
+        window.uncommonLoader = {
+            hide: hideLoader
+        };
+
+        window.addEventListener("load", hideLoader, { once: true });
+
+        // Fallback in case the page load event is delayed.
+        setTimeout(hideLoader, 12000);
+    })();
+
+    /* Footer policy modals */
+    (() => {
+        const modals = document.querySelectorAll(".legal-modal");
+        let previouslyFocused = null;
+
+        function closeModal(modal) {
+            modal.classList.remove("is-open");
+
+            if (previouslyFocused) {
+                previouslyFocused.focus();
+            }
+        }
+
+        document.querySelectorAll("[data-open-legal]").forEach(trigger => {
+            trigger.addEventListener("click", () => {
+                const modal = document.getElementById(
+                    trigger.dataset.openLegal
+                );
+
+                if (!modal) {
+                    return;
+                }
+
+                previouslyFocused = trigger;
+                modal.classList.add("is-open");
+
+                const closeButton = modal.querySelector(".legal-close");
+
+                if (closeButton) {
+                    closeButton.focus();
+                }
+            });
+        });
+
+        modals.forEach(modal => {
+            const closeButton = modal.querySelector(".legal-close");
+
+            if (closeButton) {
+                closeButton.addEventListener("click", () => {
+                    closeModal(modal);
+                });
+            }
+
+            // Close when clicking outside the modal content.
+            modal.addEventListener("click", event => {
+                if (event.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        // Close an open modal with Escape.
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                modals.forEach(modal => {
+                    if (modal.classList.contains("is-open")) {
+                        closeModal(modal);
+                    }
+                });
+            }
+        });
+    })();
+</script>
 
 </body>
 </html>

@@ -1,206 +1,777 @@
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Account — UNCOMMON</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 :root {
-    --bg:#EFEBE1;
-    --card:#F7F4EC;
-    --input:#FAF8F2;
-    --tint:#E8E1CE;
-    --border:#D6CCB5;
-    --text:#241E14;
-    --muted:#6F6350;
-    --gold:#A0763A;
-    --green:#3E4A3A;
+    --bg: #EFEBE1;
+    --card: #F7F4EC;
+    --input: #FAF8F2;
+    --tint: #E8E1CE;
+    --border: #D6CCB5;
+    --text: #241E14;
+    --muted: #6F6350;
+    --gold: #A0763A;
+    --green: #3E4A3A;
+    --red: #7E3324;
 }
-* { box-sizing:border-box; margin:0; padding:0; }
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    background:var(--bg); color:var(--text);
-    font-family:'Archivo',sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Archivo', sans-serif;
+    line-height: 1.6;
 }
-a { color:inherit; text-decoration:none; }
+
+body.modal-open {
+    overflow: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font: inherit;
+}
+
+/* LOADER */
+.site-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: var(--bg);
+    transition: opacity .45s ease, visibility .45s ease;
+}
+
+.site-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-logo {
+    width: 150px;
+    max-width: 45vw;
+    max-height: 100px;
+    object-fit: contain;
+    animation: logoPulse 1.2s ease-in-out infinite;
+}
+
+.loader-track {
+    width: 150px;
+    height: 2px;
+    overflow: hidden;
+    background: var(--border);
+}
+
+.loader-progress {
+    width: 40%;
+    height: 100%;
+    background: var(--gold);
+    animation: loading 1.1s ease-in-out infinite;
+}
+
+.loader-caption {
+    color: var(--muted);
+    font: 9px 'IBM Plex Mono', monospace;
+    letter-spacing: 3px;
+}
+
+@keyframes logoPulse {
+    0%, 100% { opacity: .65; transform: scale(.97); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes loading {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(350%); }
+}
+
+/* HEADER */
 .topbar {
-    padding:23px 6%; display:flex; justify-content:space-between;
-    align-items:center; border-bottom:1px solid var(--border);
-    background:var(--card);
+    padding: 18px 6%;
+    min-height: 88px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
 }
+
 .logo {
-    font:700 25px 'Libre Caslon Text',serif;
-    letter-spacing:.14em;
+    display: inline-flex;
+    align-items: center;
 }
-.logo span { color:var(--green); }
+
+.logo img {
+    display: block;
+    width: 155px;
+    max-height: 58px;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
 .top-link {
-    font:11px 'IBM Plex Mono',monospace;
-    text-transform:uppercase; letter-spacing:.1em;
+    font: 10px 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    transition: color .2s ease;
 }
-.container { max-width:1100px; margin:auto; padding:55px 22px; }
+
+.top-link:hover {
+    color: var(--gold);
+}
+
+/* PAGE CONTENT */
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 55px 22px 90px;
+}
+
 .eyebrow {
-    color:var(--gold); font:11px 'IBM Plex Mono',monospace;
-    letter-spacing:.18em; text-transform:uppercase;
+    color: var(--gold);
+    font: 10px 'IBM Plex Mono', monospace;
+    letter-spacing: .18em;
+    text-transform: uppercase;
 }
+
 h1 {
-    font:400 clamp(32px,5vw,48px) 'Libre Caslon Text',serif;
-    margin:12px 0;
+    font: 400 clamp(32px, 5vw, 48px) 'Libre Caslon Text', serif;
+    margin: 12px 0;
+    line-height: 1.2;
 }
-.intro { color:var(--muted); line-height:1.7; }
+
+.intro {
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 13px;
+}
+
 .layout {
-    display:grid; grid-template-columns:255px 1fr;
-    gap:25px; margin-top:38px;
+    display: grid;
+    grid-template-columns: 255px minmax(0, 1fr);
+    gap: 25px;
+    margin-top: 38px;
 }
+
 .card {
-    background:var(--card); border:1px solid var(--border);
-    padding:26px; margin-bottom:20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 26px;
+    margin-bottom: 20px;
+    min-width: 0;
 }
+
 .avatar {
-    width:66px; height:66px; border-radius:50%;
-    background:var(--green); color:white;
-    display:grid; place-items:center;
-    font:26px 'Libre Caslon Text',serif; margin-bottom:18px;
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    display: grid;
+    place-items: center;
+    font: 26px 'Libre Caslon Text', serif;
+    margin-bottom: 18px;
 }
+
 .customer-name {
-    font:24px 'Libre Caslon Text',serif;
-    overflow-wrap:anywhere;
+    font: 24px 'Libre Caslon Text', serif;
+    overflow-wrap: anywhere;
 }
+
 .customer-email {
-    color:var(--muted); font-size:12px;
-    margin-top:8px; overflow-wrap:anywhere;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 8px;
+    overflow-wrap: anywhere;
 }
-.side-nav { margin-top:25px; border-top:1px solid var(--border); }
+
+.side-nav {
+    margin-top: 25px;
+    border-top: 1px solid var(--border);
+}
+
 .side-nav a {
-    display:block; padding:15px 0;
-    border-bottom:1px solid var(--border);
-    font:11px 'IBM Plex Mono',monospace;
-    letter-spacing:.06em; text-transform:uppercase;
+    display: block;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
+    font: 10px 'IBM Plex Mono', monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    transition: color .2s ease;
 }
-.side-nav a:hover { color:var(--gold); }
+
+.side-nav a:hover {
+    color: var(--gold);
+}
+
+/* STATISTICS */
 .stats {
-    display:grid; grid-template-columns:repeat(3,1fr);
-    gap:13px; margin-bottom:20px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+    margin-bottom: 20px;
 }
+
 .stat {
-    background:var(--card); border:1px solid var(--border);
-    padding:22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 22px;
+    min-width: 0;
 }
+
 .stat strong {
-    display:block; font:30px 'Libre Caslon Text',serif;
-    margin-bottom:8px;
+    display: block;
+    font: 30px 'Libre Caslon Text', serif;
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
 }
+
 .stat span {
-    color:var(--muted); font:10px 'IBM Plex Mono',monospace;
-    text-transform:uppercase; letter-spacing:.08em;
+    color: var(--muted);
+    font: 9px 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .08em;
 }
+
+/* PROFILE */
 .section-title {
-    font:25px 'Libre Caslon Text',serif; margin-bottom:20px;
+    font: 25px 'Libre Caslon Text', serif;
+    margin-bottom: 20px;
 }
+
 .profile-row {
-    display:flex; justify-content:space-between;
-    gap:15px; padding:15px 0;
-    border-bottom:1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
 }
-.profile-row:last-of-type { border-bottom:0; }
+
+.profile-row:last-of-type {
+    border-bottom: 0;
+}
+
 .field-label {
-    color:var(--muted); font:10px 'IBM Plex Mono',monospace;
-    text-transform:uppercase; margin-bottom:7px;
+    color: var(--muted);
+    font: 9px 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 7px;
 }
-.field-value { overflow-wrap:anywhere; font-size:14px; }
+
+.field-value {
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+
 .btn {
-    display:inline-block; border:1px solid var(--green);
-    padding:12px 16px; background:var(--green); color:white;
-    font:10px 'IBM Plex Mono',monospace;
-    letter-spacing:.08em; text-transform:uppercase;
-    cursor:pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--green);
+    padding: 12px 16px;
+    background: var(--green);
+    color: white;
+    font: 9px 'IBM Plex Mono', monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease;
 }
-.btn:hover { background:var(--text); }
-.btn-outline { background:transparent; color:var(--green); }
-.orders { overflow-x:auto; }
-table { width:100%; border-collapse:collapse; min-width:460px; }
+
+.btn:hover {
+    background: var(--text);
+    border-color: var(--text);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--green);
+}
+
+/* ORDERS TABLE */
+.orders {
+    overflow-x: auto;
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 460px;
+}
+
 th {
-    text-align:left; color:var(--muted);
-    font:10px 'IBM Plex Mono',monospace;
-    text-transform:uppercase; padding:13px 8px;
+    text-align: left;
+    color: var(--muted);
+    font: 9px 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 13px 8px;
 }
-td { padding:17px 8px; border-top:1px solid var(--border); font-size:12px; }
+
+td {
+    padding: 17px 8px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    vertical-align: middle;
+}
+
+.order-number {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
 .status {
-    display:inline-block; padding:6px 8px;
-    background:var(--tint); font:10px 'IBM Plex Mono',monospace;
+    display: inline-block;
+    padding: 6px 8px;
+    background: var(--tint);
+    font: 9px 'IBM Plex Mono', monospace;
+    white-space: nowrap;
 }
-.empty { text-align:center; padding:30px 10px; color:var(--muted); line-height:1.8; }
-.messages { margin-bottom:20px; }
-.message { padding:12px; margin-bottom:8px; font-size:13px; background:var(--tint); }
-footer {
-    text-align:center; padding:25px;
-    border-top:1px solid var(--border);
-    color:var(--muted); font:10px 'IBM Plex Mono',monospace;
+
+.status-pending {
+    background: #F3E6C9;
+    color: #805D1E;
 }
-@media(max-width:760px) {
-    .layout { grid-template-columns:1fr; }
-    .stats { grid-template-columns:1fr 1fr; }
-    .container { padding:35px 16px; }
-    .topbar { padding:20px; }
-    .card { padding:20px; }
+
+.status-confirmed,
+.status-delivered {
+    background: #E0E9DA;
+    color: var(--green);
+}
+
+.status-shipped {
+    background: #DFE7ED;
+    color: #35546C;
+}
+
+.status-cancelled {
+    background: #F2DEDA;
+    color: var(--red);
+}
+
+.order-link {
+    color: var(--gold);
+    font: 9px 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+}
+
+.order-link:hover {
+    text-decoration: underline;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px 10px;
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 12px;
+}
+
+/* MESSAGES */
+.messages {
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    background: var(--tint);
+    border-left: 3px solid var(--green);
+}
+
+.message.error {
+    background: #F2DEDA;
+    color: var(--red);
+    border-color: var(--red);
+}
+
+/* FOOTER */
+.site-footer {
+    border-top: 1px solid var(--border);
+    background: #EDE6D9;
+    padding: 52px 6% 22px;
+}
+
+.footer-main {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 35px;
+    max-width: 1250px;
+    margin: 0 auto;
+}
+
+.footer-brand img {
+    display: block;
+    width: 155px;
+    max-height: 65px;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    margin-bottom: 14px;
+}
+
+.footer-brand p {
+    max-width: 250px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.footer-heading {
+    color: var(--gold);
+    font: 9px 'IBM Plex Mono', monospace;
+    letter-spacing: 2px;
+    margin-bottom: 17px;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.footer-links a,
+.footer-links button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: color .2s ease;
+}
+
+.footer-links a:hover,
+.footer-links button:hover {
+    color: var(--gold);
+}
+
+.footer-bottom {
+    max-width: 1250px;
+    margin: 36px auto 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+    color: var(--muted);
+    font: 9px 'IBM Plex Mono', monospace;
+    letter-spacing: 1px;
+}
+
+/* POLICY MODALS */
+.legal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(25, 21, 15, .65);
+}
+
+.legal-modal.is-open {
+    display: flex;
+}
+
+.modal-panel {
+    position: relative;
+    width: min(600px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 35px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    animation: modalIn .22s ease;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 17px;
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 21px;
+}
+
+.modal-title {
+    font: 35px 'Libre Caslon Text', serif;
+    line-height: 1.3;
+    padding-right: 35px;
+    margin: 10px 0 16px;
+}
+
+.modal-content {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.modal-content p {
+    margin-bottom: 12px;
+}
+
+.modal-content strong {
+    color: var(--text);
+}
+
+.modal-content a {
+    color: var(--gold);
+    overflow-wrap: anywhere;
+}
+
+/* TOAST */
+.toast {
+    position: fixed;
+    z-index: 100001;
+    right: 22px;
+    bottom: 22px;
+    width: min(360px, calc(100% - 44px));
+    padding: 15px 18px;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .footer-main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .container {
+        padding: 35px 16px 65px;
+    }
+
+    .topbar {
+        padding: 18px 20px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .side-nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 18px;
+    }
+}
+
+@media (max-width: 520px) {
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .logo img {
+        width: 135px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .stat {
+        padding: 17px;
+    }
+
+    .stat strong {
+        font-size: 26px;
+    }
+
+    .site-footer {
+        padding: 40px 6% 20px;
+    }
+
+    .footer-main {
+        gap: 28px 18px;
+    }
+
+    .modal-panel {
+        padding: 28px 22px;
+    }
+
+    .modal-title {
+        font-size: 29px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
 }
 </style>
 </head>
+
 <body>
 
+<!-- PAGE LOADER -->
+<div class="site-loader" id="siteLoader" aria-label="Loading page">
+    <img
+        src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+        alt="UNCOMMON"
+        class="loader-logo"
+    >
+    <div class="loader-track">
+        <div class="loader-progress"></div>
+    </div>
+    <p class="loader-caption">PREPARING YOUR EXPERIENCE</p>
+</div>
+
+<!-- HEADER -->
 <header class="topbar">
-    <a href="/" class="logo">UNCOMMON<span>.</span></a>
-    <a href="/" class="top-link">← Back to the collection</a>
+    <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">
+        <img
+            src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+            alt="UNCOMMON"
+        >
+    </a>
+
+    <a href="{% url 'customer_home' %}" class="top-link">
+        &larr; Back to the collection
+    </a>
 </header>
 
 <main class="container">
     <p class="eyebrow">The House Registry / Account</p>
     <h1>Your account.</h1>
-    <p class="intro">Your details, your selections, your orders — all in one place.</p>
+    <p class="intro">
+        Your details, your selections, your orders — all in one place.
+    </p>
+
+    {% if messages %}
+    <div class="messages" id="djangoMessages">
+        {% for message in messages %}
+        <div class="message {% if message.tags == 'error' %}error{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <div class="layout">
+
+        <!-- SIDEBAR -->
         <aside>
             <div class="card">
                 <div class="avatar">
                     {{ customer.name|first|upper }}
                 </div>
+
                 <div class="customer-name">{{ customer.name }}</div>
                 <div class="customer-email">{{ customer.email }}</div>
 
                 <nav class="side-nav">
                     <a href="#overview">Account overview</a>
                     <a href="#orders">My orders</a>
-                    <a href="{% url 'edit_customer_profile' %}">Edit profile →</a>
-                    <a href="/">Continue shopping →</a>
+                    <a href="{% url 'edit_customer_profile' %}">
+                        Edit profile &rarr;
+                    </a>
+                    <a href="{% url 'customer_home' %}">
+                        Continue shopping &rarr;
+                    </a>
                 </nav>
             </div>
         </aside>
 
+        <!-- ACCOUNT CONTENT -->
         <section>
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="message">{{ message }}</div>
-                {% endfor %}
-            </div>
-            {% endif %}
 
+            <!-- ACCOUNT STATISTICS -->
             <div class="stats">
                 <div class="stat">
                     <strong>{{ total_orders }}</strong>
                     <span>Total orders</span>
                 </div>
+
                 <div class="stat">
                     <strong>{{ delivered_orders }}</strong>
                     <span>Delivered</span>
                 </div>
+
                 <div class="stat">
                     <strong>{{ customer.username|length }}</strong>
                     <span>Username length</span>
                 </div>
             </div>
 
+            <!-- PERSONAL DETAILS -->
             <div class="card" id="overview">
                 <h2 class="section-title">Personal details</h2>
 
@@ -210,33 +781,44 @@ footer {
                         <div class="field-value">{{ customer.name }}</div>
                     </div>
                 </div>
+
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Email address</div>
                         <div class="field-value">{{ customer.email }}</div>
                     </div>
                 </div>
+
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Username</div>
                         <div class="field-value">{{ customer.username }}</div>
                     </div>
                 </div>
+
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Phone number</div>
-                        <div class="field-value">{{ customer.phone|default:"Not provided" }}</div>
+                        <div class="field-value">
+                            {{ customer.phone|default:"Not provided" }}
+                        </div>
                     </div>
                 </div>
 
-                <a href="{% url 'edit_customer_profile' %}" class="btn" style="margin-top:22px">
-                    Edit personal details →
+                <a
+                    href="{% url 'edit_customer_profile' %}"
+                    class="btn"
+                    style="margin-top:22px"
+                >
+                    Edit personal details &rarr;
                 </a>
             </div>
 
+            <!-- RECENT ORDERS -->
             <div class="card" id="orders">
                 <h2 class="section-title">Your orders.</h2>
-                <p class="intro" style="font-size:13px;margin-bottom:20px">
+
+                <p class="intro" style="font-size:12px; margin-bottom:20px">
                     A record of everything you've selected from the collection.
                 </p>
 
@@ -249,32 +831,386 @@ footer {
                                 <th>Date</th>
                                 <th>Total</th>
                                 <th>Status</th>
+                                <th>Details</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             {% for order in orders %}
                             <tr>
-                                <td>#{{ order.order_number }}</td>
-                                <td>{{ order.created_at|date:"d M Y" }}</td>
-                                <td>₹{{ order.total_amount }}</td>
-                                <td><span class="status">{{ order.get_status_display }}</span></td>
+                                <td class="order-number">
+                                    #{{ order.order_number }}
+                                </td>
+
+                                <td>
+                                    {{ order.created_at|date:"d M Y" }}
+                                </td>
+
+                                <td>
+                                    ₹{{ order.total_amount|floatformat:2 }}
+                                </td>
+
+                                <td>
+                                    <span class="status
+                                        {% if order.status == 'PENDING' %}status-pending
+                                        {% elif order.status == 'CONFIRMED' %}status-confirmed
+                                        {% elif order.status == 'SHIPPED' %}status-shipped
+                                        {% elif order.status == 'DELIVERED' %}status-delivered
+                                        {% elif order.status == 'CANCELLED' %}status-cancelled
+                                        {% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{% url 'order_detail' order.order_number %}"
+                                        class="order-link"
+                                    >
+                                        VIEW &rarr;
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+
+                <a
+                    href="{% url 'my_orders' %}"
+                    class="btn btn-outline"
+                    style="margin-top:22px"
+                >
+                    View all orders &rarr;
+                </a>
+
                 {% else %}
                 <div class="empty">
                     <p>No orders just yet.</p>
                     <p>Your next uncommon find is waiting.</p>
-                    <a href="/" class="btn" style="margin-top:18px">Explore the collection →</a>
+
+                    <a
+                        href="{% url 'customer_home' %}"
+                        class="btn"
+                        style="margin-top:18px"
+                    >
+                        Explore the collection &rarr;
+                    </a>
                 </div>
                 {% endif %}
             </div>
+
         </section>
     </div>
 </main>
 
-<footer>UNCOMMON — NUMBERED ONCE. RECORDED TO A SINGLE NAME.</footer>
+<!-- PREMIUM FOOTER -->
+<footer class="site-footer">
+    <div class="footer-main">
+
+        <div class="footer-brand">
+            <a href="{% url 'customer_home' %}" aria-label="UNCOMMON home">
+                <img
+                    src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                    alt="UNCOMMON"
+                    loading="lazy"
+                >
+            </a>
+
+            <p>
+                Thoughtfully selected pieces for those who choose to be different.
+                Discover your style with INSOLO UNCOMMON.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">EXPLORE</h3>
+            <div class="footer-links">
+                <a href="{% url 'customer_home' %}">Home</a>
+                <a href="{% url 'section_products' 'HIM' %}">For Him</a>
+                <a href="{% url 'section_products' 'HER' %}">For Her</a>
+                <a href="{% url 'section_products' 'RARE' %}">Rare Collection</a>
+                <a href="{% url 'bag_view' %}">My Bag</a>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">INFORMATION</h3>
+            <div class="footer-links">
+                <button type="button" data-open-legal="about-modal">About Us</button>
+                <button type="button" data-open-legal="contact-modal">Contact Us</button>
+                <button type="button" data-open-legal="privacy-modal">Privacy Policy</button>
+                <button type="button" data-open-legal="terms-modal">Terms &amp; Conditions</button>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">CUSTOMER CARE</h3>
+            <div class="footer-links">
+                <button type="button" data-open-legal="shipping-modal">Shipping Policy</button>
+                <button type="button" data-open-legal="refund-modal">Returns &amp; Refunds</button>
+                <button type="button" data-open-legal="contact-modal">Get in Touch</button>
+                <a href="{% url 'my_orders' %}">Track My Orders</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <span>&copy; {% now "Y" %} INSOLO UNCOMMON</span>
+        <span>NUMBERED ONCE. RECORDED TO A SINGLE NAME.</span>
+    </div>
+</footer>
+
+<!-- ABOUT MODAL -->
+<div class="legal-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">OUR STORY</p>
+        <h2 class="modal-title" id="about-title">About INSOLO UNCOMMON</h2>
+        <div class="modal-content">
+            <p>
+                INSOLO UNCOMMON is built around individual style and thoughtfully
+                selected pieces. We believe what you wear can express who you are.
+            </p>
+            <p>
+                Explore our collections and discover pieces that feel distinctly you.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="legal-modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">WE'RE HERE TO HELP</p>
+        <h2 class="modal-title" id="contact-title">Contact Us</h2>
+        <div class="modal-content">
+            <p>Have a question about an order or product? Reach out to our team.</p>
+            <p><strong>Email:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+917051259897">+91 7051259897</a></p>
+            <p>Please include your order number when contacting us about a purchase.</p>
+        </div>
+    </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div class="legal-modal" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">YOUR INFORMATION</p>
+        <h2 class="modal-title" id="privacy-title">Privacy Policy</h2>
+        <div class="modal-content">
+            <p>
+                We use the information you provide to operate your account,
+                process orders, communicate about purchases, and support your
+                experience on our website.
+            </p>
+            <p>
+                Access to personal information should be limited to authorised
+                personnel who need it to provide the service.
+            </p>
+            <p>
+                For questions about your information or a privacy-related request,
+                contact us using the details in our Contact Us section.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div class="legal-modal" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">PLEASE READ</p>
+        <h2 class="modal-title" id="terms-title">Terms &amp; Conditions</h2>
+        <div class="modal-content">
+            <p>
+                By using this website, you agree to provide accurate account and
+                order information and to use the website lawfully.
+            </p>
+            <p>
+                Product availability, prices, and order status may change as an
+                order is processed. Submitting an order does not necessarily mean
+                it has been confirmed for fulfilment.
+            </p>
+            <p>
+                Orders and cancellation requests are subject to order status and
+                the store's applicable policies.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- REFUNDS MODAL -->
+<div class="legal-modal" id="refund-modal" role="dialog" aria-modal="true" aria-labelledby="refund-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">AFTER YOUR PURCHASE</p>
+        <h2 class="modal-title" id="refund-title">Returns &amp; Refunds</h2>
+        <div class="modal-content">
+            <p>
+                If you receive a damaged, defective, or incorrect item, contact
+                our support team with your order number and relevant details.
+            </p>
+            <p>
+                Return eligibility, timelines, and refund processing depend on
+                the store's confirmed policy and the circumstances of the order.
+                Contact support before sending an item back.
+            </p>
+            <p>
+                Verify your actual return and refund conditions before publishing
+                this policy.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- SHIPPING MODAL -->
+<div class="legal-modal" id="shipping-modal" role="dialog" aria-modal="true" aria-labelledby="shipping-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">DELIVERY INFORMATION</p>
+        <h2 class="modal-title" id="shipping-title">Shipping Policy</h2>
+        <div class="modal-content">
+            <p>
+                Orders are processed after the required order checks are complete.
+                Dispatch and delivery times can vary depending on product
+                availability, delivery location, and courier operations.
+            </p>
+            <p>
+                Please make sure your shipping address and contact details are
+                accurate when placing an order.
+            </p>
+            <p>
+                For an update on a purchase, open the order details page or
+                contact support with your order number.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="siteToast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    "use strict";
+
+    /* LOADER */
+    const loader = document.getElementById("siteLoader");
+    const loaderStartedAt = Date.now();
+    const minimumLoaderTime = 2500;
+    let loaderHidden = false;
+
+    function hideLoader() {
+        if (loaderHidden || !loader) return;
+
+        loaderHidden = true;
+
+        const elapsed = Date.now() - loaderStartedAt;
+        const remaining = Math.max(0, minimumLoaderTime - elapsed);
+
+        window.setTimeout(function () {
+            loader.classList.add("is-hidden");
+        }, remaining);
+    }
+
+    window.uncommonLoader = {
+        hide: hideLoader
+    };
+
+    window.addEventListener("load", hideLoader, { once: true });
+    window.setTimeout(hideLoader, 12000);
+
+    /* DJANGO MESSAGE TOAST */
+    const toast = document.getElementById("siteToast");
+    const messages = document.querySelectorAll("#djangoMessages .message");
+    let toastTimer;
+
+    function showToast(message) {
+        if (!toast || !message) return;
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+            toast.classList.remove("show");
+        }, 4000);
+    }
+
+    if (messages.length) {
+        const messageText = messages[0].textContent.trim();
+
+        if (messageText) {
+            window.setTimeout(function () {
+                showToast(messageText);
+            }, 300);
+        }
+    }
+
+    /* POLICY MODALS */
+    const modals = document.querySelectorAll(".legal-modal");
+    let lastFocusedElement = null;
+
+    function openModal(modal) {
+        if (!modal) return;
+
+        lastFocusedElement = document.activeElement;
+        modal.classList.add("is-open");
+        document.body.classList.add("modal-open");
+
+        const closeButton = modal.querySelector(".modal-close");
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+
+        modal.classList.remove("is-open");
+
+        if (!document.querySelector(".legal-modal.is-open")) {
+            document.body.classList.remove("modal-open");
+        }
+
+        if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+            lastFocusedElement.focus();
+        }
+    }
+
+    document.querySelectorAll("[data-open-legal]").forEach(function (trigger) {
+        trigger.addEventListener("click", function () {
+            const modalId = trigger.getAttribute("data-open-legal");
+            openModal(document.getElementById(modalId));
+        });
+    });
+
+    modals.forEach(function (modal) {
+        const closeButton = modal.querySelector(".modal-close");
+
+        if (closeButton) {
+            closeButton.addEventListener("click", function () {
+                closeModal(modal);
+            });
+        }
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            const activeModal = document.querySelector(".legal-modal.is-open");
+            if (activeModal) closeModal(activeModal);
+        }
+    });
+})();
+</script>
+
 </body>
 </html>

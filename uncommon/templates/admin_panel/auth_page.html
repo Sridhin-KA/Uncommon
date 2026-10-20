@@ -1,270 +1,358 @@
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#EFEBE1">
 <title>UNCOMMON — Entrance & Register</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --beige-bg: #EFEBE1;        /* House parchment beige */
-    --beige-card: #F7F4EC;      /* Pale cream beige card */
-    --beige-input: #FAF8F2;     /* Subtle light beige inputs */
-    --beige-tint: #E8E1CE;      /* Muted accent beige */
-    --beige-border: #D6CCB5;    /* Sand/beige division lines */
+:root {
+    --beige-bg: #EFEBE1;
+    --beige-card: #F7F4EC;
+    --beige-input: #FAF8F2;
+    --beige-tint: #E8E1CE;
+    --beige-border: #D6CCB5;
     --beige-border-dark: #B8AC90;
-    --text-primary: #241E14;    /* Deep soot brown */
-    --text-muted: #6F6350;      /* Weathered warm umber */
-    --accent-ochre: #A0763A;    /* Antique gold / ochre */
-    --accent-green: #3E4A3A;    /* Forest green accent */
+    --text-primary: #241E14;
+    --text-muted: #6F6350;
+    --accent-ochre: #A0763A;
+    --accent-green: #3E4A3A;
     --font-serif: 'Libre Caslon Text', serif;
     --font-sans: 'Archivo', sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
-  }
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  body {
-    background-color: var(--beige-bg);
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--beige-bg);
     color: var(--text-primary);
     font-family: var(--font-sans);
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 32px 16px;
+    gap: 35px;
+    padding: 38px 24px;
     -webkit-font-smoothing: antialiased;
-  }
+}
 
-  ::selection {
+body.is-loading {
+    overflow: hidden;
+}
+
+::selection {
     background: #C69C5C;
     color: var(--text-primary);
-  }
+}
 
-  .auth-frame {
+a {
+    color: inherit;
+}
+
+/* =========================
+   BRANDED LOADING SCREEN
+========================= */
+
+.site-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 24px;
+    background: var(--beige-bg);
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .35s ease, visibility .35s ease;
+}
+
+.site-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.site-loader-logo {
+    width: min(290px, 70vw);
+    height: auto;
+    animation: loaderBreath 1.8s ease-in-out infinite;
+}
+
+.site-loader-track {
+    width: 120px;
+    height: 2px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: var(--beige-border);
+}
+
+.site-loader-track::after {
+    content: "";
+    display: block;
+    width: 42%;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent-ochre);
+    animation: loaderProgress 1.15s ease-in-out infinite;
+}
+
+.site-loader-label {
+    color: var(--text-muted);
+    font: 9px var(--font-mono);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+@keyframes loaderBreath {
+    0%, 100% {
+        opacity: .78;
+        transform: scale(.985);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes loaderProgress {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(350%); }
+}
+
+/* =========================
+   LOGIN / REGISTER CARD
+========================= */
+
+.auth-frame {
     width: 100%;
     max-width: 500px;
     background: var(--beige-card);
     border: 1px solid var(--beige-border);
-    box-shadow: 0 18px 45px -20px rgba(50, 40, 25, 0.2);
-    border-radius: 2px;
-  }
+    box-shadow: 0 18px 45px -20px rgba(50, 40, 25, .2);
+    border-radius: 5px;
+    overflow: hidden;
+}
 
-  .auth-header {
-    padding: 32px 36px 24px;
+.auth-header {
+    padding: 30px 36px 24px;
     border-bottom: 1px solid var(--beige-border);
     text-align: center;
-    background: linear-gradient(180deg, #FBF9F4 0%, var(--beige-card) 100%);
-  }
+    background: linear-gradient(
+        180deg,
+        #FBF9F4 0%,
+        var(--beige-card) 100%
+    );
+}
 
-  .brand-logo {
-    font-family: var(--font-serif);
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    color: var(--text-primary);
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 245px;
+    max-width: 90%;
     text-decoration: none;
-    display: inline-block;
-  }
-  .brand-logo span { color: var(--accent-green); }
+}
 
-  .sub-tag {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent-ochre);
-    margin-top: 6px;
+.brand-logo img {
+    display: block;
+    width: 100%;
+    height: 88px;
+    object-fit: contain;
+}
+
+.sub-tag {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-  }
-  .sub-tag::before, .sub-tag::after {
-    content: '';
+    margin-top: 8px;
+    color: var(--accent-ochre);
+    font: 10px var(--font-mono);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.sub-tag::before,
+.sub-tag::after {
+    content: "";
     width: 16px;
     height: 1px;
     background: var(--accent-ochre);
-  }
+}
 
-  /* SWITCHING TABS */
-  .tab-row {
+/* Login / register tabs */
+
+.tab-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     background: var(--beige-tint);
     border-bottom: 1px solid var(--beige-border);
-  }
+}
 
-  .tab-btn {
+.tab-btn {
     padding: 14px 10px;
     background: transparent;
     border: none;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
-  }
+    color: var(--text-muted);
+    font: 10px var(--font-mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s ease;
+}
 
-  .tab-btn.active {
+.tab-btn.active {
     background: var(--beige-card);
     color: var(--text-primary);
     border-bottom-color: var(--accent-ochre);
     font-weight: 600;
-  }
+}
 
-  .auth-body {
+.auth-body {
     padding: 32px 36px;
-  }
+}
 
-  /* ROLE SELECTOR */
-  .role-selector {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px dashed var(--beige-border);
-  }
+/* Form fields */
 
-  .role-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    cursor: pointer;
-  }
-
-  .role-option input[type="radio"] {
-    accent-color: var(--accent-green);
-    cursor: pointer;
-  }
-
-  .field-group {
+.field-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
     margin-bottom: 18px;
-  }
+}
 
-  .field-grid-split {
+.field-grid-split {
     display: grid;
-    grid-template-columns: 100px 1fr;
+    grid-template-columns: 85px minmax(0, 1fr);
     gap: 12px;
-  }
+}
 
-  label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+label {
     color: var(--text-muted);
-  }
+    font: 10px var(--font-mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
 
-  input[type="text"],
-  input[type="email"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="password"],
-  select {
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="password"],
+select {
     width: 100%;
-    padding: 11px 13px;
+    min-width: 0;
+    padding: 12px 13px;
     background: var(--beige-input);
     border: 1px solid var(--beige-border);
-    font-family: var(--font-mono);
-    font-size: 12px;
+    border-radius: 3px;
     color: var(--text-primary);
-    border-radius: 2px;
-    transition: border-color 0.15s ease, background 0.15s ease;
-  }
+    font: 12px var(--font-mono);
+    transition: border-color .15s, background .15s;
+}
 
-  input:focus, select:focus {
+input:focus,
+select:focus {
     outline: none;
-    border-color: var(--text-primary);
+    border-color: var(--accent-ochre);
     background: #FFFDF8;
-  }
+}
 
-  /* COUNTRY CODE + PHONE COMBO */
-  .phone-combo {
+input::placeholder {
+    color: #A49A87;
+    opacity: 1;
+}
+
+.phone-combo {
     display: grid;
-    grid-template-columns: 130px 1fr;
+    grid-template-columns: minmax(105px, .9fr) minmax(0, 1fr);
     gap: 8px;
-  }
+}
 
-  select {
+select {
     cursor: pointer;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236F6350' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 9px center;
     background-size: 9px 5px;
     appearance: none;
     -webkit-appearance: none;
-    padding-right: 24px;
-  }
+    padding-right: 22px;
+}
 
-  .btn-submit {
+/* Buttons */
+
+.btn-submit {
     width: 100%;
-    padding: 14px;
+    margin-top: 10px;
+    padding: 15px 12px;
     background: var(--accent-green);
-    color: var(--beige-card);
     border: 1px solid var(--accent-green);
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    letter-spacing: 0.14em;
+    border-radius: 3px;
+    color: var(--beige-card);
+    font: 10px var(--font-mono);
+    letter-spacing: .12em;
     text-transform: uppercase;
     cursor: pointer;
-    margin-top: 10px;
-    border-radius: 2px;
-    transition: all 0.2s ease;
-  }
+    transition: background .2s, border-color .2s;
+}
 
-  .btn-submit:hover {
-    background: #241E14;
-    border-color: #241E14;
-  }
+.btn-submit:hover {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+}
 
-  .auth-footer {
-    padding: 16px 36px 22px;
-    text-align: center;
-    border-top: 1px solid var(--beige-border);
-    background: var(--beige-tint);
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--text-muted);
-  }
+.btn-submit:disabled {
+    opacity: .7;
+    cursor: wait;
+}
 
-  .form-section {
+.form-section {
     display: none;
-  }
-  .form-section.active {
+}
+
+.form-section.active {
     display: block;
-  }
-  .error{
-    background-color: #FDECEA;
+}
+
+.error {
+    margin: 15px 24px;
+    padding: 11px;
+    background: #FDECEA;
     color: #B71C1C;
-    padding: 10px;
-    margin-bottom: 15px;
     border: 1px solid #B71C1C;
-    border-radius: 4px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-  }
-  .google-divider {
+    border-radius: 3px;
+    font: 12px/1.6 var(--font-mono);
+}
+
+.google-divider {
     display: flex;
     align-items: center;
     gap: 12px;
     margin: 22px 0;
     color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 10px;
+    font: 10px var(--font-mono);
 }
 
 .google-divider::before,
@@ -285,179 +373,903 @@
     background: var(--beige-input);
     border: 1px solid var(--beige-border);
     color: var(--text-primary);
-    font-family: var(--font-mono);
-    font-size: 11px;
+    font: 10px var(--font-mono);
     text-decoration: none;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background .2s, border-color .2s;
 }
 
 .google-login-btn:hover {
-    background: #fffdf8;
+    background: #FFFDF8;
     border-color: var(--accent-ochre);
+}
+
+.auth-footer {
+    padding: 17px 24px 21px;
+    text-align: center;
+    border-top: 1px solid var(--beige-border);
+    background: var(--beige-tint);
+    color: var(--text-muted);
+    font: 9px/1.8 var(--font-mono);
+    letter-spacing: .04em;
+}
+
+/* =========================
+   SITE FOOTER
+========================= */
+
+.site-footer {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    padding: 34px 0 8px;
+    border-top: 1px solid var(--beige-border);
+}
+
+.footer-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 34px;
+    padding-bottom: 28px;
+}
+
+.footer-brand-block {
+    max-width: 280px;
+}
+
+.footer-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    width: 190px;
+    max-width: 100%;
+}
+
+.footer-brand-logo img {
+    display: block;
+    width: 100%;
+    height: 68px;
+    object-fit: contain;
+}
+
+.footer-tagline {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font: 9px/1.8 var(--font-mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.footer-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 38px;
+}
+
+.footer-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 115px;
+}
+
+.footer-col strong {
+    margin-bottom: 3px;
+    color: var(--accent-ochre);
+    font: 9px var(--font-mono);
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.footer-col a,
+.footer-col button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font: 11px/1.7 var(--font-sans);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color .2s, transform .2s;
+}
+
+.footer-col a:hover,
+.footer-col button:hover {
+    color: var(--text-primary);
+}
+
+.footer-col button:hover {
+    transform: translateX(3px);
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--beige-border);
+    color: var(--text-muted);
+    font: 9px/1.7 var(--font-mono);
+    letter-spacing: .04em;
+}
+
+/* =========================
+   INFORMATION MODALS
+========================= */
+
+.legal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(13, 20, 15, .72);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+}
+
+.legal-modal.is-open {
+    display: flex;
+}
+
+.legal-dialog {
+    position: relative;
+    width: min(760px, 100%);
+    max-height: 88vh;
+    overflow: auto;
+    padding: clamp(24px, 4vw, 42px);
+    background: var(--beige-card);
+    border: 1px solid rgba(160, 118, 58, .45);
+    border-radius: 24px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .32);
+    animation: legalIn .25s ease-out;
+}
+
+.legal-dialog::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 28px;
+    right: 28px;
+    height: 3px;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent-ochre),
+        #D9C69C,
+        var(--accent-ochre),
+        transparent
+    );
+}
+
+@keyframes legalIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.99);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.legal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--beige-border);
+}
+
+.legal-kicker {
+    color: var(--accent-ochre);
+    font: 9px var(--font-mono);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.legal-dialog h2 {
+    margin-top: 10px;
+    font: 400 clamp(28px, 4vw, 42px)/1.15 var(--font-serif);
+}
+
+.legal-dialog h3 {
+    margin: 22px 0 8px;
+    font: 400 21px/1.25 var(--font-serif);
+}
+
+.legal-dialog p,
+.legal-dialog li {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.legal-dialog p {
+    margin-bottom: 12px;
+}
+
+.legal-dialog ul {
+    padding-left: 20px;
+}
+
+.legal-dialog a {
+    color: var(--accent-ochre);
+    text-underline-offset: 3px;
+}
+
+.legal-close {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--beige-border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform .2s, background .2s, color .2s;
+}
+
+.legal-close:hover {
+    transform: rotate(90deg);
+    background: var(--text-primary);
+    color: var(--beige-card);
+}
+
+.legal-close:focus-visible,
+.footer-col button:focus-visible {
+    outline: 2px solid var(--accent-ochre);
+    outline-offset: 4px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 760px) {
+    body {
+        padding: 24px 15px;
+        gap: 28px;
+    }
+
+    .auth-header {
+        padding: 25px 20px 20px;
+    }
+
+    .brand-logo {
+        width: 210px;
+    }
+
+    .brand-logo img {
+        height: 76px;
+    }
+
+    .auth-body {
+        padding: 25px 22px;
+    }
+
+    .field-grid-split {
+        grid-template-columns: 75px minmax(0, 1fr);
+        gap: 9px;
+    }
+
+    .phone-combo {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-main {
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .footer-columns {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 26px;
+    }
+
+    .site-footer {
+        padding-top: 25px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+    }
+
+    .legal-dialog {
+        border-radius: 20px;
+        padding: 26px 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .brand-logo {
+        width: 185px;
+    }
+
+    .brand-logo img {
+        height: 67px;
+    }
+
+    .sub-tag {
+        font-size: 8px;
+        letter-spacing: .12em;
+    }
+
+    .tab-btn {
+        font-size: 9px;
+        padding: 13px 5px;
+    }
+
+    .auth-body {
+        padding: 22px 16px;
+    }
+
+    .field-grid-split {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .footer-columns {
+        gap: 23px 15px;
+    }
+
+    .legal-dialog h2 {
+        font-size: 29px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    .site-loader-logo,
+    .site-loader-track::after {
+        animation: none;
+    }
+
+    .site-loader,
+    .legal-dialog,
+    .legal-close,
+    .footer-col button {
+        transition: none;
+        animation: none;
+    }
 }
 </style>
 </head>
-<body>
 
-  <div class="auth-frame">
-    <!-- Header -->
+<body class="is-loading">
+
+<!-- Branded loading screen -->
+<div class="site-loader" id="site-loader" role="status"
+     aria-live="polite" aria-label="Loading UNCOMMON">
+    <img class="site-loader-logo"
+         src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+         alt="UNCOMMON">
+    <div class="site-loader-track" aria-hidden="true"></div>
+    <div class="site-loader-label">A rare experience is loading</div>
+</div>
+
+<!-- Login / registration card -->
+<div class="auth-frame">
+
     <div class="auth-header">
-      <a href="#" class="brand-logo">UNCOMMON<span>.</span></a>
-      <div class="sub-tag">House Registry & Atelier Desk</div>
+        <a href="{% url 'customer_home' %}"
+           class="brand-logo"
+           aria-label="UNCOMMON home">
+            <img src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                 alt="UNCOMMON">
+        </a>
+        <div class="sub-tag">House Registry &amp; Atelier Desk</div>
     </div>
-    {% if error %}
-      <div class="error">{{ error }}</div>
 
+    {% if error %}
+        <div class="error">{{ error }}</div>
     {% else %}
-    <div class="error" style="display:none;" id="error-message"></div>
+        <div class="error" style="display:none;" id="error-message"></div>
     {% endif %}
-    <!-- Mode Tabs -->
+
     <div class="tab-row">
-      <button class="tab-btn active" id="tab-login" onclick="toggleView('login')">Enter Ledger (Login)</button>
-      <button class="tab-btn" id="tab-register" onclick="toggleView('register')">Register New Name</button>
+        <button type="button" class="tab-btn active" id="tab-login"
+                onclick="toggleView('login')">
+            Enter Ledger (Login)
+        </button>
+        <button type="button" class="tab-btn" id="tab-register"
+                onclick="toggleView('register')">
+            Register New Name
+        </button>
     </div>
 
     <div class="auth-body">
-      <!-- Role Radio (tbl_user vs tbl_admin) -->
-      <!-- 
-      <!-- FORM 1: LOGIN -->
-      <form action="{% url 'login' %}" method = 'POST' id="form-login" class="form-section active" >
-        {% csrf_token %}
-        <input type="hidden" name="role" id="login-role" value="user">
 
-        <div class="field-group">
-          <label>Email Address</label>
-          <input type="email" name="email" required placeholder="patron@uncommon.com">
+        <!-- LOGIN FORM -->
+        <form action="{% url 'login' %}"
+              method="POST"
+              id="form-login"
+              class="form-section active">
+            {% csrf_token %}
+            <input type="hidden" name="role" id="login-role" value="user">
+
+            <div class="field-group">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" name="email"
+                       required autocomplete="email"
+                       placeholder="patron@uncommon.com">
+            </div>
+
+            <div class="field-group">
+                <label for="login-password">Secret Password</label>
+                <input type="password" id="login-password" name="password"
+                       required autocomplete="current-password"
+                       placeholder="••••••••••••">
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn-login-label">
+                Enter As Patron →
+            </button>
+        </form>
+
+        <div class="google-divider">
+            <span>OR</span>
         </div>
 
-        <div class="field-group">
-          <label>Secret Password</label>
-          <input type="password" name="password" required placeholder="••••••••••••">
-        </div>
+        <a href="{% url 'google_login' %}" class="google-login-btn">
+            <svg width="20" height="20" viewBox="0 0 48 48"
+                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill="#EA4335"
+                    d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                    transform="translate(0 4)"/>
+                <path fill="#4285F4"
+                    d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.73 6C44.42 37.97 46.98 31.86 46.98 24.55z"/>
+                <path fill="#FBBC05"
+                    d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19z"
+                    transform="translate(1)"/>
+                <path fill="#34A853"
+                    d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.15 1.45-4.92 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                    transform="translate(0 -4)"/>
+            </svg>
+            <span>Continue with Google</span>
+        </a>
 
-        <button type="submit" class="btn-submit" id="btn-login-label">Enter As Patron →</button>
-      </form>
-      <div class="google-divider">
-    <span>OR</span>
+        <!-- REGISTRATION FORM -->
+        <form id="form-register"
+              class="form-section"
+              action="{% url 'customer_register' %}"
+              method="POST">
+            {% csrf_token %}
+
+            <input type="hidden" name="role" id="register-role" value="user">
+            <input type="hidden" name="full_phone" id="full_phone" value="">
+
+            <div class="field-group">
+                <label for="register-name">Full Legal Name</label>
+                <input type="text" id="register-name" name="name"
+                       required autocomplete="name"
+                       placeholder="Your full name">
+            </div>
+
+            <div class="field-grid-split">
+                <div class="field-group">
+                    <label for="register-age">Age</label>
+                    <input type="number" id="register-age" name="age"
+                           min="18" max="110" required placeholder="23">
+                </div>
+
+                <div class="field-group">
+                    <label for="country_code">Country Code &amp; Phone</label>
+                    <div class="phone-combo">
+                        <select id="country_code" required aria-label="Country code">
+                            <option value="+91">🇮🇳 IN (+91)</option>
+                            <option value="+1">🇺🇸 US (+1)</option>
+                            <option value="+44">🇬🇧 UK (+44)</option>
+                            <option value="+971">🇦🇪 UAE (+971)</option>
+                            <option value="+41">🇨🇭 CH (+41)</option>
+                            <option value="+33">🇫🇷 FR (+33)</option>
+                            <option value="+49">🇩🇪 DE (+49)</option>
+                            <option value="+65">🇸🇬 SG (+65)</option>
+                            <option value="+61">🇦🇺 AU (+61)</option>
+                            <option value="+81">🇯🇵 JP (+81)</option>
+                        </select>
+
+                        <input type="tel" id="local_phone" name="phone"
+                               required autocomplete="tel-national"
+                               placeholder="98765 43210"
+                               pattern="[0-9\s\-]{6,15}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label for="register-email">Email Address</label>
+                <input type="email" id="register-email" name="email"
+                       required autocomplete="email"
+                       placeholder="patron@domain.com">
+            </div>
+
+            <div class="field-group">
+                <label for="register-username">Username</label>
+                <input type="text" id="register-username" name="username"
+                       required autocomplete="username"
+                       placeholder="your_username">
+            </div>
+
+            <div class="field-group">
+                <label for="register-password">Create Secret Password</label>
+                <input type="password" id="register-password" name="password"
+                       required minlength="6" autocomplete="new-password"
+                       placeholder="Minimum 6 characters">
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn-reg-label">
+                Record In Patron Ledger →
+            </button>
+        </form>
+    </div>
+
+    <div class="auth-footer">
+        Numbered once. Recorded to a single name.
+    </div>
 </div>
 
-<a href="{% url 'google_login' %}" class="google-login-btn">
-    <svg width="20" height="20" viewBox="0 0 48 48"
-         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path fill="#EA4335"
-              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-              transform="translate(0 4)"/>
-        <path fill="#4285F4"
-              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.73 6C44.42 37.97 46.98 31.86 46.98 24.55z"/>
-        <path fill="#FBBC05"
-              d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19z"
-              transform="translate(1)"/>
-        <path fill="#34A853"
-              d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.15 1.45-4.92 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-              transform="translate(0 -4)"/>
-    </svg>
+<!-- UNCOMMON SITE FOOTER -->
+<footer class="site-footer">
+    <div class="footer-main">
 
-    <span>Continue with Google</span>
-</a>
-
-      <!-- FORM 2: REGISTRATION (with Country Code + Age + Name + Phone + Email + Pass) -->
-    <form id="form-register" class="form-section"
-      action="{% url 'customer_register' %}" method="POST">
-    {% csrf_token %}
-        <input type="hidden" name="role" id="register-role" value="user">
-        <!-- Hidden input to hold full combined international phone number -->
-        <input type="hidden" name="full_phone" id="full_phone" value="">
-
-        <div class="field-group">
-          <label>Full Legal Name</label>
-          <input type="text" name="name" required placeholder="e.g. Lord Julian Vance">
+        <div class="footer-brand-block">
+            <a class="footer-brand-logo"
+               href="{% url 'customer_home' %}"
+               aria-label="UNCOMMON home">
+                <img src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                     alt="UNCOMMON">
+            </a>
+            <p class="footer-tagline">
+                Made once. Numbered to one name.
+            </p>
         </div>
 
-        <div class="field-grid-split">
-          <div class="field-group">
-            <label>Age</label>
-            <input type="number" name="age" min="18" max="110" required placeholder="34">
-          </div>
-          <div class="field-group">
-            <label>Country Code & Phone Number</label>
-            <div class="phone-combo">
-              <select id="country_code" required>
-                <option value="+91">🇮🇳 IN (+91)</option>
-                <option value="+1">🇺🇸 US (+1)</option>
-                <option value="+44">🇬🇧 UK (+44)</option>
-                <option value="+971">🇦🇪 UAE (+971)</option>
-                <option value="+41">🇨🇭 CH (+41)</option>
-                <option value="+33">🇫🇷 FR (+33)</option>
-                <option value="+49">🇩🇪 DE (+49)</option>
-                <option value="+65">🇸🇬 SG (+65)</option>
-                <option value="+61">🇦🇺 AU (+61)</option>
-                <option value="+81">🇯🇵 JP (+81)</option>
-              </select>
-              <input type="tel" id="local_phone" name="phone" required placeholder="98765 43210" pattern="[0-9\s\-]{6,15}">
+        <div class="footer-columns">
+
+            <div class="footer-col">
+                <strong>The House</strong>
+                <a href="{% url 'customer_home' %}">Home</a>
+                <a href="{% url 'customer_home' %}#catalogue">The Rooms</a>
+                <a href="{% url 'customer_home' %}#services">Services</a>
+                <a href="{% url 'customer_home' %}#hundred">The Hundred</a>
             </div>
-          </div>
-        </div>
 
-        <div class="field-group">
-          <label>Email Address</label>
-          <input type="email" name="email" required placeholder="patron@domain.com">
-        </div>
-          <div class="field-group">
-          <label>Username</label>
-          <input type="text" name="username" required placeholder="patron_username">
-        </div>
+            <div class="footer-col">
+                <strong>Your Account</strong>
+                <a href="{% url 'login' %}" onclick="toggleView('login')">Sign in</a>
+                <a href="{% url 'customer_register' %}">Create account</a>
+                <a href="/my-orders/">My Orders</a>
+                <a href="{% url 'wishlist_view' %}">Wishlist</a>
+            </div>
 
-        <div class="field-group">
-          <label>Create Secret Password</label>
-          <input type="password" name="password" required minlength="6" placeholder="Minimum 6 characters">
-        </div>
+            <div class="footer-col">
+                <strong>Information</strong>
+                <button type="button" data-open-legal="about-modal">About Uncommen</button>
+                <button type="button" data-open-legal="contact-modal">Contact Us</button>
+                <button type="button" data-open-legal="privacy-modal">Privacy Policy</button>
+                <button type="button" data-open-legal="terms-modal">Terms of Service</button>
+                <button type="button" data-open-legal="refund-modal">Refund &amp; Return Policy</button>
+                <button type="button" data-open-legal="shipping-modal">Shipping &amp; Delivery Policy</button>
+            </div>
 
-        <button type="submit" class="btn-submit" id="btn-reg-label">Record In Patron Ledger →</button>
-      </form>
+        </div>
     </div>
 
-    <!-- Footer -->
-    <div class="auth-footer">
-      Numbered once. Recorded to a single name.
+    <div class="footer-bottom">
+        <span>© {% now "Y" %} UNCOMMON. All rights reserved.</span>
+        <span>Considered objects. Uncommon details.</span>
     </div>
-  </div>
+</footer>
 
-  <script>
-    // Toggle view between Login and Register
-    function toggleView(mode) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
+<!-- ABOUT POPUP -->
+<div class="legal-modal" id="about-modal" role="dialog"
+     aria-modal="true" aria-labelledby="about-title">
+    <div class="legal-dialog">
+        <div class="legal-head">
+            <div>
+                <div class="legal-kicker">The House</div>
+                <h2 id="about-title">About Uncommen</h2>
+            </div>
+            <button class="legal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p>UNCOMMON is built around individuality, considered design, and objects chosen to feel distinctly yours. We believe personal style should not be dictated by mass popularity.</p>
+        <h3>Made with intention</h3>
+        <p>Our collections bring together distinctive pieces and uncommon details, with a focus on individuality, discovery, and a personal shopping experience.</p>
+        <h3>The Hundred</h3>
+        <p>Selected designs may be limited to a defined number of pieces. Availability and any specific edition limit will be stated on the relevant product listing.</p>
+    </div>
+</div>
 
-      if (mode === 'login') {
-        document.getElementById('tab-login').classList.add('active');
-        document.getElementById('form-login').classList.add('active');
-      } else {
-        document.getElementById('tab-register').classList.add('active');
-        document.getElementById('form-register').classList.add('active');
-      }
-    }
+<!-- CONTACT POPUP -->
+<div class="legal-modal" id="contact-modal" role="dialog"
+     aria-modal="true" aria-labelledby="contact-title">
+    <div class="legal-dialog">
+        <div class="legal-head">
+            <div>
+                <div class="legal-kicker">We are here to help</div>
+                <h2 id="contact-title">Contact Us</h2>
+            </div>
+            <button class="legal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p>For product, order, or general enquiries, contact our team.</p>
+        <p><strong>Email:</strong>
+            <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+        </p>
+        <p><strong>Phone:</strong>
+            <a href="tel:+917051259897">+91 7051259897</a>
+        </p>
+        <p><strong>Grievance email:</strong>
+            <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+        </p>
+        <p>We aim to respond within 24–48 business hours.</p>
+    </div>
+</div>
 
-    // Role switcher (tbl_user vs tbl_admin)
-    function handleRoleSwitch() {
-      const selected = document.querySelector('input[name="account_role"]:checked').value;
-      document.getElementById('login-role').value = selected;
-      document.getElementById('register-role').value = selected;
+<!-- PRIVACY POPUP -->
+<div class="legal-modal" id="privacy-modal" role="dialog"
+     aria-modal="true" aria-labelledby="privacy-title">
+    <div class="legal-dialog">
+        <div class="legal-head">
+            <div>
+                <div class="legal-kicker">Your information</div>
+                <h2 id="privacy-title">Privacy Policy</h2>
+            </div>
+            <button class="legal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p>This policy describes how UNCOMMON collects and uses information when you use our website, create an account, place an order, or contact us.</p>
+        <h3>Information we collect</h3>
+        <p>We may collect details you provide, such as your name, email address, phone number, delivery address, account details, and order information, along with limited technical information needed to operate and secure the site.</p>
+        <h3>How information is used</h3>
+        <p>We use information to manage accounts and orders, provide customer support, deliver purchases, prevent misuse, and meet applicable legal obligations.</p>
+        <h3>Payments and sharing</h3>
+        <p>Payments may be processed by third-party payment providers such as Razorpay. We do not sell personal information. Information may be shared with service providers where needed to complete transactions and operate the service.</p>
+        <h3>Your choices</h3>
+        <p>You may contact us to request access, correction, or deletion of personal information, subject to applicable legal and operational requirements.</p>
+    </div>
+</div>
 
-      if (selected === 'admin') {
-        document.getElementById('btn-login-label').innerText = 'Enter Curator Desk →';
-        document.getElementById('btn-reg-label').innerText = 'Register House Admin →';
-      } else {
-        document.getElementById('btn-login-label').innerText = 'Enter As Patron →';
-        document.getElementById('btn-reg-label').innerText = 'Record In Patron Ledger →';
-      }
-    }
+<!-- TERMS POPUP -->
+<div class="legal-modal" id="terms-modal" role="dialog"
+     aria-modal="true" aria-labelledby="terms-title">
+    <div class="legal-dialog">
+        <div class="legal-head">
+            <div>
+                <div class="legal-kicker">Using our service</div>
+                <h2 id="terms-title">Terms of Service</h2>
+            </div>
+            <button class="legal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p>By accessing or using the UNCOMMON website, you agree to these terms. Review product details, pricing, availability, and order information before placing an order.</p>
+        <h3>Orders and pricing</h3>
+        <p>Orders are subject to availability and confirmation. Prices and applicable charges are displayed at checkout. We may correct listing errors or cancel orders affected by obvious pricing or availability errors, with appropriate communication.</p>
+        <h3>Cancellations and returns</h3>
+        <p>Cancellation, return, and refund requests are governed by our Refund &amp; Return Policy.</p>
+        <h3>Website content</h3>
+        <p>Website text, branding, graphics, product photography, and other content may not be copied or used commercially without permission, except as permitted by law.</p>
+        <h3>Governing law</h3>
+        <p>These terms are intended to be governed by applicable laws of India. Confirm the business jurisdiction clause with a legal adviser before publication.</p>
+    </div>
+</div>
 
-    // Automatically combine Country Code (+91, +1, etc.) with the local phone number before form submit
-    document.getElementById('form-register').addEventListener('submit', function(e) {
-      const code = document.getElementById('country_code').value;
-      const rawNumber = document.getElementById('local_phone').value.trim();
-      document.getElementById('full_phone').value = code + ' ' + rawNumber;
+<!-- REFUND POPUP -->
+<div class="legal-modal" id="refund-modal" role="dialog"
+     aria-modal="true" aria-labelledby="refund-title">
+    <div class="legal-dialog">
+        <div class="legal-head">
+            <div>
+                <div class="legal-kicker">Orders and aftercare</div>
+                <h2 id="refund-title">Refund &amp; Return Policy</h2>
+            </div>
+            <button class="legal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p>If an item arrives damaged, defective, or incorrect, contact us within 2 business days of delivery and include your order number and clear photos where applicable.</p>
+        <h3>Returns</h3>
+        <p>Return eligibility depends on product condition and the circumstances of the request. Items should generally be unused and returned with original packaging, tags, and included accessories. Contact our team before sending an item back.</p>
+        <h3>Refunds</h3>
+        <p>Once an approved return is received and inspected, eligible refunds are generally processed to the original payment method within 5–7 business days. Your bank or payment provider may require additional time.</p>
+        <h3>Cancellation</h3>
+        <p>Cancellation requests can be made before dispatch. Once an order has shipped, the return process may apply instead.</p>
+    </div>
+</div>
+
+<!-- SHIPPING POPUP -->
+<div class="legal-modal" id="shipping-modal" role="dialog"
+     aria-modal="true" aria-labelledby="shipping-title">
+    <div class="legal-dialog">
+        <div class="legal-head">
+            <div>
+                <div class="legal-kicker">From our house to yours</div>
+                <h2 id="shipping-title">Shipping &amp; Delivery Policy</h2>
+            </div>
+            <button class="legal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <p>We aim to offer free standard shipping on eligible orders. Any exceptions or additional charges will be shown before checkout.</p>
+        <h3>Processing and dispatch</h3>
+        <p>Orders are typically processed and dispatched within 2–4 business days after confirmation, subject to stock availability and verification.</p>
+        <h3>Delivery estimates</h3>
+        <p>Standard delivery typically takes 5–7 business days after dispatch. Delivery times are estimates and may vary by destination, courier conditions, holidays, or circumstances outside our control.</p>
+        <h3>Tracking and assistance</h3>
+        <p>Where tracking is available, the tracking details will be shared after dispatch. Contact us if your order appears delayed or tracking has not updated.</p>
+    </div>
+</div>
+
+<script>
+/* Switch between login and registration */
+function toggleView(mode) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
     });
-  </script>
+
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    const loginTab = document.getElementById('tab-login');
+    const registerTab = document.getElementById('tab-register');
+    const loginForm = document.getElementById('form-login');
+    const registerForm = document.getElementById('form-register');
+
+    if (mode === 'login') {
+        loginTab.classList.add('active');
+        loginForm.classList.add('active');
+    } else {
+        registerTab.classList.add('active');
+        registerForm.classList.add('active');
+    }
+}
+
+/* Combine the country code and local phone number */
+document.getElementById('form-register').addEventListener('submit', function () {
+    const code = document.getElementById('country_code').value;
+    const rawNumber = document.getElementById('local_phone').value.trim();
+
+    document.getElementById('full_phone').value = code + ' ' + rawNumber;
+});
+
+/* Separate footer policy modals */
+document.querySelectorAll('[data-open-legal]').forEach(button => {
+    button.addEventListener('click', () => {
+        const modal = document.getElementById(button.dataset.openLegal);
+
+        if (modal) {
+            modal.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        }
+    });
+});
+
+document.querySelectorAll('.legal-modal').forEach(modal => {
+    modal.addEventListener('click', event => {
+        if (
+            event.target === modal ||
+            event.target.closest('.legal-close')
+        ) {
+            modal.classList.remove('is-open');
+            document.body.style.overflow = '';
+        }
+    });
+});
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+        document.querySelectorAll('.legal-modal.is-open').forEach(modal => {
+            modal.classList.remove('is-open');
+        });
+
+        document.body.style.overflow = '';
+    }
+});
+
+/* Branded loading animation */
+(() => {
+    const loader = document.getElementById('site-loader');
+    let hideTimer;
+    let loaderStartTime = Date.now();
+
+    const MIN_LOADING_TIME = 2500;
+    const MAX_LOADING_TIME = 12000;
+
+    function hideLoader() {
+        if (!loader) return;
+
+        const elapsed = Date.now() - loaderStartTime;
+        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+        window.clearTimeout(hideTimer);
+
+        hideTimer = window.setTimeout(() => {
+            loader.classList.add('is-hidden');
+            document.body.classList.remove('is-loading');
+        }, remaining);
+    }
+
+    function showLoader() {
+        if (!loader) return;
+
+        loaderStartTime = Date.now();
+
+        loader.classList.remove('is-hidden');
+        document.body.classList.add('is-loading');
+
+        window.clearTimeout(hideTimer);
+
+        hideTimer = window.setTimeout(() => {
+            loader.classList.add('is-hidden');
+            document.body.classList.remove('is-loading');
+        }, MAX_LOADING_TIME);
+    }
+
+    window.addEventListener('load', hideLoader);
+
+    window.addEventListener('pageshow', event => {
+        if (event.persisted) {
+            window.clearTimeout(hideTimer);
+            loader.classList.add('is-hidden');
+            document.body.classList.remove('is-loading');
+        }
+    });
+
+    document.addEventListener('click', event => {
+        const link = event.target.closest('a[href]');
+
+        if (
+            !link ||
+            event.defaultPrevented ||
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+        ) return;
+
+        if (
+            link.target === '_blank' ||
+            link.hasAttribute('download') ||
+            link.hasAttribute('data-open-legal')
+        ) return;
+
+        const href = link.getAttribute('href');
+
+        if (!href || href.startsWith('javascript:') || href === '#') return;
+
+        if (
+            link.hash &&
+            link.pathname === window.location.pathname &&
+            link.origin === window.location.origin
+        ) return;
+
+        showLoader();
+    });
+
+    document.addEventListener('submit', event => {
+        const form = event.target;
+
+        if (
+            !(form instanceof HTMLFormElement) ||
+            form.hasAttribute('data-no-page-loader')
+        ) return;
+
+        showLoader();
+    }, true);
+
+    window.uncommonLoader = {
+        show: showLoader,
+        hide: hideLoader
+    };
+})();
+</script>
+
 </body>
 </html>

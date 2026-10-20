@@ -31,8 +31,20 @@
         .eyebrow::before { content:""; width:25px; height:1px; background:currentColor; flex:0 0 auto; }
         .site-header { position:sticky; top:0; z-index:50; background:rgba(239,235,225,.94); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
         .nav { max-width:1320px; margin:auto; padding:17px 40px; display:flex; align-items:center; justify-content:space-between; gap:25px; }
-        .logo { font:600 25px var(--serif); letter-spacing:.14em; white-space:nowrap; }
+        .logo { display:flex; align-items:center; flex:0 0 auto; width:clamp(145px, 17vw, 215px); white-space:nowrap; }
+        .logo img { display:block; width:100%; height:auto; max-height:64px; object-fit:contain; }
         .logo span { color:var(--forest); }
+        /* Branded full-page loading screen */
+        .site-loader { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:22px; padding:24px; background:var(--bg); opacity:1; visibility:visible; transition:opacity .35s ease, visibility .35s ease; }
+        .site-loader.is-hidden { opacity:0; visibility:hidden; pointer-events:none; }
+        .site-loader-logo { width:min(290px, 66vw); height:auto; animation:loaderBreath 1.8s ease-in-out infinite; }
+        .site-loader-track { width:120px; height:2px; overflow:hidden; background:var(--border); border-radius:99px; }
+        .site-loader-track::after { content:""; display:block; width:42%; height:100%; border-radius:99px; background:var(--ochre); animation:loaderProgress 1.15s ease-in-out infinite; }
+        .site-loader-label { color:var(--muted); font:9px var(--mono); letter-spacing:.2em; text-transform:uppercase; }
+        @keyframes loaderBreath { 0%,100% { opacity:.78; transform:scale(.985); } 50% { opacity:1; transform:scale(1); } }
+        @keyframes loaderProgress { 0% { transform:translateX(-110%); } 100% { transform:translateX(350%); } }
+        body.is-loading { overflow:hidden; }
+        @media(prefers-reduced-motion:reduce) { .site-loader-logo, .site-loader-track::after { animation:none; } .site-loader { transition:none; } }
         .nav-links, .nav-actions { display:flex; align-items:center; gap:25px; }
         .nav-links a, .nav-actions a { font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; transition:color .2s,background .2s; }
         .nav-links a { color:var(--muted); }
@@ -220,7 +232,7 @@
             .footer-columns { gap:30px; }
         }
         @media (max-width:520px) {
-            .logo { font-size:21px; }
+            .logo { width:150px; }
             .nav-actions .register-link { padding:10px 11px; }
             .nav-actions { gap:8px; }
             .hero-image { height:340px; }
@@ -585,7 +597,7 @@
         }
         @media (max-width:760px) {
             .nav { min-height:70px; grid-template-columns:auto 1fr auto; gap:12px; padding:12px 18px; }
-            .logo { font-size:21px; }
+            .logo { width:150px; }
             .nav-toggle { display:grid; }
             .nav-actions { grid-column:2; grid-row:1; gap:10px; }
             .wishlist-label { display:none; }
@@ -600,7 +612,7 @@
         }
         @media (max-width:420px) {
             .nav { padding:10px 12px; gap:8px; }
-            .logo { font-size:18px; letter-spacing:.07em; }
+            .logo { width:125px; }
             .nav-actions { gap:7px; }
             .bag-link { gap:6px; padding:8px; }
             .account-trigger { max-width:95px; font-size:9px; }
@@ -659,12 +671,55 @@
 }
 @media(prefers-reduced-motion:reduce) { .legal-modal, .legal-dialog, .legal-close, .footer-col button.footer-modal-link { animation:none; transition:none; } }
 
+/* ===== UNCOMMON — Larger navbar logo ===== */
+.logo {
+    width: clamp(180px, 19vw, 245px);
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    display: block;
+    width: 100%;
+    height: 76px;
+    max-height: none;
+    object-fit: contain;
+}
+
+/* Tablet and mobile */
+@media (max-width: 760px) {
+    .logo {
+        width: 160px;
+    }
+
+    .logo img {
+        height: 64px;
+    }
+}
+
+/* Small mobile screens */
+@media (max-width: 420px) {
+    .logo {
+        width: 135px;
+    }
+
+    .logo img {
+        height: 56px;
+    }
+}
+
     </style>
 </head>
-<body>
+<body class="is-loading">
+<div class="site-loader" id="site-loader" role="status" aria-live="polite" aria-label="Loading UNCOMMON">
+    <img class="site-loader-logo" src="{% static 'customer/images/uncommon-logo.jpeg' %}" alt="UNCOMMON">
+    <div class="site-loader-track" aria-hidden="true"></div>
+    <div class="site-loader-label">A rare experience is loading</div>
+</div>
 <header class="site-header">
     <div class="nav">
-        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">UNCOMMON<span>.</span></a>
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home"><img src="{% static 'customer/images/uncommon-logo.jpeg' %}" alt="UNCOMMON" fetchpriority="high"></a>
 
         <nav class="nav-links" id="primary-nav" aria-label="Main navigation">
             <a href="#catalogue">The Rooms</a>
@@ -1043,6 +1098,115 @@
 </footer>
 
 <script>
+    // Branded loader: show during page navigation and form submissions.
+  (() => {
+    const loader = document.getElementById('site-loader');
+    let hideTimer;
+    let loaderStartTime = 0;
+
+    const MIN_LOADING_TIME = 2500; // 2.5 seconds
+    const MAX_LOADING_TIME = 12000; // Safety timeout: 12 seconds
+
+    function hideLoader() {
+        if (!loader) return;
+
+        const elapsed = Date.now() - loaderStartTime;
+        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+        window.clearTimeout(hideTimer);
+
+        hideTimer = window.setTimeout(() => {
+            loader.classList.add('is-hidden');
+            document.body.classList.remove('is-loading');
+        }, remaining);
+    }
+
+    function showLoader() {
+        if (!loader) return;
+
+        loaderStartTime = Date.now();
+
+        loader.classList.remove('is-hidden');
+        document.body.classList.add('is-loading');
+
+        window.clearTimeout(hideTimer);
+
+        hideTimer = window.setTimeout(() => {
+            loader.classList.add('is-hidden');
+            document.body.classList.remove('is-loading');
+        }, MAX_LOADING_TIME);
+    }
+
+    // Initial page load
+    window.addEventListener('load', () => {
+        if (!loaderStartTime) {
+            loaderStartTime = Date.now();
+        }
+        hideLoader();
+    });
+
+    // Handle browser back/forward navigation
+    window.addEventListener('pageshow', event => {
+        if (event.persisted) {
+            window.clearTimeout(hideTimer);
+            loader.classList.add('is-hidden');
+            document.body.classList.remove('is-loading');
+        }
+    });
+
+    // Show loader during normal link navigation
+    document.addEventListener('click', event => {
+        const link = event.target.closest('a[href]');
+
+        if (
+            !link ||
+            event.defaultPrevented ||
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+        ) return;
+
+        if (
+            link.target === '_blank' ||
+            link.hasAttribute('download') ||
+            link.hasAttribute('data-open-legal')
+        ) return;
+
+        const href = link.getAttribute('href');
+
+        if (!href || href.startsWith('javascript:') || href === '#') return;
+
+        // Don't show the loader for same-page section links
+        if (
+            link.hash &&
+            link.pathname === window.location.pathname &&
+            link.origin === window.location.origin
+        ) return;
+
+        showLoader();
+    });
+
+    // Show loader when submitting forms
+    document.addEventListener('submit', event => {
+        const form = event.target;
+
+        if (
+            !(form instanceof HTMLFormElement) ||
+            form.hasAttribute('data-no-page-loader')
+        ) return;
+
+        showLoader();
+    }, true);
+
+    // Helpers for AJAX/fetch actions
+    window.uncommonLoader = {
+        show: showLoader,
+        hide: hideLoader
+    };
+})();
+
     function toggleNav(button) {
         const nav = document.getElementById('primary-nav');
         const isOpen = nav.classList.toggle('open');

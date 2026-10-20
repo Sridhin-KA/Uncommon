@@ -1,15 +1,28 @@
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Order Details | INSOLO UNCOMMON</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --bg: #F3EEE4;
+            --card: #FBF8F1;
+            --ink: #241E14;
+            --muted: #6F6350;
+            --border: #D6CCB5;
+            --gold: #A0763A;
+            --green: #3E4A3A;
+            --red: #7E3324;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,117 +30,212 @@
         }
 
         body {
-            background: #F3EEE4;
-            color: #241E14;
+            background: var(--bg);
+            color: var(--ink);
             font-family: 'Archivo', sans-serif;
+            line-height: 1.6;
         }
 
-        header {
-            min-height: 85px;
-            padding: 18px 7%;
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* PAGE LOADER */
+        .site-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            background: var(--bg);
+            transition: opacity .45s ease, visibility .45s ease;
+        }
+
+        .site-loader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            width: 150px;
+            max-width: 45vw;
+            max-height: 100px;
+            object-fit: contain;
+            animation: logoPulse 1.2s ease-in-out infinite;
+        }
+
+        .loader-track {
+            width: 150px;
+            height: 2px;
+            overflow: hidden;
+            background: var(--border);
+        }
+
+        .loader-progress {
+            width: 40%;
+            height: 100%;
+            background: var(--gold);
+            animation: loading 1.1s ease-in-out infinite;
+        }
+
+        .loader-caption {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--muted);
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { opacity: .65; transform: scale(.97); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(350%); }
+        }
+
+        /* HEADER */
+        .site-header {
+            min-height: 88px;
+            padding: 16px 7%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
-            border-bottom: 1px solid #DED5C7;
+            gap: 25px;
+            border-bottom: 1px solid var(--border);
         }
 
         .brand {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 29px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            display: inline-flex;
+            align-items: center;
             text-decoration: none;
-            color: #241E14;
         }
 
-        nav {
+        .brand img {
+            display: block;
+            width: 155px;
+            max-height: 58px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+        }
+
+        .site-nav {
             display: flex;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 23px;
+            gap: 25px;
         }
 
-        nav a {
+        .site-nav a {
             text-decoration: none;
-            color: #241E14;
-            font-size: 11px;
-            letter-spacing: 1px;
+            color: var(--ink);
+            font-size: 10px;
+            letter-spacing: 1.4px;
+            transition: color .2s ease;
         }
 
-        nav a:hover {
-            color: #A0763A;
+        .site-nav a:hover {
+            color: var(--gold);
         }
 
+        /* MAIN */
         .container {
-            max-width: 1050px;
-            margin: 55px auto 80px;
+            max-width: 1100px;
+            margin: 48px auto 90px;
             padding: 0 24px;
         }
 
         .back-link {
-            text-decoration: none;
-            color: #786F62;
-            font-size: 12px;
             display: inline-block;
             margin-bottom: 30px;
+            color: var(--muted);
+            font-size: 11px;
+            text-decoration: none;
+            letter-spacing: .5px;
         }
 
         .back-link:hover {
-            color: #A0763A;
+            color: var(--gold);
         }
 
         .eyebrow {
-            color: #A0763A;
-            font-size: 11px;
+            color: var(--gold);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
             letter-spacing: 3px;
             margin-bottom: 10px;
         }
 
-        h1 {
+        h1, .panel-title, .empty-title, .modal-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 46px;
             font-weight: 600;
+        }
+
+        h1 {
+            font-size: clamp(35px, 5vw, 48px);
+            line-height: 1.15;
             overflow-wrap: anywhere;
         }
 
         .subtitle {
-            color: #786F62;
-            font-size: 13px;
+            color: var(--muted);
+            font-size: 12px;
             margin-top: 10px;
         }
 
+        /* DJANGO MESSAGES */
+        .messages {
+            margin-top: 24px;
+        }
+
         .message {
-            padding: 15px 18px;
-            margin-top: 25px;
+            padding: 13px 17px;
+            margin-bottom: 10px;
             background: #E4EBDD;
-            color: #35472B;
-            font-size: 13px;
+            color: var(--green);
+            border-left: 3px solid var(--green);
+            font-size: 12px;
         }
 
         .message.error {
             background: #F2DEDA;
-            color: #7E3324;
+            color: var(--red);
+            border-left-color: var(--red);
         }
 
+        /* ORDER LAYOUT */
         .layout {
             display: grid;
-            grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr);
+            grid-template-columns: minmax(0, 1.5fr) minmax(260px, .8fr);
             gap: 25px;
             margin-top: 35px;
             align-items: start;
         }
 
         .panel {
-            border: 1px solid #DED5C7;
-            background: #FAF8F3;
+            border: 1px solid var(--border);
+            background: var(--card);
             padding: 25px;
             margin-bottom: 22px;
+            min-width: 0;
         }
 
         .panel-title {
-            font-family: 'Cormorant Garamond', serif;
             font-size: 27px;
-            font-weight: 600;
+            line-height: 1.2;
             margin-bottom: 22px;
         }
 
@@ -142,9 +250,10 @@
 
         .status {
             display: inline-block;
-            padding: 9px 12px;
-            font-size: 10px;
-            font-weight: 600;
+            padding: 8px 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            font-weight: 500;
             letter-spacing: 1px;
             background: #EAE2D4;
         }
@@ -171,8 +280,8 @@
         }
 
         .muted {
-            color: #786F62;
-            font-size: 12px;
+            color: var(--muted);
+            font-size: 11px;
         }
 
         .info-row {
@@ -180,17 +289,18 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 20px;
-            padding: 15px 0;
+            padding: 14px 0;
             border-bottom: 1px solid #E4DDD2;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .info-row:last-child {
             border-bottom: none;
+            padding-bottom: 0;
         }
 
         .info-label {
-            color: #786F62;
+            color: var(--muted);
             flex-shrink: 0;
         }
 
@@ -199,6 +309,7 @@
             overflow-wrap: anywhere;
         }
 
+        /* ORDERED PRODUCTS */
         .product {
             display: flex;
             justify-content: space-between;
@@ -218,37 +329,39 @@
         }
 
         .product-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             line-height: 1.5;
+            overflow-wrap: anywhere;
         }
 
         .product-meta {
-            font-size: 12px;
-            color: #786F62;
+            color: var(--muted);
+            font-size: 11px;
             margin-top: 7px;
-            line-height: 1.7;
+            line-height: 1.8;
         }
 
         .product-price {
             white-space: nowrap;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
         }
 
         .address {
-            font-size: 13px;
-            line-height: 1.8;
+            font-size: 12px;
+            line-height: 1.9;
             overflow-wrap: anywhere;
         }
 
+        /* SUMMARY */
         .summary-row {
             display: flex;
             justify-content: space-between;
             gap: 15px;
             padding: 13px 0;
             border-bottom: 1px solid #E4DDD2;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .summary-row.total-row {
@@ -258,70 +371,247 @@
             font-weight: 600;
         }
 
+        /* BUTTONS */
         .primary-button,
         .cancel-button {
             width: 100%;
-            display: block;
-            padding: 14px 18px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 16px;
             text-align: center;
-            font-family: inherit;
-            font-size: 11px;
-            letter-spacing: 1px;
+            font-family: 'Archivo', sans-serif;
+            font-size: 9px;
+            letter-spacing: 1.2px;
             cursor: pointer;
             text-decoration: none;
-            border: 1px solid #241E14;
+            border: 1px solid var(--ink);
+            transition: background .2s ease, color .2s ease, border-color .2s ease;
         }
 
         .primary-button {
-            background: #241E14;
-            color: #F3EEE4;
+            background: var(--ink);
+            color: var(--bg);
         }
 
         .primary-button:hover {
-            background: #A0763A;
-            border-color: #A0763A;
+            background: var(--gold);
+            border-color: var(--gold);
+            color: white;
         }
 
         .cancel-button {
             margin-top: 12px;
             background: transparent;
-            color: #7E3324;
-            border-color: #7E3324;
+            color: var(--red);
+            border-color: var(--red);
         }
 
         .cancel-button:hover {
-            background: #7E3324;
+            background: var(--red);
             color: white;
         }
 
         .cancel-note {
-            font-size: 11px;
-            line-height: 1.7;
-            color: #786F62;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.8;
             margin-top: 12px;
         }
 
-        footer {
-            border-top: 1px solid #DED5C7;
-            text-align: center;
-            padding: 28px 15px;
-            font-size: 10px;
+        /* FOOTER */
+        .site-footer {
+            border-top: 1px solid var(--border);
+            background: #EDE6D9;
+            padding: 52px 7% 22px;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 35px;
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .footer-brand img {
+            display: block;
+            width: 155px;
+            max-height: 65px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+            margin-bottom: 14px;
+        }
+
+        .footer-brand p {
+            max-width: 250px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.9;
+        }
+
+        .footer-heading {
+            color: var(--gold);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
             letter-spacing: 2px;
-            color: #786F62;
+            margin-bottom: 17px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .footer-links a,
+        .footer-links button {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: var(--ink);
+            text-align: left;
+            font-family: inherit;
+            font-size: 11px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color .2s ease;
+        }
+
+        .footer-links a:hover,
+        .footer-links button:hover {
+            color: var(--gold);
+        }
+
+        .footer-bottom {
+            max-width: 1250px;
+            margin: 36px auto 0;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        /* POLICY MODALS */
+        .legal-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(25, 21, 15, .65);
+        }
+
+        .legal-modal.is-open {
+            display: flex;
+        }
+
+        .modal-panel {
+            position: relative;
+            width: min(600px, 100%);
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 35px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            animation: modalIn .22s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 17px;
+            width: 35px;
+            height: 35px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 21px;
+        }
+
+        .modal-title {
+            font-size: 35px;
+            line-height: 1.2;
+            padding-right: 35px;
+            margin-bottom: 16px;
+        }
+
+        .modal-content {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .modal-content p {
+            margin-bottom: 12px;
+        }
+
+        .modal-content strong {
+            color: var(--ink);
+        }
+
+        .modal-content a {
+            color: var(--gold);
+            overflow-wrap: anywhere;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            z-index: 100001;
+            right: 22px;
+            bottom: 22px;
+            width: min(360px, calc(100% - 44px));
+            padding: 15px 18px;
+            background: var(--ink);
+            color: var(--bg);
+            font-size: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 850px) {
+            .footer-main {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .footer-brand {
+                grid-column: 1 / -1;
+            }
         }
 
         @media (max-width: 760px) {
-            header {
+            .site-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
 
             .layout {
                 grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 36px;
             }
 
             .container {
@@ -333,14 +623,75 @@
             }
         }
 
+        @media (max-width: 600px) {
+            .site-header {
+                padding: 17px 5%;
+                gap: 15px;
+            }
+
+            .brand img {
+                width: 135px;
+            }
+
+            .site-nav {
+                gap: 18px;
+            }
+
+            .site-nav a {
+                font-size: 9px;
+            }
+
+            .container {
+                padding: 0 16px;
+                margin-bottom: 60px;
+            }
+
+            .info-row {
+                gap: 12px;
+            }
+
+            .footer-main {
+                gap: 28px 18px;
+            }
+
+            .site-footer {
+                padding: 40px 6% 20px;
+            }
+
+            .modal-panel {
+                padding: 28px 22px;
+            }
+
+            .modal-title {
+                font-size: 30px;
+            }
+        }
+
         @media (max-width: 400px) {
             .info-row {
                 flex-direction: column;
-                gap: 8px;
+                gap: 7px;
             }
 
             .info-value {
                 text-align: left;
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .product {
+                gap: 10px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
             }
         }
     </style>
@@ -348,22 +699,40 @@
 
 <body>
 
-<header>
-    <a href="{% url 'customer_home' %}" class="brand">
-        INSOLO UNCOMMON
+<!-- LOADER -->
+<div class="site-loader" id="siteLoader" aria-label="Loading page">
+    <img
+        src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+        alt="INSOLO UNCOMMON"
+        class="loader-logo"
+    >
+    <div class="loader-track">
+        <div class="loader-progress"></div>
+    </div>
+    <p class="loader-caption">PREPARING YOUR EXPERIENCE</p>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+    <a href="{% url 'customer_home' %}" class="brand" aria-label="INSOLO UNCOMMON home">
+        <img
+            src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+            alt="INSOLO UNCOMMON"
+        >
     </a>
 
-    <nav>
+    <nav class="site-nav" aria-label="Main navigation">
         <a href="{% url 'customer_home' %}">HOME</a>
         <a href="{% url 'my_orders' %}">MY ORDERS</a>
         <a href="{% url 'bag_view' %}">MY BAG</a>
     </nav>
 </header>
 
+<!-- ORDER DETAILS -->
 <main class="container">
 
     <a href="{% url 'my_orders' %}" class="back-link">
-        ← BACK TO MY ORDERS
+        &larr; BACK TO MY ORDERS
     </a>
 
     <p class="eyebrow">ORDER INFORMATION</p>
@@ -375,18 +744,20 @@
     </p>
 
     {% if messages %}
-        {% for message in messages %}
-            <div class="message {% if message.tags == 'error' %}error{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
+        <div class="messages" id="djangoMessages">
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'error' %}error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 
     <div class="layout">
 
         <section>
 
-            <!-- Order status -->
+            <!-- ORDER STATUS -->
             <div class="panel">
                 <div class="status-row">
                     <h2 class="panel-title" style="margin-bottom: 0;">
@@ -424,7 +795,7 @@
                 </div>
             </div>
 
-            <!-- Ordered products -->
+            <!-- ORDERED PRODUCTS -->
             <div class="panel">
                 <h2 class="panel-title">Items Ordered</h2>
 
@@ -450,7 +821,7 @@
                 {% endfor %}
             </div>
 
-            <!-- Shipping address -->
+            <!-- SHIPPING ADDRESS -->
             <div class="panel">
                 <h2 class="panel-title">Shipping Address</h2>
 
@@ -463,7 +834,7 @@
 
         <aside>
 
-            <!-- Payment/order summary -->
+            <!-- ORDER SUMMARY -->
             <div class="panel">
                 <h2 class="panel-title">Order Summary</h2>
 
@@ -477,13 +848,13 @@
                     <span>₹{{ order.total_amount|floatformat:2 }}</span>
                 </div>
 
-                <p class="muted" style="line-height: 1.7; margin-top: 10px;">
+                <p class="muted" style="line-height: 1.8; margin-top: 10px;">
                     Payment is not collected on this page. Your order total
                     reflects the amount recorded at checkout.
                 </p>
             </div>
 
-            <!-- Actions -->
+            <!-- ORDER ACTIONS -->
             <div class="panel">
                 <h2 class="panel-title">Manage Order</h2>
 
@@ -492,9 +863,11 @@
                 </a>
 
                 {% if order.status == 'PENDING' %}
-                    <form method="POST"
-                          action="{% url 'cancel_order' order.order_number %}"
-                          onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+                    <form
+                        method="POST"
+                        action="{% url 'cancel_order' order.order_number %}"
+                        class="cancel-form"
+                    >
                         {% csrf_token %}
 
                         <button type="submit" class="cancel-button">
@@ -529,9 +902,329 @@
     </div>
 </main>
 
-<footer>
-    INSOLO UNCOMMON &mdash; DESIGNED TO BE DIFFERENT
+<!-- PREMIUM FOOTER -->
+<footer class="site-footer">
+    <div class="footer-main">
+
+        <div class="footer-brand">
+            <a href="{% url 'customer_home' %}" aria-label="INSOLO UNCOMMON home">
+                <img
+                    src="{% static 'customer/images/uncommon-logo.jpeg' %}"
+                    alt="INSOLO UNCOMMON"
+                    loading="lazy"
+                >
+            </a>
+
+            <p>
+                Thoughtfully selected pieces for those who choose to be different.
+                Discover your style with INSOLO UNCOMMON.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">EXPLORE</h3>
+            <div class="footer-links">
+                <a href="{% url 'customer_home' %}">Home</a>
+                <a href="{% url 'section_products' 'HIM' %}">For Him</a>
+                <a href="{% url 'section_products' 'HER' %}">For Her</a>
+                <a href="{% url 'section_products' 'RARE' %}">Rare Collection</a>
+                <a href="{% url 'bag_view' %}">My Bag</a>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">INFORMATION</h3>
+            <div class="footer-links">
+                <button type="button" data-open-legal="about-modal">About Us</button>
+                <button type="button" data-open-legal="contact-modal">Contact Us</button>
+                <button type="button" data-open-legal="privacy-modal">Privacy Policy</button>
+                <button type="button" data-open-legal="terms-modal">Terms &amp; Conditions</button>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="footer-heading">CUSTOMER CARE</h3>
+            <div class="footer-links">
+                <button type="button" data-open-legal="shipping-modal">Shipping Policy</button>
+                <button type="button" data-open-legal="refund-modal">Returns &amp; Refunds</button>
+                <button type="button" data-open-legal="contact-modal">Get in Touch</button>
+                <a href="{% url 'my_orders' %}">Track My Orders</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <span>&copy; {% now "Y" %} INSOLO UNCOMMON</span>
+        <span>DESIGNED TO BE DIFFERENT</span>
+    </div>
 </footer>
+
+<!-- ABOUT MODAL -->
+<div class="legal-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">OUR STORY</p>
+        <h2 class="modal-title" id="about-title">About INSOLO UNCOMMON</h2>
+        <div class="modal-content">
+            <p>
+                INSOLO UNCOMMON is built around individual style and thoughtfully
+                selected pieces. We believe what you wear can express who you are.
+            </p>
+            <p>
+                Explore our collections and discover pieces that feel distinctly you.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="legal-modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">WE'RE HERE TO HELP</p>
+        <h2 class="modal-title" id="contact-title">Contact Us</h2>
+        <div class="modal-content">
+            <p>Have a question about an order or product? Reach out to our team.</p>
+            <p><strong>Email:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+917051259897">+91 7051259897</a></p>
+            <p>Please include your order number when contacting us about a purchase.</p>
+        </div>
+    </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div class="legal-modal" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">YOUR INFORMATION</p>
+        <h2 class="modal-title" id="privacy-title">Privacy Policy</h2>
+        <div class="modal-content">
+            <p>
+                We use the information you provide to operate your account,
+                process orders, communicate about purchases, and support your
+                experience on our website.
+            </p>
+            <p>
+                Access to personal information should be limited to authorised
+                personnel who need it to provide the service.
+            </p>
+            <p>
+                For questions about your information or a privacy-related request,
+                contact us using the details in our Contact Us section.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- TERMS MODAL -->
+<div class="legal-modal" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">PLEASE READ</p>
+        <h2 class="modal-title" id="terms-title">Terms &amp; Conditions</h2>
+        <div class="modal-content">
+            <p>
+                By using this website, you agree to provide accurate account and
+                order information and to use the website lawfully.
+            </p>
+            <p>
+                Product availability, prices, and order status may change as an
+                order is processed. Submitting an order does not necessarily mean
+                it has been confirmed for fulfilment.
+            </p>
+            <p>
+                Orders and cancellation requests are subject to the order status
+                and the store's applicable policies.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- RETURNS & REFUNDS MODAL -->
+<div class="legal-modal" id="refund-modal" role="dialog" aria-modal="true" aria-labelledby="refund-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">AFTER YOUR PURCHASE</p>
+        <h2 class="modal-title" id="refund-title">Returns &amp; Refunds</h2>
+        <div class="modal-content">
+            <p>
+                If you receive a damaged, defective, or incorrect item, contact
+                our support team with your order number and relevant details.
+            </p>
+            <p>
+                Return eligibility, timelines, and refund processing depend on
+                the store's confirmed policy and the circumstances of the order.
+                Contact support before sending an item back.
+            </p>
+            <p>
+                Please verify the store's actual return and refund conditions
+                before publishing this policy.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- SHIPPING MODAL -->
+<div class="legal-modal" id="shipping-modal" role="dialog" aria-modal="true" aria-labelledby="shipping-title">
+    <div class="modal-panel">
+        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <p class="eyebrow">DELIVERY INFORMATION</p>
+        <h2 class="modal-title" id="shipping-title">Shipping Policy</h2>
+        <div class="modal-content">
+            <p>
+                Orders are processed after the required order checks are complete.
+                Dispatch and delivery times can vary depending on product
+                availability, delivery location, and courier operations.
+            </p>
+            <p>
+                Please make sure your shipping address and contact details are
+                accurate when placing an order.
+            </p>
+            <p>
+                For an update on a purchase, open the order details page or
+                contact support with your order number.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="siteToast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    "use strict";
+
+    /* LOADER */
+    const loader = document.getElementById("siteLoader");
+    const loaderStartedAt = Date.now();
+    const minimumLoaderTime = 2500;
+    let loaderHidden = false;
+
+    function hideLoader() {
+        if (loaderHidden || !loader) return;
+
+        loaderHidden = true;
+
+        const elapsed = Date.now() - loaderStartedAt;
+        const remaining = Math.max(0, minimumLoaderTime - elapsed);
+
+        window.setTimeout(function () {
+            loader.classList.add("is-hidden");
+        }, remaining);
+    }
+
+    window.uncommonLoader = {
+        hide: hideLoader
+    };
+
+    window.addEventListener("load", hideLoader, { once: true });
+    window.setTimeout(hideLoader, 12000);
+
+    /* CANCEL CONFIRMATION */
+    document.querySelectorAll(".cancel-form").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            const confirmed = window.confirm(
+                "Are you sure you want to cancel this order? This action cannot be undone."
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    /* DJANGO MESSAGE TOAST */
+    const toast = document.getElementById("siteToast");
+    const messages = document.querySelectorAll("#djangoMessages .message");
+    let toastTimer;
+
+    function showToast(message) {
+        if (!toast || !message) return;
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+            toast.classList.remove("show");
+        }, 4000);
+    }
+
+    if (messages.length) {
+        const messageText = messages[0].textContent.trim();
+
+        if (messageText) {
+            window.setTimeout(function () {
+                showToast(messageText);
+            }, 300);
+        }
+    }
+
+    /* POLICY MODALS */
+    const modals = document.querySelectorAll(".legal-modal");
+    let lastFocusedElement = null;
+
+    function openModal(modal) {
+        if (!modal) return;
+
+        lastFocusedElement = document.activeElement;
+        modal.classList.add("is-open");
+        document.body.classList.add("modal-open");
+
+        const closeButton = modal.querySelector(".modal-close");
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+
+        modal.classList.remove("is-open");
+
+        if (!document.querySelector(".legal-modal.is-open")) {
+            document.body.classList.remove("modal-open");
+        }
+
+        if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+            lastFocusedElement.focus();
+        }
+    }
+
+    document.querySelectorAll("[data-open-legal]").forEach(function (trigger) {
+        trigger.addEventListener("click", function () {
+            const modalId = trigger.getAttribute("data-open-legal");
+            openModal(document.getElementById(modalId));
+        });
+    });
+
+    modals.forEach(function (modal) {
+        const closeButton = modal.querySelector(".modal-close");
+
+        if (closeButton) {
+            closeButton.addEventListener("click", function () {
+                closeModal(modal);
+            });
+        }
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            const openModalElement = document.querySelector(".legal-modal.is-open");
+
+            if (openModalElement) {
+                closeModal(openModalElement);
+            }
+        }
+    });
+})();
+</script>
 
 </body>
 </html>
