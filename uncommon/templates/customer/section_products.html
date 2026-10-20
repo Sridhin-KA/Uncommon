@@ -1496,6 +1496,80 @@
             }
         });
     })();
+
+(() => {
+    let modalHistoryOpen = false;
+    let closingFromPopstate = false;
+
+    function getOpenModal() {
+        return document.querySelector(
+            '.legal-modal.is-open, #reservation-modal.is-open, #reservation-alert.is-open'
+        );
+    }
+
+    function openModalHistory() {
+        if (modalHistoryOpen) return;
+
+        history.pushState({ uncommonModal: true }, '', location.href);
+        modalHistoryOpen = true;
+    }
+
+    function closeOpenModal() {
+        const modal = getOpenModal();
+        if (!modal) return false;
+
+        if (modal.matches('.legal-modal')) {
+            modal.querySelector('[data-close-legal]')?.click();
+        } else if (modal.id === 'reservation-modal') {
+            modal.querySelector('[data-close-reservation]')?.click();
+        } else if (modal.id === 'reservation-alert') {
+            document.getElementById('reservation-alert-close')?.click();
+        }
+
+        return true;
+    }
+
+    // Track modal openings, including existing click handlers.
+    document.addEventListener('click', event => {
+        if (
+            event.target.closest(
+                '[data-open-legal], [data-open-reservation]'
+            )
+        ) {
+            setTimeout(() => {
+                if (getOpenModal()) openModalHistory();
+            }, 0);
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        modalHistoryOpen = false;
+        closingFromPopstate = true;
+
+        closeOpenModal();
+
+        closingFromPopstate = false;
+    });
+
+    // When a modal is closed using its X or backdrop,
+    // remove its temporary history entry as well.
+    document.addEventListener('click', event => {
+        if (!modalHistoryOpen || closingFromPopstate) return;
+
+        if (
+            event.target.closest(
+                '[data-close-legal], [data-close-reservation], #reservation-alert-close'
+            ) ||
+            event.target.classList.contains('legal-modal') ||
+            event.target.id === 'reservation-modal' ||
+            event.target.id === 'reservation-alert'
+        ) {
+            modalHistoryOpen = false;
+            history.back();
+        }
+    });
+})();
+
 </script>
 
 </body>
