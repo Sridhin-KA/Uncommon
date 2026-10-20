@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Profile — UNCOMMON</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg:#EFEBE1; --card:#F7F4EC; --input:#FAF8F2;
+    --border:#D6CCB5; --text:#241E14; --muted:#6F6350;
+    --gold:#A0763A; --green:#3E4A3A;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+    min-height:100vh; display:grid; place-items:center;
+    padding:25px 16px; background:var(--bg);
+    color:var(--text); font-family:'Archivo',sans-serif;
+}
+.card {
+    width:100%; max-width:560px; background:var(--card);
+    border:1px solid var(--border);
+}
+.header {
+    padding:27px; text-align:center;
+    border-bottom:1px solid var(--border);
+}
+.logo {
+    font:700 25px 'Libre Caslon Text',serif;
+    letter-spacing:.14em; text-decoration:none; color:var(--text);
+}
+.logo span { color:var(--green); }
+.eyebrow {
+    margin-top:10px; color:var(--gold);
+    font:10px 'IBM Plex Mono',monospace;
+    letter-spacing:.15em; text-transform:uppercase;
+}
+.body { padding:32px; }
+h1 { font:400 32px 'Libre Caslon Text',serif; margin-bottom:10px; }
+p { color:var(--muted); font-size:13px; line-height:1.7; }
+.messages { margin:20px 0; }
+.message { padding:12px; background:#E8E1CE; margin-bottom:8px; font-size:13px; }
+.field { margin-top:20px; }
+label {
+    display:block; margin-bottom:8px; color:var(--muted);
+    font:10px 'IBM Plex Mono',monospace; text-transform:uppercase;
+    letter-spacing:.1em;
+}
+input {
+    width:100%; padding:13px;
+    background:var(--input); border:1px solid var(--border);
+    color:var(--text); font:13px 'IBM Plex Mono',monospace;
+}
+input:focus { outline:1px solid var(--gold); }
+.actions { display:flex; gap:12px; margin-top:26px; flex-wrap:wrap; }
+.btn {
+    display:inline-block; padding:13px 17px;
+    border:1px solid var(--green); background:var(--green);
+    color:white; cursor:pointer; text-decoration:none;
+    font:10px 'IBM Plex Mono',monospace; text-transform:uppercase;
+    letter-spacing:.07em;
+}
+.btn.secondary { background:transparent; color:var(--green); }
+@media(max-width:480px) { .body { padding:24px 20px; } }
+</style>
+</head>
+<body>
+<div class="card">
+    <header class="header">
+        <a href="/" class="logo">UNCOMMON<span>.</span></a>
+        <div class="eyebrow">The House Registry</div>
+    </header>
+
+    <main class="body">
+        <h1>Edit your details.</h1>
+        <p>Keep your account information up to date.</p>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="field">
+                <label for="name">Full name</label>
+                <input id="name" type="text" name="name"
+                       value="{{ customer.name }}" maxlength="100" required>
+            </div>
+
+            <div class="field">
+                <label for="email">Email address</label>
+                <input id="email" type="email" name="email"
+                       value="{{ customer.email }}" maxlength="254" required>
+            </div>
+
+            <div class="field">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username"
+                       value="{{ customer.username }}" maxlength="100" required>
+            </div>
+
+            <div class="field">
+                <label for="phone">Phone number</label>
+                <input id="phone" type="tel" name="phone"
+                       value="{{ customer.phone }}" maxlength="20" required>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn">Save changes →</button>
+                <a href="{% url 'customer_profile' %}" class="btn secondary">Cancel</a>
+            </div>
+        </form>
+    </main>
+</div>
+</body>
+</html>

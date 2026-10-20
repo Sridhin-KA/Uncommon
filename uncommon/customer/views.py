@@ -123,7 +123,9 @@ def customer_home(request):
         context['customer'] = Customer.objects.filter(
             id=customer_id
         ).first()
-
+    print("SESSION:", request.session.session_key)
+    print("CUSTOMER ID:", request.session.get("customer_id"))
+    print("CUSTOMER:", context["customer"])
     return render(request, 'customer/home.html', context)
 
 
@@ -691,3 +693,198 @@ def cancel_order(request, order_number):
 
     messages.success(request, "Your order has been cancelled successfully.")
     return redirect("my_orders")
+
+
+
+def wishlist_view(request):
+    customer = get_logged_in_customer(request)
+
+    if customer:
+        wishlist_products = Product.objects.filter(
+            wishlisted_by__customer=customer
+        ).select_related('category').order_by(
+            '-wishlisted_by__created_at'
+        )
+    else:
+        wishlist_ids = request.session.get('wishlist', [])
+        wishlist_products = Product.objects.filter(
+            id__in=wishlist_ids
+        ).select_related('category')
+
+        # Preserve the guest's selected order
+        product_map = {
+            product.id: product for product in wishlist_products
+        }
+        wishlist_products = [
+            product_map[int(product_id)]
+            for product_id in wishlist_ids
+            if str(product_id).isdigit()
+            and int(product_id) in product_map
+        ]
+
+    return render(request, 'customer/wishlist.html', {
+        'customer': customer,
+        'wishlist_products': wishlist_products,
+        'wishlist_count': len(wishlist_products),
+    })
+
+
+@require_POST
+def add_to_wishlist(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    customer = get_logged_in_customer(request)
+
+    if customer:
+        Wishlist.objects.get_or_create(
+            customer=customer,
+            product=product,
+        )
+    else:
+        wishlist = request.session.get('wishlist', [])
+        wishlist = [str(pid) for pid in wishlist]
+
+        if str(product.id) not in wishlist:
+            wishlist.append(str(product.id))
+
+        request.session['wishlist'] = wishlist
+        request.session.modified = True
+
+    messages.success(request, 'Product added to your wishlist.')
+    return redirect('wishlist_view')
+
+
+@require_POST
+def remove_from_wishlist(request, product_id):
+    customer = get_logged_in_customer(request)
+
+    if customer:
+        Wishlist.objects.filter(
+            customer=customer,
+            product_id=product_id,
+        ).delete()
+    else:
+        wishlist = request.session.get('wishlist', [])
+        request.session['wishlist'] = [
+            str(pid) for pid in wishlist
+            if str(pid) != str(product_id)
+        ]
+        request.session.modified = True
+
+    messages.success(request, 'Product removed from your wishlist.')
+    return redirect('wishlist_view')
+
+
+@require_POST
+def move_to_bag(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if product.stock < 1:
+        messages.error(request, 'This product is currently out of stock.')
+        return redirect('wishlist_view')
+
+    bag = request.session.get('bag', {})
+    bag = {
+        str(pid): int(quantity)
+        for pid, quantity in bag.items()
+        if str(pid).isdigit()
+        and str(quantity).isdigit()
+        and int(quantity) > 0
+    }
+
+    product_key = str(product.id)
+    current_quantity = bag.get(product_key, 0)
+
+    if current_quantity >= product.stock:
+        messages.error(
+            request,
+            f'You already have the maximum available quantity of '
+            f'{product.product_name} in your bag.'
+        )
+        return redirect('wishlist_view')
+
+    bag[product_key] = current_quantity + 1
+    request.session['bag'] = bag
+    request.session.modified = True
+
+    customer = get_logged_in_customer(request)
+
+    if customer:
+        Wishlist.objects.filter(
+            customer=customer,
+            product=product,
+        ).delete()
+    else:
+        wishlist = request.session.get('wishlist', [])
+        request.session['wishlist'] = [
+            str(pid) for pid in wishlist
+            if str(pid) != str(product.id)
+        ]
+
+    messages.success(request, 'Product moved to your bag.')
+    return redirect('bag_view')
+
+
+def get_profile_customer(request):
+    customer_id = request.session.get("customer_id")
+
+    if not customer_id:
+        return None
+
+    return Customer.objects.filter(id=customer_id).first()
+
+
+def customer_profile(request):
+    customer = get_profile_customer(request)
+
+    if not customer:
+        messages.info(request, "Please sign in to view your profile.")
+        return redirect("login")
+
+    orders = Order.objects.filter(
+        customer=customer
+    ).order_by("-created_at")
+
+    return render(request, "customer/profile.html", {
+        "customer": customer,
+        "orders": orders,
+        "total_orders": orders.count(),
+        "delivered_orders": orders.filter(status="DELIVERED").count(),
+    })
+
+
+def edit_customer_profile(request):
+    customer = get_profile_customer(request)
+
+    if not customer:
+        messages.info(request, "Please sign in to edit your profile.")
+        return redirect("login")
+
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        email = request.POST.get("email", "").strip().lower()
+        username = request.POST.get("username", "").strip()
+        phone = request.POST.get("phone", "").strip()
+
+        if not all([name, email, username, phone]):
+            messages.error(request, "Please fill in all fields.")
+        elif Customer.objects.filter(
+            email__iexact=email
+        ).exclude(pk=customer.pk).exists():
+            messages.error(request, "That email is already registered.")
+        elif Customer.objects.filter(
+            username__iexact=username
+        ).exclude(pk=customer.pk).exists():
+            messages.error(request, "That username is already taken.")
+        else:
+            customer.name = name
+            customer.email = email
+            customer.username = username
+            customer.phone = phone
+            customer.save()
+
+            messages.success(request, "Your profile has been updated.")
+            return redirect("customer_profile")
+
+    return render(request, "customer/edit_profile.html", {
+        "customer": customer,
+    })

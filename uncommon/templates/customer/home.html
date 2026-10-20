@@ -251,50 +251,411 @@
                 padding: 8px 11px;
             }
 
+/* ===== Compact premium navbar ===== */
+
+.site-header {
+    background: rgba(239, 235, 225, 0.96);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav {
+    max-width: 1320px;
+    min-height: 72px;
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 26px;
+}
+
+.logo {
+    font-size: 23px;
+    letter-spacing: 0.11em;
+    flex-shrink: 0;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-links > a,
+.nav-drop-trigger,
+.account-trigger {
+    color: var(--muted);
+    font: 10px var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.nav-links > a:hover,
+.nav-drop-trigger:hover,
+.account-trigger:hover {
+    color: var(--ochre);
+}
+
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-drop-trigger,
+.account-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.nav-drop-trigger span,
+.account-trigger span {
+    font-size: 15px;
+    transition: transform 0.2s;
+}
+
+.nav-dropdown:has(.nav-dropdown-menu.open) > button span {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: -16px;
+    z-index: 100;
+    display: none;
+    width: 225px;
+    padding: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 15px 35px #241e1418;
+}
+
+.nav-dropdown-menu.open {
+    display: block;
+    animation: dropdown-in 0.18s ease-out;
+}
+
+@keyframes dropdown-in {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-dropdown-menu > a,
+.dropdown-logout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 13px 11px;
+    color: var(--muted);
+    font: 10px var(--mono);
+    text-align: left;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.nav-dropdown-menu > a:hover,
+.dropdown-logout:hover {
+    background: var(--subtle);
+    color: var(--ink);
+}
+
+.nav-dropdown-menu > a span,
+.dropdown-logout span {
+    color: var(--ochre);
+}
+
+.account-menu {
+    right: 0;
+    left: auto;
+    width: 220px;
+}
+
+.account-menu-heading {
+    padding: 12px 11px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font: 9px/1.7 var(--mono);
+    overflow-wrap: anywhere;
+}
+
+.account-menu form {
+    margin: 0;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-left: auto;
+}
+
+.nav-actions .wishlist-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--muted);
+    font: 10px var(--mono);
+    white-space: nowrap;
+}
+
+.nav-actions .wishlist-link:first-letter {
+    color: #8B3028;
+}
+
+.nav-actions .wishlist-link:hover {
+    color: #8B3028;
+}
+
+.nav-actions .bag-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 13px;
+    border: 1px solid var(--ink);
+    font: 10px var(--mono);
+    white-space: nowrap;
+}
+
+.nav-actions .bag-link:hover {
+    color: var(--bg);
+    background: var(--ink);
+}
+
+.nav-toggle {
+    display: none;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink);
+    padding: 9px 12px;
+    font: 11px var(--mono);
+    cursor: pointer;
+}
+
+/* ===== Responsive navbar ===== */
+
+@media (max-width: 900px) {
+    .nav {
+        padding: 12px 20px;
+        gap: 15px;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .nav-actions {
+        gap: 12px;
+    }
+
+    .wishlist-label {
+        display: none;
+    }
+}
+
+@media (max-width: 700px) {
+    .nav {
+        flex-wrap: wrap;
+        min-height: 66px;
+        gap: 12px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .nav-toggle {
+        display: block;
+        order: 3;
+        margin-left: 0;
+    }
+
+    .nav-actions {
+        margin-left: auto;
+        gap: 12px;
+    }
+
+    .nav-links {
+        display: none;
+        order: 4;
+        width: 100%;
+        padding: 12px 0 5px;
+        border-top: 1px solid var(--border);
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-dropdown-menu {
+        position: static;
+        width: min(280px, 80vw);
+        margin-top: 5px;
+        box-shadow: none;
+    }
+
+    .account-menu {
+        position: absolute;
+        right: 0;
+        left: auto;
+        width: 220px;
+        box-shadow: 0 15px 35px #241e1418;
+    }
+
+    .nav-actions .bag-link {
+        padding: 9px 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    .nav {
+        padding: 11px 13px;
+        gap: 8px;
+    }
+
+    .logo {
+        font-size: 17px;
+        letter-spacing: 0.07em;
+    }
+
+    .nav-actions {
+        gap: 8px;
+    }
+
+    .account-trigger {
+        font-size: 9px;
+    }
+}
+
+
+
+        /* Modern compact navigation: four main links only */
+        .site-header { position:sticky; top:0; z-index:100; background:rgba(239,235,225,.96); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
+        .nav { width:min(1440px,100%); min-height:78px; margin:auto; padding:14px clamp(18px,4vw,54px); display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:clamp(16px,2.5vw,38px); }
+        .logo { font:600 25px var(--serif); letter-spacing:.13em; white-space:nowrap; }
+        .logo span { color:var(--ochre); }
+        .nav-links { display:flex; justify-content:center; align-items:center; gap:clamp(15px,2.4vw,36px); }
+        .nav-links > a { position:relative; padding:12px 0; color:var(--muted); font:10px var(--mono); letter-spacing:.09em; text-transform:uppercase; white-space:nowrap; transition:color .2s; }
+        .nav-links > a::after { content:""; position:absolute; left:0; right:100%; bottom:5px; height:1px; background:var(--ochre); transition:right .25s ease; }
+        .nav-links > a:hover, .nav-links > a:focus-visible { color:var(--ink); }
+        .nav-links > a:hover::after, .nav-links > a:focus-visible::after { right:0; }
+        .nav-actions { display:flex; align-items:center; gap:clamp(10px,1.5vw,20px); }
+        .nav-actions a, .account-trigger { font:10px var(--mono); letter-spacing:.07em; text-transform:uppercase; }
+        .wishlist-link { display:flex; align-items:center; gap:7px; color:var(--muted); white-space:nowrap; }
+        .wishlist-symbol { font:25px/1 Arial,sans-serif; color:var(--ochre); }
+        .wishlist-link:hover { color:var(--ink); }
+        .bag-link { display:inline-flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--ink); white-space:nowrap; transition:background .2s,color .2s; }
+        .bag-link:hover { background:var(--ink); color:var(--bg); }
+        .bag-count { display:inline-grid; place-items:center; min-width:19px; height:19px; padding:0 5px; border-radius:50%; background:var(--gold); color:var(--ink); font:9px var(--mono); }
+        .nav-dropdown { position:relative; }
+        .account-trigger { display:inline-flex; align-items:center; gap:9px; min-height:42px; padding:10px 12px; border:1px solid var(--border); background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap; }
+        .account-trigger:hover, .account-trigger[aria-expanded="true"] { border-color:var(--ochre); }
+        .account-chevron { color:var(--ochre); font-size:15px; }
+        .nav-dropdown-menu { position:absolute; top:calc(100% + 12px); right:0; z-index:120; display:none; width:230px; padding:8px; border:1px solid var(--border); background:var(--card); box-shadow:0 18px 40px #241e141c; }
+        .nav-dropdown-menu.open { display:block; animation:nav-menu-in .16s ease-out; }
+        @keyframes nav-menu-in { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+        .nav-dropdown-menu > a, .dropdown-logout { width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 12px; border:0; background:transparent; color:var(--ink); text-align:left; font:10px var(--mono); letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
+        .nav-dropdown-menu > a:hover, .dropdown-logout:hover { background:var(--subtle); }
+        .nav-dropdown-menu > a span, .dropdown-logout span { color:var(--ochre); }
+        .account-menu-heading { padding:12px; border-bottom:1px solid var(--border); color:var(--muted); font:9px/1.7 var(--mono); overflow-wrap:anywhere; }
+        .account-menu form { margin:0; }
+        .nav-toggle { display:none; width:42px; height:42px; place-items:center; border:1px solid var(--border); background:transparent; color:var(--ink); font-size:20px; cursor:pointer; }
+        @media (max-width:1050px) {
+            .nav { grid-template-columns:auto 1fr auto; gap:18px; }
+            .nav-links { grid-column:1 / -1; grid-row:2; justify-content:center; padding-top:8px; border-top:1px solid var(--border); }
+            .nav-actions { grid-column:2; grid-row:1; justify-content:flex-end; }
+            .nav-toggle { grid-column:3; grid-row:1; }
+        }
+        @media (max-width:760px) {
+            .nav { min-height:70px; grid-template-columns:auto 1fr auto; gap:12px; padding:12px 18px; }
+            .logo { font-size:21px; }
+            .nav-toggle { display:grid; }
+            .nav-actions { grid-column:2; grid-row:1; gap:10px; }
+            .wishlist-label { display:none; }
+            .wishlist-symbol { font-size:27px; }
+            .bag-link { padding:9px 10px; }
+            .account-trigger { min-height:39px; padding:8px 9px; max-width:125px; overflow:hidden; text-overflow:ellipsis; }
+            .nav-links { display:none; grid-column:1 / -1; grid-row:2; justify-content:stretch; align-items:stretch; flex-direction:column; gap:0; padding:8px 0 3px; border-top:1px solid var(--border); }
+            .nav-links.open { display:flex; }
+            .nav-links > a { padding:15px 8px; border-bottom:1px solid #D6CCB580; }
+            .nav-links > a::after { display:none; }
+            .nav-dropdown-menu { top:calc(100% + 7px); }
+        }
+        @media (max-width:420px) {
+            .nav { padding:10px 12px; gap:8px; }
+            .logo { font-size:18px; letter-spacing:.07em; }
+            .nav-actions { gap:7px; }
+            .bag-link { gap:6px; padding:8px; }
+            .account-trigger { max-width:95px; font-size:9px; }
+            .nav-toggle { width:38px; height:38px; }
+        }
+        @media (prefers-reduced-motion:reduce) { .nav-links > a, .nav-links > a::after, .nav-dropdown-menu { animation:none !important; transition:none !important; } }
+
     </style>
 </head>
 <body>
 <header class="site-header">
     <div class="nav">
-        <a href="{% url 'customer_home' %}" class="logo">UNCOMMON<span>.</span></a>
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" onclick="toggleNav(this)">Menu ☰</button>
-        <nav class="nav-links" id="primary-nav">
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">UNCOMMON<span>.</span></a>
+
+        <nav class="nav-links" id="primary-nav" aria-label="Main navigation">
             <a href="#catalogue">The Rooms</a>
             <a href="#services">Services</a>
             <a href="#process">How It Works</a>
             <a href="#hundred">The Hundred</a>
         </nav>
+
         <div class="nav-actions">
-            <a class="insolo-link" href="{% url 'section_products' 'HER' %}">INSOLO — for her ↗</a>
-            <a class="orders-link" href="/my-orders/" aria-label="View my orders">My Orders <span aria-hidden="true">↗</span></a>
-            <a class="bag-link" href="/bag/" aria-label="Open shopping bag">Bag <span aria-hidden="true">·</span> <span class="bag-count">0</span></a>
-            {% if customer %}
-                <span class="muted account-greeting" style="font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase">Hello, {{ customer.name }}</span>
-                 <form
-                action="{% url 'admin_logout' %}"
-                method="POST"
-                style="margin: 0;">
-
-                {% csrf_token %}
-
-                <button
-                    type="submit"
-                    class="btn">
-
-                    Logout
-
+            <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Wishlist" title="Wishlist">
+                <span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Wishlist</span>
+            </a>
+            <a class="bag-link" href="/bag/" aria-label="Shopping bag">
+                <span>Bag</span><span class="bag-count">0</span>
+            </a>
+            <div class="nav-dropdown account-dropdown">
+                <button type="button" class="account-trigger" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown(this)">
+                    {% if customer %}{{ customer.name|truncatechars:12 }}{% else %}Account{% endif %}
+                    <span class="account-chevron" aria-hidden="true">⌄</span>
                 </button>
-
-            </form>
-            {% else %}
-                <a class="sign-in-link" href="{% url 'login' %}">Sign in</a>
-                <a class="register-link" href="{% url 'customer_register' %}">Register</a>
-            {% endif %}
-            
+                <div class="nav-dropdown-menu account-menu">
+                    {% if customer %}
+                        <div class="account-menu-heading">Signed in as {{ customer.name }}</div>
+                        <a href="/my-orders/">My Orders <span aria-hidden="true">↗</span></a>
+                        <a href="{% url 'wishlist_view' %}">Wishlist <span aria-hidden="true">↗</span></a>
+                        <form action="{% url 'admin_logout' %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-logout">Logout <span aria-hidden="true">↗</span></button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}">Sign in <span aria-hidden="true">↗</span></a>
+                        <a href="{% url 'customer_register' %}">Create account <span aria-hidden="true">↗</span></a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
+
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation" onclick="toggleNav(this)">
+            <span class="menu-icon" aria-hidden="true">☰</span>
+        </button>
     </div>
 </header>
-
 <main>
     <section class="hero" id="top">
         <div class="wrap hero-grid">
@@ -602,8 +963,52 @@
         const nav = document.getElementById('primary-nav');
         const isOpen = nav.classList.toggle('open');
         button.setAttribute('aria-expanded', String(isOpen));
-        button.textContent = isOpen ? 'Close ×' : 'Menu ☰';
+        const icon = button.querySelector('.menu-icon');
+        if (icon) icon.textContent = isOpen ? '×' : '☰';
     }
+
+    function toggleDropdown(button) {
+        const menu = button.nextElementSibling;
+        if (!menu) return;
+        const shouldOpen = !menu.classList.contains('open');
+        document.querySelectorAll('.nav-dropdown-menu').forEach(item => {
+            item.classList.remove('open');
+            const trigger = item.previousElementSibling;
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+        if (shouldOpen) {
+            menu.classList.add('open');
+            button.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    document.addEventListener('click', event => {
+        if (!event.target.closest('.nav-dropdown')) {
+            document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                menu.classList.remove('open');
+                const trigger = menu.previousElementSibling;
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                menu.classList.remove('open');
+                const trigger = menu.previousElementSibling;
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+            const nav = document.getElementById('primary-nav');
+            const toggle = document.querySelector('.nav-toggle');
+            if (nav && toggle && nav.classList.contains('open')) {
+                nav.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+                const icon = toggle.querySelector('.menu-icon');
+                if (icon) icon.textContent = '☰';
+            }
+        }
+    });
 
     (() => {
         const modal = document.getElementById('reservation-modal');

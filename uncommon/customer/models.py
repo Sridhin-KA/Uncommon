@@ -1,5 +1,5 @@
 from django.db import models
-from admin_panel.models import*
+
 # Create your models here.
 
 class Customer(models.Model):
@@ -46,10 +46,12 @@ class OrderItem(models.Model):
         on_delete=models.CASCADE,
         related_name="items",
     )
+
     product = models.ForeignKey(
-        Product,
+        'admin_panel.Product',
         on_delete=models.PROTECT,
     )
+
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 

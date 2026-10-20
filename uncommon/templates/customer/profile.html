@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Account — UNCOMMON</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg:#EFEBE1;
+    --card:#F7F4EC;
+    --input:#FAF8F2;
+    --tint:#E8E1CE;
+    --border:#D6CCB5;
+    --text:#241E14;
+    --muted:#6F6350;
+    --gold:#A0763A;
+    --green:#3E4A3A;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+    background:var(--bg); color:var(--text);
+    font-family:'Archivo',sans-serif;
+}
+a { color:inherit; text-decoration:none; }
+.topbar {
+    padding:23px 6%; display:flex; justify-content:space-between;
+    align-items:center; border-bottom:1px solid var(--border);
+    background:var(--card);
+}
+.logo {
+    font:700 25px 'Libre Caslon Text',serif;
+    letter-spacing:.14em;
+}
+.logo span { color:var(--green); }
+.top-link {
+    font:11px 'IBM Plex Mono',monospace;
+    text-transform:uppercase; letter-spacing:.1em;
+}
+.container { max-width:1100px; margin:auto; padding:55px 22px; }
+.eyebrow {
+    color:var(--gold); font:11px 'IBM Plex Mono',monospace;
+    letter-spacing:.18em; text-transform:uppercase;
+}
+h1 {
+    font:400 clamp(32px,5vw,48px) 'Libre Caslon Text',serif;
+    margin:12px 0;
+}
+.intro { color:var(--muted); line-height:1.7; }
+.layout {
+    display:grid; grid-template-columns:255px 1fr;
+    gap:25px; margin-top:38px;
+}
+.card {
+    background:var(--card); border:1px solid var(--border);
+    padding:26px; margin-bottom:20px;
+}
+.avatar {
+    width:66px; height:66px; border-radius:50%;
+    background:var(--green); color:white;
+    display:grid; place-items:center;
+    font:26px 'Libre Caslon Text',serif; margin-bottom:18px;
+}
+.customer-name {
+    font:24px 'Libre Caslon Text',serif;
+    overflow-wrap:anywhere;
+}
+.customer-email {
+    color:var(--muted); font-size:12px;
+    margin-top:8px; overflow-wrap:anywhere;
+}
+.side-nav { margin-top:25px; border-top:1px solid var(--border); }
+.side-nav a {
+    display:block; padding:15px 0;
+    border-bottom:1px solid var(--border);
+    font:11px 'IBM Plex Mono',monospace;
+    letter-spacing:.06em; text-transform:uppercase;
+}
+.side-nav a:hover { color:var(--gold); }
+.stats {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:13px; margin-bottom:20px;
+}
+.stat {
+    background:var(--card); border:1px solid var(--border);
+    padding:22px;
+}
+.stat strong {
+    display:block; font:30px 'Libre Caslon Text',serif;
+    margin-bottom:8px;
+}
+.stat span {
+    color:var(--muted); font:10px 'IBM Plex Mono',monospace;
+    text-transform:uppercase; letter-spacing:.08em;
+}
+.section-title {
+    font:25px 'Libre Caslon Text',serif; margin-bottom:20px;
+}
+.profile-row {
+    display:flex; justify-content:space-between;
+    gap:15px; padding:15px 0;
+    border-bottom:1px solid var(--border);
+}
+.profile-row:last-of-type { border-bottom:0; }
+.field-label {
+    color:var(--muted); font:10px 'IBM Plex Mono',monospace;
+    text-transform:uppercase; margin-bottom:7px;
+}
+.field-value { overflow-wrap:anywhere; font-size:14px; }
+.btn {
+    display:inline-block; border:1px solid var(--green);
+    padding:12px 16px; background:var(--green); color:white;
+    font:10px 'IBM Plex Mono',monospace;
+    letter-spacing:.08em; text-transform:uppercase;
+    cursor:pointer;
+}
+.btn:hover { background:var(--text); }
+.btn-outline { background:transparent; color:var(--green); }
+.orders { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; min-width:460px; }
+th {
+    text-align:left; color:var(--muted);
+    font:10px 'IBM Plex Mono',monospace;
+    text-transform:uppercase; padding:13px 8px;
+}
+td { padding:17px 8px; border-top:1px solid var(--border); font-size:12px; }
+.status {
+    display:inline-block; padding:6px 8px;
+    background:var(--tint); font:10px 'IBM Plex Mono',monospace;
+}
+.empty { text-align:center; padding:30px 10px; color:var(--muted); line-height:1.8; }
+.messages { margin-bottom:20px; }
+.message { padding:12px; margin-bottom:8px; font-size:13px; background:var(--tint); }
+footer {
+    text-align:center; padding:25px;
+    border-top:1px solid var(--border);
+    color:var(--muted); font:10px 'IBM Plex Mono',monospace;
+}
+@media(max-width:760px) {
+    .layout { grid-template-columns:1fr; }
+    .stats { grid-template-columns:1fr 1fr; }
+    .container { padding:35px 16px; }
+    .topbar { padding:20px; }
+    .card { padding:20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <a href="/" class="logo">UNCOMMON<span>.</span></a>
+    <a href="/" class="top-link">← Back to the collection</a>
+</header>
+
+<main class="container">
+    <p class="eyebrow">The House Registry / Account</p>
+    <h1>Your account.</h1>
+    <p class="intro">Your details, your selections, your orders — all in one place.</p>
+
+    <div class="layout">
+        <aside>
+            <div class="card">
+                <div class="avatar">
+                    {{ customer.name|first|upper }}
+                </div>
+                <div class="customer-name">{{ customer.name }}</div>
+                <div class="customer-email">{{ customer.email }}</div>
+
+                <nav class="side-nav">
+                    <a href="#overview">Account overview</a>
+                    <a href="#orders">My orders</a>
+                    <a href="{% url 'edit_customer_profile' %}">Edit profile →</a>
+                    <a href="/">Continue shopping →</a>
+                </nav>
+            </div>
+        </aside>
+
+        <section>
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="stats">
+                <div class="stat">
+                    <strong>{{ total_orders }}</strong>
+                    <span>Total orders</span>
+                </div>
+                <div class="stat">
+                    <strong>{{ delivered_orders }}</strong>
+                    <span>Delivered</span>
+                </div>
+                <div class="stat">
+                    <strong>{{ customer.username|length }}</strong>
+                    <span>Username length</span>
+                </div>
+            </div>
+
+            <div class="card" id="overview">
+                <h2 class="section-title">Personal details</h2>
+
+                <div class="profile-row">
+                    <div>
+                        <div class="field-label">Full name</div>
+                        <div class="field-value">{{ customer.name }}</div>
+                    </div>
+                </div>
+                <div class="profile-row">
+                    <div>
+                        <div class="field-label">Email address</div>
+                        <div class="field-value">{{ customer.email }}</div>
+                    </div>
+                </div>
+                <div class="profile-row">
+                    <div>
+                        <div class="field-label">Username</div>
+                        <div class="field-value">{{ customer.username }}</div>
+                    </div>
+                </div>
+                <div class="profile-row">
+                    <div>
+                        <div class="field-label">Phone number</div>
+                        <div class="field-value">{{ customer.phone|default:"Not provided" }}</div>
+                    </div>
+                </div>
+
+                <a href="{% url 'edit_customer_profile' %}" class="btn" style="margin-top:22px">
+                    Edit personal details →
+                </a>
+            </div>
+
+            <div class="card" id="orders">
+                <h2 class="section-title">Your orders.</h2>
+                <p class="intro" style="font-size:13px;margin-bottom:20px">
+                    A record of everything you've selected from the collection.
+                </p>
+
+                {% if orders %}
+                <div class="orders">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.order_number }}</td>
+                                <td>{{ order.created_at|date:"d M Y" }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td><span class="status">{{ order.get_status_display }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty">
+                    <p>No orders just yet.</p>
+                    <p>Your next uncommon find is waiting.</p>
+                    <a href="/" class="btn" style="margin-top:18px">Explore the collection →</a>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer>UNCOMMON — NUMBERED ONCE. RECORDED TO A SINGLE NAME.</footer>
+</body>
+</html>

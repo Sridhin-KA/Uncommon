@@ -1,0 +1,299 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNCOMMON — Google Sign In</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --beige-bg: #EFEBE1;
+            --beige-card: #F7F4EC;
+            --beige-input: #FAF8F2;
+            --beige-tint: #E8E1CE;
+            --beige-border: #D6CCB5;
+            --text-primary: #241E14;
+            --text-muted: #6F6350;
+            --accent-ochre: #A0763A;
+            --accent-green: #3E4A3A;
+            --font-serif: 'Libre Caslon Text', serif;
+            --font-sans: 'Archivo', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 30px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--beige-bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .auth-frame {
+            width: 100%;
+            max-width: 500px;
+            background: var(--beige-card);
+            border: 1px solid var(--beige-border);
+            box-shadow: 0 18px 45px -20px rgba(50, 40, 25, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .auth-header {
+            padding: 34px 28px 27px;
+            text-align: center;
+            background: linear-gradient(
+                180deg,
+                #FBF9F4 0%,
+                var(--beige-card) 100%
+            );
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        .brand-logo {
+            color: var(--text-primary);
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            color: var(--accent-green);
+        }
+
+        .sub-tag {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 9px;
+            color: var(--accent-ochre);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .sub-tag::before,
+        .sub-tag::after {
+            width: 16px;
+            height: 1px;
+            background: var(--accent-ochre);
+            content: "";
+        }
+
+        .auth-body {
+            padding: 38px 36px 34px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin-bottom: 13px;
+            color: var(--accent-ochre);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-family: var(--font-serif);
+            font-size: clamp(25px, 5vw, 32px);
+            font-weight: 400;
+            line-height: 1.3;
+        }
+
+        .description {
+            max-width: 340px;
+            margin: 0 auto;
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .divider {
+            height: 1px;
+            margin: 27px 0;
+            background: var(--beige-border);
+        }
+
+        .google-mark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--beige-input);
+            border: 1px solid var(--beige-border);
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .google-icon {
+            width: 25px;
+            height: 25px;
+            flex-shrink: 0;
+        }
+
+        .google-mark strong {
+            font-weight: 600;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 15px 18px;
+            background: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            border-radius: 2px;
+            color: var(--beige-card);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: background 0.2s ease;
+        }
+
+        .continue-btn:hover {
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 23px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--accent-ochre);
+        }
+
+        .auth-footer {
+            padding: 17px 20px 20px;
+            background: var(--beige-tint);
+            border-top: 1px solid var(--beige-border);
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .auth-header {
+                padding: 29px 18px 23px;
+            }
+
+            .auth-body {
+                padding: 32px 22px;
+            }
+
+            .brand-logo {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="auth-frame">
+
+        <header class="auth-header">
+            <a href="/" class="brand-logo">
+                UNCOMMON<span>.</span>
+            </a>
+
+            <div class="sub-tag">
+                House Registry & Atelier Desk
+            </div>
+        </header>
+
+        <section class="auth-body">
+            <p class="eyebrow">Secure Account Access</p>
+
+            <h1>Welcome to UNCOMMON</h1>
+
+            <p class="description">
+                A considered collection for those who choose differently.
+                Continue with Google to enter your account.
+            </p>
+
+            <div class="divider"></div>
+
+            <div class="google-mark">
+                <svg class="google-icon"
+                     xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 48 48"
+                     aria-hidden="true">
+                    <path fill="#EA4335"
+                          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                          transform="translate(0 4)"/>
+                    <path fill="#4285F4"
+                          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.73 6C44.42 37.97 46.98 31.86 46.98 24.55z"/>
+                    <path fill="#FBBC05"
+                          d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19z"
+                          transform="translate(1)"/>
+                    <path fill="#34A853"
+                          d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.15 1.45-4.92 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                          transform="translate(0 -4)"/>
+                </svg>
+
+                <strong>Continue securely with Google</strong>
+            </div>
+
+            <p class="description" style="font-size:12px;">
+                You will be redirected to Google to authenticate your account.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <p style="margin:15px 0;color:#B71C1C;font-size:13px;">
+                        Please check your details and try again.
+                    </p>
+                {% endif %}
+
+                <button type="submit" class="continue-btn">
+                    Continue with Google &rarr;
+                </button>
+            </form>
+
+            <a href="/" class="back-link">
+                &larr; Return to the collection
+            </a>
+        </section>
+
+        <footer class="auth-footer">
+            Numbered once. Recorded to a single name.<br>
+            UNCOMMON &copy; {% now "Y" %}
+        </footer>
+
+    </main>
+</body>
+</html>

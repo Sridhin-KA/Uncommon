@@ -51,4 +51,23 @@ path(
     views.cancel_order,
     name="cancel_order",
 ),
+
+path('wishlist/', views.wishlist_view, name='wishlist_view'),
+path(
+    'wishlist/add/<int:product_id>/',
+    views.add_to_wishlist,
+    name='add_to_wishlist',
+),
+path(
+    'wishlist/remove/<int:product_id>/',
+    views.remove_from_wishlist,
+    name='remove_from_wishlist',
+),
+path(
+    'wishlist/move-to-bag/<int:product_id>/',
+    views.move_to_bag,
+    name='move_to_bag',
+),
+path("profile/", views.customer_profile, name="customer_profile"),
+path("profile/edit/", views.edit_customer_profile, name="edit_customer_profile"),
 ]

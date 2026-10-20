@@ -504,6 +504,45 @@
                 animation-duration: .01ms !important;
             }
         }
+
+/* Product wishlist heart */
+.product-image-container {
+    position: relative;
+}
+
+.wishlist-form {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+}
+
+.wishlist-heart {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid #DED5C5;
+    background: #FFFCF7;
+    color: #241E14;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(36, 30, 20, 0.08);
+}
+
+.wishlist-heart:hover {
+    color: #8B3028;
+    transform: scale(1.1);
+    border-color: #8B3028;
+}
+
+.wishlist-heart:active {
+    transform: scale(0.94);
+}
+
     </style>
 </head>
 
@@ -648,6 +687,17 @@
                             <span class="button-arrow" aria-hidden="true">↗</span>
                         {% endif %}
                     </button>
+                    <form method="POST"
+                        action="{% url 'add_to_wishlist' product.id %}"
+                        class="wishlist-form">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="wishlist-heart"
+                                title="Add to Wishlist"
+                                aria-label="Add {{ product.product_name }} to wishlist">
+                            ♡
+                        </button>
+                    </form>
 
                 </div>
 

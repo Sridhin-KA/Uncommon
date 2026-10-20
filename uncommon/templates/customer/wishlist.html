@@ -1,0 +1,503 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist | UNCOMMON</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream: #F3EEE4;
+            --ink: #241E14;
+            --gold: #A0763A;
+            --line: #DED5C5;
+            --white: #FFFCF7;
+            --muted: #777064;
+            --red: #8B3028;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--cream);
+            color: var(--ink);
+            font-family: 'Archivo', sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .navbar {
+            min-height: 76px;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .page {
+            max-width: 1250px;
+            margin: auto;
+            padding: 65px 7% 90px;
+            min-height: 70vh;
+        }
+
+        .eyebrow {
+            color: var(--gold);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 6vw, 66px);
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .intro {
+            color: var(--muted);
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .count {
+            color: var(--gold);
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        .messages {
+            margin-top: 25px;
+        }
+
+        .message {
+            background: var(--white);
+            border: 1px solid var(--line);
+            padding: 13px 16px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 30px 22px;
+            margin-top: 35px;
+        }
+
+        .product {
+            min-width: 0;
+            animation: appear .45s ease both;
+        }
+
+        .image-wrap {
+            position: relative;
+            overflow: hidden;
+            background: #E7DFD1;
+            aspect-ratio: 3 / 4;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .5s ease;
+        }
+
+        .image-wrap:hover .product-image {
+            transform: scale(1.04);
+        }
+
+        .heart {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            width: 39px;
+            height: 39px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            color: var(--red);
+            cursor: pointer;
+        }
+
+        .product-info {
+            padding-top: 17px;
+        }
+
+        .category {
+            color: var(--gold);
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 1.7px;
+            margin-bottom: 7px;
+        }
+
+        .product-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 25px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .description {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        .price {
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .availability {
+            font-size: 11px;
+            margin-top: 8px;
+            color: var(--muted);
+        }
+
+        .availability.out {
+            color: var(--red);
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 17px;
+        }
+
+        .btn {
+            border: 1px solid var(--ink);
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: .2s ease;
+        }
+
+        .btn-bag {
+            background: var(--ink);
+            color: var(--white);
+            flex: 1;
+        }
+
+        .btn-bag:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .btn-remove {
+            background: transparent;
+            color: var(--ink);
+        }
+
+        .btn-remove:hover {
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 85px 20px;
+            margin-top: 35px;
+            border: 1px solid var(--line);
+            background: rgba(255, 252, 247, .5);
+        }
+
+        .empty-heart {
+            font-size: 38px;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        .empty h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 38px;
+            font-weight: 500;
+        }
+
+        .empty p {
+            color: var(--muted);
+            margin: 12px 0 25px;
+            font-size: 13px;
+        }
+
+        .shop-btn {
+            display: inline-block;
+            padding: 14px 22px;
+            background: var(--ink);
+            color: var(--white);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        footer {
+            padding: 27px 7%;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 25px 14px;
+            }
+
+            .navbar {
+                padding: 16px 5%;
+            }
+
+            .nav-links {
+                gap: 12px;
+                font-size: 10px;
+            }
+
+            .page {
+                padding: 48px 5% 65px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand {
+                font-size: 25px;
+                letter-spacing: 3px;
+            }
+
+            .nav-links {
+                gap: 10px;
+            }
+
+            .grid {
+                gap: 23px 10px;
+            }
+
+            .product-name {
+                font-size: 21px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                padding: 12px 5px;
+            }
+
+            footer {
+                flex-direction: column;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="{% url 'customer_home' %}" class="brand">INSOLO</a>
+
+    <div class="nav-links">
+        <a href="{% url 'customer_home' %}">Shop</a>
+        <a href="{% url 'bag_view' %}">Bag</a>
+        <a href="{% url 'wishlist_view' %}">Wishlist ({{ wishlist_count }})</a>
+    </div>
+</nav>
+
+<main class="page">
+    <p class="eyebrow">Your personal collection</p>
+    <h1>My Wishlist<span style="color: var(--gold);">.</span></h1>
+
+    <p class="intro">
+        The pieces you love, saved for whenever you're ready.
+    </p>
+
+    <p class="count">
+        {{ wishlist_count }} saved item{{ wishlist_count|pluralize }}
+    </p>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if wishlist_products %}
+        <section class="grid">
+            {% for product in wishlist_products %}
+                <article class="product">
+
+                    <div class="image-wrap">
+                        <a href="{% url 'section_products' 'HIM' %}"
+                           aria-label="Browse products">
+                            {% if product.image %}
+                                <img
+                                    class="product-image"
+                                    src="{{ product.image.url }}"
+                                    alt="{{ product.product_name }}"
+                                    loading="lazy"
+                                >
+                            {% else %}
+                                <div style="height:100%;display:grid;place-items:center;color:#777064;">
+                                    INSOLO
+                                </div>
+                            {% endif %}
+                        </a>
+
+                        <form method="POST"
+                              action="{% url 'remove_from_wishlist' product.id %}">
+                            {% csrf_token %}
+                            <button class="heart"
+                                    type="submit"
+                                    aria-label="Remove {{ product.product_name }} from wishlist"
+                                    title="Remove from wishlist">
+                                ♥
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="product-info">
+                        {% if product.category %}
+                            <p class="category">
+                                {{ product.category.category_name }}
+                            </p>
+                        {% endif %}
+
+                        <h2 class="product-name">
+                            {{ product.product_name }}
+                        </h2>
+
+                        {% if product.description %}
+                            <p class="description">
+                                {{ product.description|truncatechars:100 }}
+                            </p>
+                        {% endif %}
+
+                        <p class="price">₹{{ product.price|floatformat:2 }}</p>
+
+                        {% if product.stock > 0 %}
+                            <p class="availability">Available</p>
+                        {% else %}
+                            <p class="availability out">Currently out of stock</p>
+                        {% endif %}
+
+                        <div class="actions">
+                            <form method="POST"
+                                  action="{% url 'move_to_bag' product.id %}"
+                                  style="display:contents;">
+                                {% csrf_token %}
+                                <button class="btn btn-bag"
+                                        type="submit"
+                                        {% if product.stock < 1 %}disabled{% endif %}>
+                                    Move to Bag
+                                </button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{% url 'remove_from_wishlist' product.id %}"
+                                  style="display:contents;">
+                                {% csrf_token %}
+                                <button class="btn btn-remove" type="submit">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+
+    {% else %}
+        <section class="empty">
+            <div class="empty-heart">♡</div>
+            <h2>Nothing saved. Yet.</h2>
+            <p>
+                Explore the collection and save the pieces that catch your eye.
+            </p>
+            <a href="{% url 'customer_home' %}" class="shop-btn">
+                Explore Collection
+            </a>
+        </section>
+    {% endif %}
+</main>
+
+<footer>
+    <span>© {% now "Y" %} INSOLO. All rights reserved.</span>
+    <span>Considered pieces. Individual style.</span>
+</footer>
+
+</body>
+</html>
