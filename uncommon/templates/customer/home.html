@@ -608,6 +608,57 @@
         }
         @media (prefers-reduced-motion:reduce) { .nav-links > a, .nav-links > a::after, .nav-dropdown-menu { animation:none !important; transition:none !important; } }
 
+
+/* ===== Footer information modals — refined premium styling ===== */
+.legal-modal {
+    position:fixed; inset:0; z-index:500; display:none; align-items:center; justify-content:center;
+    padding:clamp(12px,3vw,28px); background:rgba(13,20,15,.72); backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px); opacity:0; transition:opacity .25s ease;
+}
+.legal-modal.is-open { display:flex; opacity:1; }
+.legal-dialog {
+    position:relative; width:min(820px,100%); max-height:min(86vh,880px); overflow:auto;
+    padding:clamp(25px,4.5vw,48px); background:var(--card); color:var(--ink);
+    border:1px solid rgba(157,126,68,.42); border-radius:26px;
+    box-shadow:0 35px 100px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.55);
+    scrollbar-width:thin; scrollbar-color:var(--ochre) transparent;
+    animation:legalDialogIn .28s cubic-bezier(.2,.75,.25,1) both;
+}
+.legal-dialog::before {
+    content:""; position:absolute; top:0; left:clamp(25px,4.5vw,48px); right:clamp(25px,4.5vw,48px);
+    height:3px; border-radius:0 0 8px 8px;
+    background:linear-gradient(90deg,transparent,var(--ochre),#d9c69c,var(--ochre),transparent);
+}
+@keyframes legalDialogIn { from { opacity:0; transform:translateY(14px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+.legal-dialog-head { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; padding-bottom:22px; margin-bottom:25px; border-bottom:1px solid var(--border); }
+.legal-dialog h2 { margin:10px 0 8px; font:400 clamp(30px,4vw,44px)/1.12 var(--serif); letter-spacing:-.025em; }
+.legal-dialog h3 { margin:27px 0 10px; font:400 23px/1.25 var(--serif); }
+.legal-dialog p, .legal-dialog li { color:var(--muted); font-size:13px; line-height:1.9; }
+.legal-dialog p { margin:0 0 14px; }
+.legal-dialog ul { padding-left:22px; }
+.legal-dialog li { padding-left:3px; margin-bottom:5px; }
+.legal-close { flex:0 0 auto; display:grid; place-items:center; width:42px; height:42px; border:1px solid var(--border); border-radius:50%; background:rgba(255,255,255,.45); color:var(--ink); font-size:25px; line-height:1; cursor:pointer; transition:background .2s ease, color .2s ease, transform .2s ease, border-color .2s ease; }
+.legal-close:hover { background:var(--ink); color:var(--card); border-color:var(--ink); transform:rotate(90deg); }
+.legal-close:focus-visible, .footer-modal-link:focus-visible { outline:2px solid var(--ochre); outline-offset:4px; }
+.legal-kicker { display:flex; align-items:center; gap:10px; color:var(--ochre); font:10px var(--mono); letter-spacing:.16em; text-transform:uppercase; }
+.legal-kicker::before { content:""; width:22px; height:1px; background:currentColor; }
+.legal-dialog .legal-emphasis { color:var(--ink); font:italic 20px/1.65 var(--serif); }
+.legal-dialog a { color:var(--ochre); text-decoration:underline; text-underline-offset:3px; }
+.legal-footer-note { margin-top:25px !important; padding-top:17px; border-top:1px solid var(--border); font:10px/1.8 var(--mono) !important; }
+.footer-col button.footer-modal-link { display:block; padding:3px 0; border:0; background:transparent; color:var(--muted); text-align:left; font:12px/1.8 var(--sans); cursor:pointer; transition:color .2s ease, transform .2s ease; }
+.footer-col button.footer-modal-link:hover { color:var(--ink); transform:translateX(3px); }
+@media(max-width:520px) {
+    .legal-modal { padding:10px; align-items:center; }
+    .legal-dialog { max-height:92vh; padding:28px 20px 22px; border-radius:21px; }
+    .legal-dialog::before { left:20px; right:20px; }
+    .legal-dialog-head { gap:12px; padding-bottom:18px; margin-bottom:20px; }
+    .legal-dialog h2 { font-size:30px; }
+    .legal-dialog h3 { margin-top:22px; font-size:21px; }
+    .legal-dialog p, .legal-dialog li { font-size:12px; }
+    .legal-close { width:38px; height:38px; font-size:23px; }
+}
+@media(prefers-reduced-motion:reduce) { .legal-modal, .legal-dialog, .legal-close, .footer-col button.footer-modal-link { animation:none; transition:none; } }
+
     </style>
 </head>
 <body>
@@ -920,6 +971,29 @@
     {% if reservation_error %}<div data-level="error">{{ reservation_error|escape }}</div>{% endif %}
 </div>
 
+
+<!-- Each footer information item has its own independent modal -->
+<div class="legal-modal" id="about-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="about-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">The story behind the collection</div><h2 id="about-modal-title">About Uncommen</h2><p class="legal-emphasis">Exclusivity Preserved. Restocks Forbidden.</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close About Uncommen">×</button></div>
+<h3>The Luxury of Being One in 100 Out of Millions</h3><p>In an era governed by ubiquitous mass production, true individuality has become the ultimate luxury. Millions move through life enveloped in uniformity—wearing identical silhouettes, carrying repeated products, and surrounding themselves with choices dictated by the masses.</p><p>We forged Uncommen for the discerning few who refuse to conform.</p><p>Uncommen stands as a manifesto against the ordinary: dedicated to those who embody what is singular, rare, and un-repeatable.</p>
+<h3>Journeys Across India for the Unobtainable</h3><p>To bring this vision to life, our specialized sourcing team travels to remote corners, heritage ateliers, and hidden artisanal hubs across India. They seek out master craftsmen and rare design methodologies that cannot be replicated by modern factories.</p><p>We curate these exceptional, obscure creations under an unyielding mandate: a maximum of 100 individually numbered pieces are ever brought into existence.</p>
+<h3>Our Absolute Promise</h3><p>When you acquire a piece from us, that specific edition number is indelibly reserved for you. Once claimed, it transcends ordinary retail and enters the realm of the permanent vault.</p><p>While a product category or physical item type may eventually return to our store in a new form, a design once vaulted will NEVER be restocked or reproduced.</p><p class="legal-emphasis">No reprints. No duplicates. No exceptions.</p><p>Some things in life—once gone—cannot be bought, regardless of price. By capping our releases so strictly, we guarantee that your acquisition remains a personal archetype, exclusively aligned with your journey.</p><p>We do not merely sell products; we are cultivating an elite community of connoisseurs who value true rarity, deep heritage, and unrepeatable sophistication.</p>
+<h3>The Uncommen Ethos</h3><ul><li><strong>The Century Limit:</strong> Every design or artefact we unveil is strictly capped at precisely 100 iterations globally.</li><li><strong>Exclusive Ownership:</strong> The moment your order is sealed, your unique serial number is permanently locked to your identity.</li><li><strong>Vaulted in Perpetuity:</strong> Once the 100th piece of a design is claimed, it is archived forever—preserving your exclusivity for a lifetime.</li></ul></section></div>
+
+<div class="legal-modal" id="contact-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Personal service, considered</div><h2 id="contact-modal-title">Contact Us</h2><p class="legal-emphasis">We Are Here to Assist You</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close Contact Us">×</button></div>
+<p>At Uncommen, we value seamless service as much as we value exclusivity. Whether you have an inquiry regarding your reserved edition, order status, or bespoke sourcing, our dedicated team is at your service. We are always open to suggestions.</p><h3>Get in Touch</h3><p><strong>General Inquiries &amp; Support:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a></p><p><strong>Direct Line / Escalations:</strong> <a href="tel:+917051259897">+91 7051259897</a> (Direct line to the Founder)</p><h3>Grievance Redressal</h3><p>We take pride in our commitment to quality and transparency. If you experience any issues with your order, authentication, or service that require immediate resolution, please feel free to reach out to us directly.</p><p><strong>Grievance Email:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> (Please include your Order ID and Serial Number for priority handling)</p><p><strong>Grievance Officer Contact:</strong> <a href="tel:+917051259897">+91 7051259897</a></p><p>Our team typically responds within 24–48 business hours.</p></section></div>
+
+<div class="legal-modal" id="privacy-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Your information, respected</div><h2 id="privacy-modal-title">Privacy Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Privacy Policy">×</button></div>
+<p>Uncommen ("we," "us," or "our"), a sole proprietorship based in Bengaluru, Karnataka, is committed to safeguarding your privacy and personal data. This Privacy Policy outlines how we collect, use, process, and protect your information when you visit our website or purchase our limited-edition creations.</p><h3>1. Information We Collect</h3><p>To fulfill your orders and deliver an exceptional experience, we collect personal information you provide directly to us, including:</p><ul><li><strong>Contact &amp; Identity Information:</strong> Full name, phone number, email address, and delivery address.</li><li><strong>Order &amp; Serial Details:</strong> Purchases made, reserved edition/serial numbers assigned to your identity, and transaction history.</li><li><strong>Payment Processing Data:</strong> Financial transactions are processed securely through our authorized payment partner, Razorpay. We do not store or process your credit/debit card details, UPI PINs, or net banking credentials on our servers.</li></ul><h3>2. How We Use Your Information</h3><p>We utilize your personal information exclusively for operational and service excellence:</p><ul><li>Processing, dispatching, and delivering your reserved limited-edition items.</li><li>Verifying and maintaining your unique serial number allocation.</li><li>Communicating order updates, delivery statuses, and customer support responses.</li><li>Complying with legal, tax, and regulatory obligations within India.</li></ul><h3>3. Data Sharing &amp; Security</h3><p>We value your trust and never sell, rent, or trade your personal data to third parties. Your information is shared only with trusted third-party service providers (such as logistics partners and our payment gateway, Razorpay) strictly to complete your orders. We enforce stringent technical and organizational measures to safeguard your data against unauthorized access, loss, or disclosure.</p><h3>4. Your Rights &amp; Grievances</h3><p>You have the right to request access to, correction of, or deletion of your personal data stored with us. For any privacy concerns, data inquiries, or grievances, please contact us at <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or reach us directly at <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
+
+<div class="legal-modal" id="terms-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Use of our website and services</div><h2 id="terms-modal-title">Terms of Service</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Terms of Service">×</button></div>
+<p>Welcome to Uncommen. By accessing our website, browsing our collections, or purchasing our products, you agree to be bound by the following Terms of Service. Please read them carefully before making a purchase.</p><h3>1. Business Identity &amp; Exclusivity Promise</h3><p>Uncommen is a sole proprietorship registered in Bengaluru, Karnataka, India. All products listed on our platform are strictly capped at 100 individually numbered pieces worldwide. Once a specific design reaches its 100-piece allocation, it is permanently vaulted and will never be reproduced or restocked.</p><h3>2. Pricing &amp; Payments</h3><p>All prices listed on our platform are in Indian Rupees (INR) and are inclusive of applicable taxes unless stated otherwise. Payments can be made via Cash on Delivery (COD), Credit/Debit Cards, Net Banking, and UPI. Transactions are securely processed through our integrated payment gateway, Razorpay. We reserve the right to accept, decline, or cancel any order in the event of pricing discrepancies, technical errors, or inventory limitations.</p><h3>3. Order Cancellations</h3><p>You may cancel your order free of charge at any time before dispatch. Once an item has been dispatched from our facility and handed over to our courier partners, the order cannot be cancelled mid-transit and must follow our standard Return Policy upon delivery.</p><h3>4. Intellectual Property &amp; Designs</h3><p>All content, product designs, artwork, graphics, logos, and copy on this website are the exclusive intellectual property of Uncommen. Reproduction, copying, or imitation of our vaulted designs or branding without written consent is strictly prohibited.</p><h3>5. Limitation of Liability &amp; Governing Law</h3><p>Uncommen shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our services or products. These terms are governed by and construed in accordance with the laws of India, and any legal disputes shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka.</p></section></div>
+
+<div class="legal-modal" id="refund-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Customer-first support</div><h2 id="refund-modal-title">Refund &amp; Return Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Refund and Return Policy">×</button></div>
+<p>At Uncommen, we place our patrons above everything else. While our creations are rare and strictly limited to 100 pieces, our commitment to your satisfaction is infinite. We stand proudly behind the quality of our craftsmanship and offer a customer-first approach to returns and refunds.</p><h3>1. Return &amp; Refund Eligibility</h3><p>Because we value you more than the product itself, we gladly accept returns and process refunds under the following conditions:</p><ul><li>You are unsatisfied with the product, or you receive a damaged, defective, or incorrect item.</li><li>The product must be returned in its original condition, unworn/unused, with all original tags, authentication cards, packaging, and assigned serial number tags intact.</li></ul><h3>2. 2-Day Reporting Window</h3><p>To initiate a return or report a damaged/defective product, you must contact us within 2 business days of receiving your package.</p><p><strong>How to Report:</strong> Email <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or message/call <a href="tel:+917051259897">+91 7051259897</a> with your Order ID, details of the issue, and photos/videos of the item or defect.</p><h3>3. Return Process &amp; Refund Timeline</h3><p>Once your return request is verified and approved, we will arrange a reverse pickup from your delivery address. Upon receiving and inspecting the returned item at our Bengaluru warehouse, we will initiate your refund.</p><ul><li><strong>Prepaid Orders:</strong> Refunds will be credited back to your original payment method via Razorpay within 5 to 7 business days.</li><li><strong>Cash on Delivery (COD) Orders:</strong> Refunds will be transferred directly to your provided bank account/UPI ID within 5 to 7 business days following inspection.</li></ul><h3>4. Order Cancellations</h3><p>If you wish to cancel an order, you can do so anytime before dispatch for a full refund. Simply reach out immediately at <a href="tel:+917051259897">+91 7051259897</a> or <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>.</p></section></div>
+
+<div class="legal-modal" id="shipping-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="shipping-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">From our house to yours</div><h2 id="shipping-modal-title">Shipping &amp; Delivery Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Shipping and Delivery Policy">×</button></div>
+<p>We believe that acquiring a rare, 1-of-100 creation should be a seamless and luxurious experience from start to finish. To ensure you can focus entirely on enjoying your piece, Uncommen absorbs all delivery expenses—we take on the full headache of shipping charges so you never have to pay a single extra rupee for delivery across India.</p><h3>1. Craftsmanship &amp; Dispatch Timelines</h3><p>Every item at Uncommen is custom-made and individually handcrafted by skilled artisans across India. Because true art requires patience and dedication:</p><p><strong>Standard Dispatch:</strong> Orders are typically processed and dispatched within 2 to 4 business days.</p><p>In rare instances where intricate handcrafting requires additional attention, dispatch may take slightly longer. We will keep you updated every step of the way.</p><h3>2. Estimated Delivery Timeframes</h3><p>Once dispatched from our Bengaluru facility, the estimated delivery timeframe across India is 5 to 7 business days, depending on your location and regional logistics networks.</p><h3>3. Order Tracking</h3><p>As soon as your order is handed over to our trusted courier partners, you will receive a confirmation message containing your tracking link and shipment details so you can follow your package’s journey in real time.</p><h3>4. Delivery Inquiries</h3><p>For any questions regarding shipping statuses, delivery delays, or special address requests, reach out to <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or call <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
+
 <footer>
     <div class="wrap">
         <div class="footer-main">
@@ -944,10 +1018,20 @@
                     <strong>Your account</strong>
                     {% if customer %}
                         <span class="muted" style="font-size:12px">Signed in as {{ customer.name }}</span>
+                        <a href="{% url 'customer_profile' %}">My Profile</a>
                     {% else %}
                         <a href="{% url 'login' %}">Sign in</a>
                         <a href="{% url 'customer_register' %}">Create an account</a>
                     {% endif %}
+                </div>
+                <div class="footer-col">
+                    <strong>Information</strong>
+                    <a href="#" data-open-legal="about-modal">About Uncommen</a>
+                    <a href="#" data-open-legal="contact-modal">Contact Us</a>
+                    <a href="#" data-open-legal="privacy-modal">Privacy Policy</a>
+                    <a href="#" data-open-legal="terms-modal">Terms of Service</a>
+                    <a href="#" data-open-legal="refund-modal">Refund &amp; Return Policy</a>
+                    <a href="#" data-open-legal="shipping-modal">Shipping &amp; Delivery Policy</a>
                 </div>
             </div>
         </div>
@@ -1069,6 +1153,49 @@
             document.body.style.overflow = 'hidden';
         }
     })();
+
+    // Independent footer information modals: each link opens only its matching policy.
+    (() => {
+        let activeLegalModal = null;
+        let legalReturnFocus = null;
+        function openLegalModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            if (activeLegalModal) closeLegalModal(activeLegalModal, false);
+            legalReturnFocus = document.activeElement;
+            activeLegalModal = modal;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            modal.querySelector('.legal-close')?.focus();
+        }
+        function closeLegalModal(modal, restoreFocus = true) {
+            if (!modal) return;
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            activeLegalModal = null;
+            document.body.style.overflow = '';
+            if (restoreFocus && legalReturnFocus) legalReturnFocus.focus();
+        }
+        document.querySelectorAll('[data-open-legal]').forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                openLegalModal(link.dataset.openLegal);
+            });
+        });
+        document.querySelectorAll('[data-close-legal]').forEach(button => {
+            button.addEventListener('click', () => closeLegalModal(button.closest('.legal-modal')));
+        });
+        document.querySelectorAll('.legal-modal').forEach(modal => {
+            modal.addEventListener('click', event => {
+                if (event.target === modal) closeLegalModal(modal);
+            });
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && activeLegalModal) closeLegalModal(activeLegalModal);
+        });
+    })();
+
 </script>
 </body>
 </html>
