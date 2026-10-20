@@ -78,30 +78,47 @@ def login(request):
     return render(request, 'admin_panel/auth_page.html')
 
 def admin_index(request):
-    
     if 'admin' not in request.session:
         return redirect('home')
 
-    admin = Admin.objects.get(
-        id=request.session['admin']
-    )
+    try:
+        admin = Admin.objects.get(id=request.session['admin'])
+    except Admin.DoesNotExist:
+        request.session.flush()
+        return redirect('home')
 
-    total_products = Product.objects.count()
-    total_categories = Category.objects.count()
-    total_customers = Customer.objects.count()
-    total_orders = Order.objects.count()
+    context = {
+        # Dashboard counts
+        'admin': admin,
+        'total_products': Product.objects.count(),
+        'total_categories': Category.objects.count(),
+        'total_customers': Customer.objects.count(),
+        'total_orders': Order.objects.count(),
+        # 'total_feedback': Feedback.objects.count(),
 
-    return render(
-        request,
-        'admin_panel/index.html',
-        {
-            'admin': admin,
-            'total_products': total_products,
-            'total_categories': total_categories,
-            'total_customers': total_customers,
-            'total_orders': total_orders,
-        }
-    )
+        # Latest database records
+        'recent_products': (
+            Product.objects.select_related('category')
+            .order_by('-id')[:5]
+        ),
+        'recent_orders': (
+            Order.objects.select_related('customer')
+            .order_by('-id')[:5]
+        ),
+        'recent_order_items': (
+            OrderItem.objects.select_related(
+                'product',
+                'order',
+                'order__customer',
+            )
+            .order_by('-id')[:5]
+        ),
+        # 'recent_feedback': (
+        #     Feedback.objects.order_by('-id')[:5]
+        # ),
+    }
+
+    return render(request, 'admin_panel/index.html', context)
 
 
 def admin_logout(request):

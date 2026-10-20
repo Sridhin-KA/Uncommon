@@ -1349,7 +1349,7 @@
                 </div>
 
                 <div class="metric-val">
-                    16
+                    {{ total_feedback|default:0 }}
                 </div>
 
                 <div class="metric-foot">
@@ -1434,173 +1434,43 @@
 
 
                         <tbody>
-
-
-                            <!-- PRODUCT 1 -->
-
+                            {% for item in recent_order_items %}
                             <tr>
-
                                 <td>
-
-                                    <strong>
-                                        No. 001 Sovereign Briefcase
-                                    </strong>
-
+                                    <strong>{{ item.product.product_name|default:"Product" }}</strong>
                                     <div class="product-description">
-                                        Saddle-stitched oak hide
+                                        {{ item.product.description|default:"No description"|truncatechars:70 }}
                                     </div>
-
                                 </td>
-
-
                                 <td>
-
                                     <span class="category-name">
-                                        Artisan Leather
+                                        {{ item.product.category.category_name|default:"Uncategorized" }}
                                     </span>
-
                                 </td>
-
-
                                 <td>
-
                                     <div class="patron-name">
-                                        Lord Alistair Sterling
+                                        {{ item.order.customer|default:item.order.customer|default:"Customer" }}
                                     </div>
-
                                     <div class="patron-info">
-                                        Customer #014
+                                        Order #{{ item.order.order_number|default:item.order.id }}
                                     </div>
-
                                 </td>
-
-
                                 <td>
-
-                                    <span class="status-tag tag-registered">
-                                        Ordered
+                                    {% with status=item.order.status|default:"Pending"|upper %}
+                                    <span class="status-tag {% if status == 'DELIVERED' %}tag-registered{% elif status == 'PENDING' or status == 'CONFIRMED' or status == 'PROCESSING' or status == 'SHIPPED' %}tag-hold{% else %}tag-shelf{% endif %}">
+                                        {{ item.order.status|default:"Pending" }}
                                     </span>
-
+                                    {% endwith %}
                                 </td>
-
-
-                                <td class="price">
-                                    ₹1,45,000
-                                </td>
-
+                                <td class="price">₹{{ item.price|default:0|floatformat:2 }}</td>
                             </tr>
-
-
-                            <!-- PRODUCT 2 -->
-
+                            {% empty %}
                             <tr>
-
-                                <td>
-
-                                    <strong>
-                                        Cask Decanter & Pair
-                                    </strong>
-
-                                    <div class="product-description">
-                                        Mouth-blown crystal
-                                    </div>
-
+                                <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                    No order items available yet.
                                 </td>
-
-
-                                <td>
-
-                                    <span class="category-name">
-                                        Home & Bar
-                                    </span>
-
-                                </td>
-
-
-                                <td>
-
-                                    <div class="patron-name">
-                                        Julian Vance
-                                    </div>
-
-                                    <div class="patron-info">
-                                        Customer #038
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-
-                                    <span class="status-tag tag-hold">
-                                        Processing
-                                    </span>
-
-                                </td>
-
-
-                                <td class="price">
-                                    ₹84,000
-                                </td>
-
                             </tr>
-
-
-                            <!-- PRODUCT 3 -->
-
-                            <tr>
-
-                                <td>
-
-                                    <strong>
-                                        Serpentine Roller
-                                    </strong>
-
-                                    <div class="product-description">
-                                        Turned serpentine stone
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-
-                                    <span class="category-name">
-                                        The Study
-                                    </span>
-
-                                </td>
-
-
-                                <td>
-
-                                    <div class="patron-name">
-                                        Unclaimed
-                                    </div>
-
-                                    <div class="patron-info">
-                                        Available
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-
-                                    <span class="status-tag tag-shelf">
-                                        On Shelf
-                                    </span>
-
-                                </td>
-
-
-                                <td class="price">
-                                    ₹62,000
-                                </td>
-
-                            </tr>
-
-
+                            {% endfor %}
                         </tbody>
 
                     </table>
@@ -1645,80 +1515,45 @@
 
 
                 <div>
-
-
-                    <!-- LOG 1 -->
-
+                    {% for order in recent_orders %}
                     <div class="log-item">
-
                         <span class="log-time">
-                            16:42 · tbl_order
+                            {{ order.created_at|date:"d M Y, H:i"|default:"Recent" }} · ORDER
                         </span>
-
                         <div class="log-desc">
-
-                            New order received and
-                            assigned for processing.
-
+                            Order #{{ order.order_number|default:order.id }} was created.
+                            Status: {{ order.status|default:"Pending" }}.
                         </div>
-
                     </div>
+                    {% endfor %}
 
-
-                    <!-- LOG 2 -->
-
+                    {% for product in recent_products %}
                     <div class="log-item">
-
                         <span class="log-time">
-                            14:15 · tbl_product
+                            {{ product.created_at|date:"d M Y, H:i"|default:"Recent" }} · PRODUCT
                         </span>
-
                         <div class="log-desc">
-
-                            Product inventory updated.
-                            Stock quantity changed.
-
+                            Product added or updated: {{ product.product_name|default:product.name|default:"Product" }}.
                         </div>
-
                     </div>
+                    {% endfor %}
 
-
-                    <!-- LOG 3 -->
-
+                    {% for feedback in recent_feedback %}
                     <div class="log-item">
-
                         <span class="log-time">
-                            11:08 · tbl_customer
+                            {{ feedback.created_at|date:"d M Y, H:i"|default:"Recent" }} · FEEDBACK
                         </span>
-
                         <div class="log-desc">
-
-                            New customer registered
-                            successfully.
-
+                            New customer feedback received.
                         </div>
-
                     </div>
+                    {% endfor %}
 
-
-                    <!-- LOG 4 -->
-
+                    {% if not recent_orders and not recent_products and not recent_feedback %}
                     <div class="log-item">
-
-                        <span class="log-time">
-                            09:30 · tbl_admin
-                        </span>
-
-                        <div class="log-desc">
-
-                            Administrator session
-                            initialized successfully.
-
-                        </div>
-
+                        <div class="log-desc">No recent database activity available.</div>
                     </div>
-
-
+                    {% endif %}
                 </div>
 
             </section>
