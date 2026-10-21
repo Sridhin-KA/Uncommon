@@ -44,6 +44,15 @@ path(
     update_order_status,
     name='update_order_status'
 ),
-    path('feedback/', view_feedback, name='view_feedback'),
+   path(
+    'feedback/add/<str:order_number>/<int:product_id>/',
+    add_feedback,
+    name='add_feedback'
+),
+path(
+    'feedback/delete/<int:feedback_id>/',
+    delete_feedback,
+    name='delete_feedback'
+),
     path('test-email/', test_email, name='test_email'),
 ]

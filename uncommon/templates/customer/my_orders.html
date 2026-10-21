@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -102,13 +101,25 @@
         }
 
         @keyframes logoPulse {
-            0%, 100% { opacity: .65; transform: scale(.97); }
-            50% { opacity: 1; transform: scale(1); }
+            0%, 100% {
+                opacity: .65;
+                transform: scale(.97);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         @keyframes loading {
-            0% { transform: translateX(-120%); }
-            100% { transform: translateX(350%); }
+            0% {
+                transform: translateX(-120%);
+            }
+
+            100% {
+                transform: translateX(350%);
+            }
         }
 
         /* HEADER */
@@ -170,7 +181,9 @@
             margin-bottom: 10px;
         }
 
-        h1, .empty h2, .modal-title {
+        h1,
+        .empty h2,
+        .modal-title {
             font-family: 'Cormorant Garamond', serif;
             font-weight: 600;
         }
@@ -336,6 +349,150 @@
             color: white;
         }
 
+        /* DELIVERED ORDER FEEDBACK */
+        .feedback-section {
+            margin-top: 22px;
+            padding: 22px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+
+        .feedback-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
+
+        .feedback-intro {
+            color: var(--muted);
+            font-size: 11px;
+            margin-bottom: 18px;
+        }
+
+        .feedback-item {
+            padding: 18px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .feedback-item:first-of-type {
+            border-top: 0;
+        }
+
+        .feedback-product-name {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feedback-form {
+            display: grid;
+            gap: 12px;
+            max-width: 620px;
+        }
+
+        .feedback-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .feedback-form select,
+        .feedback-form textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--card);
+            color: var(--ink);
+            border: 1px solid var(--border);
+            border-radius: 0;
+            font: 12px 'Archivo', sans-serif;
+        }
+
+        .feedback-form textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .feedback-form select:focus,
+        .feedback-form textarea:focus {
+            outline: 1px solid var(--gold);
+            border-color: var(--gold);
+        }
+
+        .feedback-submit {
+            justify-self: start;
+            min-height: 40px;
+            padding: 11px 16px;
+            background: var(--green);
+            color: white;
+            border: 1px solid var(--green);
+            font-size: 9px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+
+        .feedback-submit:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .feedback-existing {
+            padding: 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+        }
+
+        .feedback-stars {
+            color: var(--gold);
+            letter-spacing: 3px;
+            font-size: 17px;
+            margin-bottom: 8px;
+        }
+
+        .feedback-comment {
+            color: var(--muted);
+            font-size: 12px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            margin-bottom: 12px;
+        }
+
+        .feedback-meta {
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            margin-bottom: 10px;
+        }
+
+        .feedback-delete {
+            min-height: 35px;
+            padding: 8px 12px;
+            border: 1px solid var(--red);
+            background: transparent;
+            color: var(--red);
+            font-size: 9px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background .2s ease, color .2s ease;
+        }
+
+        .feedback-delete:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        .feedback-note {
+            padding: 12px 14px;
+            background: #E5E9DC;
+            color: var(--green);
+            font-size: 11px;
+        }
+
         /* EMPTY STATE */
         .empty {
             text-align: center;
@@ -463,8 +620,15 @@
         }
 
         @keyframes modalIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-close {
@@ -587,6 +751,14 @@
                 width: 100%;
             }
 
+            .feedback-section {
+                padding: 16px;
+            }
+
+            .feedback-submit {
+                width: 100%;
+            }
+
             .footer-main {
                 grid-template-columns: 1fr 1fr;
                 gap: 28px 18px;
@@ -610,7 +782,9 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+            *,
+            *::before,
+            *::after {
                 animation-duration: .01ms !important;
                 animation-iteration-count: 1 !important;
                 scroll-behavior: auto !important;
@@ -693,6 +867,105 @@
                 </span>
             </div>
 
+            <!-- FEEDBACK: DELIVERED ORDERS ONLY -->
+            {% if order.status == 'DELIVERED' %}
+                <section class="feedback-section" aria-label="Product feedback">
+                    <h2 class="feedback-heading">Your Thoughts Matter</h2>
+                    <p class="feedback-intro">
+                        Your order has been delivered. Share your experience with each piece.
+                    </p>
+
+                    {% for item in order.items.all %}
+                        <div class="feedback-item">
+                            <h3 class="feedback-product-name">
+                                {{ item.product.product_name }}
+                            </h3>
+
+                            {% if item.feedback %}
+                                <!-- EXISTING FEEDBACK -->
+                                <div class="feedback-existing">
+                                    <div class="feedback-stars"
+                                         aria-label="{{ item.feedback.rating }} out of 5 stars">
+                                        {% for star in "12345" %}
+                                            {% if forloop.counter <= item.feedback.rating %}
+                                                ★
+                                            {% else %}
+                                                ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                                    <p class="feedback-comment">{{ item.feedback.comment }}</p>
+
+                                    <p class="feedback-meta">
+                                        Submitted {{ item.feedback.created_at|date:"d M Y, h:i A" }}
+                                    </p>
+
+                                    <form method="POST"
+                                          action="{% url 'delete_feedback' item.feedback.id %}"
+                                          onsubmit="return confirm('Are you sure you want to delete this feedback?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="feedback-delete">
+                                            DELETE FEEDBACK
+                                        </button>
+                                    </form>
+                                </div>
+
+                            {% else %}
+                                <!-- NEW FEEDBACK FORM -->
+                                <form method="POST"
+                                      action="{% url 'add_feedback' order.order_number item.product.id %}"
+                                      class="feedback-form">
+                                    {% csrf_token %}
+
+                                    <div>
+                                        <label for="rating-{{ order.id }}-{{ item.product.id }}">
+                                            Your rating
+                                        </label>
+
+                                        <select
+                                            id="rating-{{ order.id }}-{{ item.product.id }}"
+                                            name="rating"
+                                            required
+                                        >
+                                            <option value="">Choose a rating</option>
+                                            <option value="5">★★★★★ — Excellent</option>
+                                            <option value="4">★★★★ — Very good</option>
+                                            <option value="3">★★★ — Good</option>
+                                            <option value="2">★★ — Fair</option>
+                                            <option value="1">★ — Poor</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label for="comment-{{ order.id }}-{{ item.product.id }}">
+                                            Your feedback
+                                        </label>
+
+                                        <textarea
+                                            id="comment-{{ order.id }}-{{ item.product.id }}"
+                                            name="comment"
+                                            maxlength="1000"
+                                            placeholder="Tell us what you think about this product..."
+                                            required
+                                        ></textarea>
+                                    </div>
+
+                                    <button type="submit" class="feedback-submit">
+                                        SUBMIT FEEDBACK
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <p class="feedback-note">
+                            No products were found in this order.
+                        </p>
+                    {% endfor %}
+                </section>
+            {% endif %}
+
+            <!-- ORDER TOTAL AND ACTIONS -->
             <div class="order-footer">
                 <div>
                     <p class="total-label">ORDER TOTAL</p>
@@ -725,6 +998,7 @@
             </div>
 
         </article>
+
     {% empty %}
         <div class="empty">
             <div class="empty-symbol" aria-hidden="true">✳</div>
@@ -935,7 +1209,7 @@
 (function () {
     "use strict";
 
-    /* LOADER: minimum display time, with a fallback to prevent getting stuck */
+    /* LOADER */
     const loader = document.getElementById("siteLoader");
     const loaderStartedAt = Date.now();
     const MIN_LOADER_TIME = 2500;
@@ -973,6 +1247,19 @@
         });
     });
 
+    /* FEEDBACK DELETE CONFIRMATION */
+    document.querySelectorAll(".feedback-existing form").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            const confirmed = window.confirm(
+                "Are you sure you want to delete this feedback?"
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    });
+
     /* TOAST FOR DJANGO MESSAGES */
     const toast = document.getElementById("siteToast");
     const messages = document.querySelectorAll("#djangoMessages .message");
@@ -985,6 +1272,7 @@
         toast.classList.add("show");
 
         window.clearTimeout(toastTimer);
+
         toastTimer = window.setTimeout(function () {
             toast.classList.remove("show");
         }, 4000);
@@ -1013,7 +1301,10 @@
         document.body.classList.add("modal-open");
 
         const closeButton = modal.querySelector(".modal-close");
-        if (closeButton) closeButton.focus();
+
+        if (closeButton) {
+            closeButton.focus();
+        }
     }
 
     function closeModal(modal) {
@@ -1022,11 +1313,15 @@
         modal.classList.remove("is-open");
 
         const anyOpen = document.querySelector(".legal-modal.is-open");
+
         if (!anyOpen) {
             document.body.classList.remove("modal-open");
         }
 
-        if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+        if (
+            lastFocusedElement &&
+            typeof lastFocusedElement.focus === "function"
+        ) {
             lastFocusedElement.focus();
         }
     }
@@ -1056,12 +1351,18 @@
 
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
-            const openModalElement = document.querySelector(".legal-modal.is-open");
-            if (openModalElement) closeModal(openModalElement);
+            const openModalElement = document.querySelector(
+                ".legal-modal.is-open"
+            );
+
+            if (openModalElement) {
+                closeModal(openModalElement);
+            }
         }
     });
 })();
 
+/* KEEP MODAL HISTORY BEHAVIOUR */
 (() => {
     let modalHistoryOpen = false;
     let closingFromPopstate = false;
@@ -1081,10 +1382,11 @@
 
     function closeOpenModal() {
         const modal = getOpenModal();
+
         if (!modal) return false;
 
         if (modal.matches('.legal-modal')) {
-            modal.querySelector('[data-close-legal]')?.click();
+            modal.querySelector('.modal-close')?.click();
         } else if (modal.id === 'reservation-modal') {
             modal.querySelector('[data-close-reservation]')?.click();
         } else if (modal.id === 'reservation-alert') {
@@ -1094,7 +1396,6 @@
         return true;
     }
 
-    // Track modal openings, including existing click handlers.
     document.addEventListener('click', event => {
         if (
             event.target.closest(
@@ -1102,7 +1403,9 @@
             )
         ) {
             setTimeout(() => {
-                if (getOpenModal()) openModalHistory();
+                if (getOpenModal()) {
+                    openModalHistory();
+                }
             }, 0);
         }
     });
@@ -1116,14 +1419,12 @@
         closingFromPopstate = false;
     });
 
-    // When a modal is closed using its X or backdrop,
-    // remove its temporary history entry as well.
     document.addEventListener('click', event => {
         if (!modalHistoryOpen || closingFromPopstate) return;
 
         if (
             event.target.closest(
-                '[data-close-legal], [data-close-reservation], #reservation-alert-close'
+                '[data-close-legal], [data-close-reservation], #reservation-alert-close, .modal-close'
             ) ||
             event.target.classList.contains('legal-modal') ||
             event.target.id === 'reservation-modal' ||
@@ -1134,7 +1435,6 @@
         }
     });
 })();
-
 </script>
 
 </body>

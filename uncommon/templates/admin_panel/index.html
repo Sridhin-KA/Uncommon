@@ -1449,7 +1449,7 @@
                                 </td>
                                 <td>
                                     <div class="patron-name">
-                                        {{ item.order.customer|default:item.order.customer|default:"Customer" }}
+                                        {{ item.order.customer|default:"Customer" }}
                                     </div>
                                     <div class="patron-info">
                                         Order #{{ item.order.order_number|default:item.order.id }}
@@ -1533,7 +1533,7 @@
                             {{ product.created_at|date:"d M Y, H:i"|default:"Recent" }} · PRODUCT
                         </span>
                         <div class="log-desc">
-                            Product added or updated: {{ product.product_name|default:product.name|default:"Product" }}.
+                            Product added or updated: {{ product.product_name|default:"Product" }}.
                         </div>
                     </div>
                     {% endfor %}

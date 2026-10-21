@@ -97,3 +97,45 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.customer} - {self.product.product_name}"
+    
+    
+    
+class Feedback(models.Model):
+    customer = models.ForeignKey(
+        'customer.Customer',
+        on_delete=models.CASCADE,
+        related_name='feedbacks'
+    )
+
+    product = models.ForeignKey(
+        'admin_panel.Product',
+        on_delete=models.CASCADE,
+        related_name='feedbacks'
+    )
+
+    # References the order number for which the product was delivered.
+    order_number = models.CharField(max_length=50)
+
+    rating = models.PositiveSmallIntegerField()
+
+    comment = models.TextField(max_length=1000)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['customer', 'product', 'order_number'],
+                name='unique_customer_product_order_feedback'
+            ),
+            models.CheckConstraint(
+                condition=models.Q(rating__gte=1, rating__lte=5),
+                name='feedback_rating_between_1_and_5'
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.customer} - {self.product} ({self.rating}/5)'

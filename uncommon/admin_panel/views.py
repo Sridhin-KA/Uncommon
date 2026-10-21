@@ -1,5 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
+
+from customer.views import get_logged_in_customer
 from .models import *
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -12,6 +14,10 @@ from django.conf import settings
 from decimal import Decimal, InvalidOperation
 import logging
 import requests
+from admin_panel.models import Feedback, Product
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
 # Create your views here.
 
 
@@ -1159,3 +1165,84 @@ def test_email(request):
             "error": type(e).__name__,
             "message": str(e),
         }, status=500)
+        
+        
+@require_POST
+def add_feedback(request, order_number, product_id):
+    customer = get_logged_in_customer(request)
+
+    if not customer:
+        messages.error(request, "Please log in to submit feedback.")
+        return redirect('login')
+
+    # The order must belong to this customer and be delivered.
+    order = get_object_or_404(
+        Order,
+        order_number=order_number,
+        customer=customer,
+        status='DELIVERED'
+    )
+
+    product = get_object_or_404(Product, pk=product_id)
+
+    # Verify that this product was actually included in the order.
+    if not order.items.filter(product=product).exists():
+        messages.error(request, "This product does not belong to this order.")
+        return redirect('my_orders')
+
+    rating_value = request.POST.get('rating', '')
+    comment = request.POST.get('comment', '').strip()
+
+    try:
+        rating = int(rating_value)
+    except (TypeError, ValueError):
+        rating = 0
+
+    if rating not in range(1, 6):
+        messages.error(request, "Please select a rating from 1 to 5.")
+        return redirect('my_orders')
+
+    if not comment:
+        messages.error(request, "Please enter a feedback comment.")
+        return redirect('my_orders')
+
+    if len(comment) > 1000:
+        messages.error(request, "Feedback must be 1000 characters or fewer.")
+        return redirect('my_orders')
+
+    feedback, created = Feedback.objects.get_or_create(
+        customer=customer,
+        product=product,
+        order_number=order.order_number,
+        defaults={
+            'rating': rating,
+            'comment': comment,
+        }
+    )
+
+    if not created:
+        messages.info(request, "You have already submitted feedback for this product and order.")
+    else:
+        messages.success(request, "Thank you! Your feedback has been submitted.")
+
+    return redirect('my_orders')
+
+
+@require_POST
+def delete_feedback(request, feedback_id):
+    customer = get_logged_in_customer(request)
+
+    if not customer:
+        messages.error(request, "Please log in first.")
+        return redirect('login')
+
+    feedback = get_object_or_404(
+        Feedback,
+        pk=feedback_id,
+        customer=customer
+    )
+
+    feedback.delete()
+
+    messages.success(request, "Your feedback has been deleted.")
+    return redirect('my_orders')
