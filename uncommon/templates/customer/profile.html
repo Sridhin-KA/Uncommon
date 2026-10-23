@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +8,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 :root {
@@ -55,69 +54,299 @@ button {
     font: inherit;
 }
 
-/* Homepage-style animated SVG loader */
-.site-loader{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;background:var(--bg);opacity:1;visibility:visible;pointer-events:auto;transition:opacity .32s ease,visibility .32s ease}
-.site-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-body.is-loading{overflow:hidden}
-.site-loader .preloader-content{position:relative;display:flex;flex-direction:column;align-items:center;gap:24px;transform-origin:center center;will-change:transform,opacity}
-.site-loader .preloader-logo{display:block;width:min(360px,84vw);height:auto;overflow:visible}
-.site-loader .uc-monogram-shadow{filter:drop-shadow(3px 5px 5px rgba(0,0,0,.16))}
-.site-loader .uc-fill{fill:#121212;fill-rule:evenodd}
-.site-loader .uc-cutout-band{fill:var(--bg);transform-origin:256px 144px;animation:ucBandSlice 2.6s cubic-bezier(.22,1,.36,1) forwards}
-.site-loader .uc-group-c{animation:ucSlideC 2.6s cubic-bezier(.22,1,.36,1) forwards}
-.site-loader .uc-group-u{animation:ucSlideU 2.6s cubic-bezier(.22,1,.36,1) forwards}
-.site-loader .uc-bars{transform-origin:256px 144px;animation:ucBarsExpand 2.6s cubic-bezier(.22,1,.36,1) forwards}
-.site-loader .uc-wordmark{transform-origin:256px 144px;animation:ucWordmarkReveal 2.6s cubic-bezier(.22,1,.36,1) forwards}
-.site-loader .preloader-bar{width:140px;height:3px;background:rgba(18,18,18,.10);border-radius:99px;overflow:hidden}
-.site-loader .preloader-progress{height:100%;width:40%;background:#8c6d46;border-radius:99px;animation:barProgress 1.4s ease-in-out infinite}
-.site-loader .site-loader-label{color:#6F6350;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase}
-.site-loader.is-exiting .preloader-content{animation:orderLogoToTopLeft .72s cubic-bezier(.65,0,.35,1) forwards}
-.site-loader.is-exiting .preloader-bar,.site-loader.is-exiting .site-loader-label{opacity:0;transition:opacity .16s ease}
-@keyframes ucSlideC{0%{opacity:0;transform:translateX(36px)}16%{opacity:1;transform:translateX(28px)}68%,100%{opacity:1;transform:translateX(0)}}
-@keyframes ucSlideU{0%,5%{opacity:0;transform:translateX(-36px)}20%{opacity:.55;transform:translateX(-26px)}38%{opacity:1;transform:translateX(-14px)}68%,100%{opacity:1;transform:translateX(0)}}
-@keyframes ucBandSlice{0%,14%{transform:scaleY(0) scaleX(.35);opacity:0}28%,100%{transform:scaleY(1) scaleX(1);opacity:1}}
-@keyframes ucBarsExpand{0%,16%{opacity:0;transform:scaleX(.15)}34%,100%{opacity:1;transform:scaleX(1)}}
-@keyframes ucWordmarkReveal{0%,18%{opacity:0;transform:translateY(2px) scale(.97)}36%,100%{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes barProgress{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
-@keyframes orderLogoToTopLeft{0%{transform:translate(0,0) scale(1);opacity:1}70%{opacity:1}100%{transform:translate(calc(-43vw + 24px),calc(-43vh + 12px)) scale(.22);opacity:.98}}
-@media(max-width:600px){@keyframes orderLogoToTopLeft{0%{transform:translate(0,0) scale(1);opacity:1}70%{opacity:1}100%{transform:translate(calc(-37vw + 12px),calc(-42vh + 8px)) scale(.2);opacity:.98}}}
+/* ===== Integrated Preloader & Top-Left Corner Logo Animation (Synced with Home Page) ===== */
+.site-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #efede0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 24px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: background-color 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.48s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.48s !important;
+}
+.site-loader.fade-out,
+.site-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+body.is-loading {
+    overflow: hidden;
+}
+.site-loader .preloader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+.site-loader .preloader-logo {
+    display: block;
+    width: 360px;
+    max-width: 84vw;
+    height: auto;
+    overflow: visible;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    transition: transform 0.92s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.38s ease !important;
+}
+.uc-monogram-shadow {
+    filter: drop-shadow(3px 5px 5px rgba(0, 0, 0, 0.16));
+}
+.uc-fill {
+    fill: #121212;
+    fill-rule: evenodd;
+}
+.uc-cutout-band {
+    fill: var(--bg);
+}
+.site-loader .uc-cutout-band {
+    fill: #efede0;
+    transform-origin: 256px 144px;
+    animation: ucBandSlice 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.site-loader .uc-group-c {
+    animation: ucSlideC 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.site-loader .uc-group-u {
+    animation: ucSlideU 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.site-loader .uc-bars {
+    transform-origin: 256px 144px;
+    animation: ucBarsExpand 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.site-loader .uc-wordmark {
+    transform-origin: 256px 144px;
+    animation: ucWordmarkReveal 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.site-loader .preloader-bar {
+    width: 140px;
+    height: 3px;
+    background: rgba(18, 18, 18, 0.10);
+    border-radius: 99px;
+    overflow: hidden;
+    transition: opacity 0.28s ease, transform 0.28s ease !important;
+}
+.site-loader .preloader-progress {
+    height: 100%;
+    width: 40%;
+    background: #8c6d46;
+    border-radius: 99px;
+    animation: barProgress 1.4s ease-in-out infinite;
+}
+.site-loader .site-loader-label {
+    color: #6F6350;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    transition: opacity 0.28s ease, transform 0.28s ease !important;
+}
+.site-loader.is-docking {
+    background-color: rgba(239, 237, 224, 0);
+    pointer-events: none;
+}
+.site-loader.is-docking .preloader-bar,
+.site-loader.is-docking .site-loader-label {
+    opacity: 0;
+    transform: translateY(8px);
+}
+.site-loader.is-docking .uc-group-c,
+.site-loader.is-docking .uc-group-u,
+.site-loader.is-docking .uc-cutout-band,
+.site-loader.is-docking .uc-bars,
+.site-loader.is-docking .uc-wordmark {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+@keyframes ucSlideC {
+    0% { opacity: 0; transform: translateX(36px); }
+    16% { opacity: 1; transform: translateX(28px); }
+    68%, 100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes ucSlideU {
+    0%, 5% { opacity: 0; transform: translateX(-36px); }
+    20% { opacity: 0.55; transform: translateX(-26px); }
+    38% { opacity: 1; transform: translateX(-14px); }
+    68%, 100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes ucBandSlice {
+    0%, 14% { transform: scaleY(0) scaleX(0.35); opacity: 0; }
+    28%, 100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+}
+@keyframes ucBarsExpand {
+    0%, 16% { opacity: 0; transform: scaleX(0.15); }
+    34%, 100% { opacity: 1; transform: scaleX(1); }
+}
+@keyframes ucWordmarkReveal {
+    0%, 18% { opacity: 0; transform: translateY(2px) scale(0.97); }
+    36%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes barProgress {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+}
 
-@media(prefers-reduced-motion:reduce){.site-loader .uc-group-c,.site-loader .uc-group-u,.site-loader .uc-cutout-band,.site-loader .uc-bars,.site-loader .uc-wordmark,.site-loader .preloader-progress{animation:none!important}}
+/* Ensure preloader and navbar animations work in preview even if OS reduced-motion is set */
+.site-loader,
+.preloader-logo,
+.preloader-bar,
+.preloader-progress,
+.uc-group-c,
+.uc-group-u,
+.uc-cutout-band,
+.uc-bars,
+.uc-wordmark {
+    animation-play-state: running !important;
+}
 
-/* HEADER */
+/* ===== Home-Page Synced Scroll-Triggered Transparent Navbar & Logo (Zero Layout Shift) ===== */
 .topbar {
-    padding: 18px 6%;
-    min-height: 88px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    min-height: 78px;
+    padding: 14px clamp(18px, 4vw, 54px);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
+    gap: clamp(16px, 2.5vw, 38px);
+    background-color: rgba(239, 235, 225, var(--nav-bg-alpha, 0.96));
+    backdrop-filter: blur(var(--nav-blur, 16px));
+    -webkit-backdrop-filter: blur(var(--nav-blur, 16px));
+    border-bottom: 1px solid rgba(214, 204, 181, var(--nav-border-alpha, 1));
+    transition: background-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                border-bottom-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                -webkit-backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    will-change: background-color, border-bottom-color, backdrop-filter;
 }
 
-.logo {
-    display: inline-flex;
+.topbar.is-scrolled {
+    --nav-bg-alpha: 0;
+    --nav-blur: 0px;
+    --nav-border-alpha: 0;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    border-bottom-color: transparent;
+}
+
+/* Top burnished-gold scroll progress bar along the header top edge (zero layout shift, identical to home page) */
+.topbar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), #C69C5C, #E8CA8D);
+    transform: scaleX(var(--page-scroll-progress, 0));
+    transform-origin: left center;
+    transition: transform 0.1s linear;
+    pointer-events: none;
+    z-index: 130;
+}
+
+/* UNCOMMON — Larger navbar logo moving down in sync with transparent navbar (no box/capsule) */
+.topbar .logo {
+    width: clamp(180px, 19vw, 245px);
+    flex: 0 0 auto;
+    display: flex;
     align-items: center;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    box-shadow: none;
+    transition: opacity 0.32s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.logo img {
+body.is-loading .topbar .logo {
+    opacity: 0;
+}
+
+.topbar .logo:hover {
+    transform: translateY(-1px);
+}
+
+.topbar .logo img {
     display: block;
-    width: 155px;
-    max-height: 58px;
+    width: 100%;
+    height: 76px;
+    max-height: none;
     object-fit: contain;
-    
+    background: transparent;
+    mix-blend-mode: multiply;
 }
 
+.topbar .logo svg.nav-logo-svg,
+.topbar .logo svg.nav-logo-svg-fallback {
+    display: block;
+    width: 100%;
+    height: 76px;
+    max-height: none;
+    overflow: visible;
+    background: transparent;
+}
+
+/* Sync the SVG logo's internal band with --nav-bg-alpha so logo and navbar turn transparent together */
+.topbar .logo svg .uc-cutout-band {
+    fill: rgba(239, 235, 225, var(--nav-bg-alpha, 0.96));
+    transition: fill 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topbar.is-scrolled .logo svg .uc-cutout-band {
+    fill: rgba(239, 235, 225, 0);
+}
+
+/* Unified squircle silhouette & floating frosted-glass pill protection on scroll (matching home page controls) */
 .top-link {
+    min-height: 42px;
+    padding: 9px 15px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    corner-shape: squircle;
+    background: rgba(251, 248, 241, 0.45);
+    color: var(--muted);
     font: 10px 'IBM Plex Mono', monospace;
     text-transform: uppercase;
-    letter-spacing: .1em;
-    transition: color .2s ease;
+    letter-spacing: .09em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transition: background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.22s ease,
+                box-shadow 0.25s ease,
+                backdrop-filter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topbar.is-scrolled .top-link {
+    background-color: rgba(251, 248, 241, 0.86);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-color: rgba(214, 204, 181, 0.85);
+    box-shadow: 0 10px 24px -12px rgba(36, 30, 20, 0.14);
 }
 
 .top-link:hover {
-    color: var(--gold);
+    border-color: var(--gold);
+    background: var(--card);
+    color: var(--text);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -10px rgba(36, 30, 20, 0.22);
 }
 
 /* PAGE CONTENT */
@@ -159,6 +388,7 @@ h1 {
     padding: 26px;
     margin-bottom: 20px;
     min-width: 0;
+    border-radius: 16px;
 }
 
 .avatar {
@@ -217,6 +447,7 @@ h1 {
     border: 1px solid var(--border);
     padding: 22px;
     min-width: 0;
+    border-radius: 14px;
 }
 
 .stat strong {
@@ -276,7 +507,8 @@ h1 {
     letter-spacing: .08em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background .2s ease, color .2s ease;
+    border-radius: 12px;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
 }
 
 .btn:hover {
@@ -287,6 +519,11 @@ h1 {
 .btn-outline {
     background: transparent;
     color: var(--green);
+}
+
+.btn-outline:hover {
+    background: var(--tint);
+    color: var(--text);
 }
 
 /* ORDERS TABLE */
@@ -320,6 +557,7 @@ td {
 .order-number {
     font-weight: 600;
     overflow-wrap: anywhere;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .status {
@@ -328,6 +566,7 @@ td {
     background: var(--tint);
     font: 9px 'IBM Plex Mono', monospace;
     white-space: nowrap;
+    border-radius: 6px;
 }
 
 .status-pending {
@@ -408,7 +647,14 @@ td {
     width: 155px;
     max-height: 65px;
     object-fit: contain;
-    
+    margin-bottom: 14px;
+}
+
+.footer-brand svg.footer-logo-svg {
+    display: block;
+    width: 155px;
+    height: auto;
+    max-height: 65px;
     margin-bottom: 14px;
 }
 
@@ -475,6 +721,8 @@ td {
     justify-content: center;
     padding: 20px;
     background: rgba(25, 21, 15, .65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .legal-modal.is-open {
@@ -489,6 +737,7 @@ td {
     padding: 35px;
     background: var(--bg);
     border: 1px solid var(--border);
+    border-radius: 18px;
     animation: modalIn .22s ease;
 }
 
@@ -508,6 +757,16 @@ td {
     color: var(--text);
     cursor: pointer;
     font-size: 21px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+    transition: background .2s ease, color .2s ease;
+}
+
+.modal-close:hover {
+    background: var(--text);
+    color: var(--bg);
 }
 
 .modal-title {
@@ -548,6 +807,7 @@ td {
     color: var(--bg);
     font-size: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+    border-radius: 12px;
     opacity: 0;
     transform: translateY(12px);
     pointer-events: none;
@@ -557,6 +817,410 @@ td {
 .toast.show {
     opacity: 1;
     transform: translateY(0);
+}
+
+
+/* ADDRESS SECTION — UPFRONT REVIEW & IN-PLACE EDITING (NO INTEGRATION BOX) */
+.address-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+}
+
+.address-status-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 18px;
+    background: var(--tint);
+    border-left: 3px solid var(--green);
+    border-radius: 8px;
+    margin-bottom: 22px;
+}
+
+.address-status-banner .status-badge {
+    color: var(--green);
+    font: 600 10px 'IBM Plex Mono', monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.address-status-banner .status-note {
+    font-size: 11.5px;
+    color: var(--muted);
+}
+
+/* Upfront Address Details Grid — All attributes displayed upfront, zero hover hiding */
+.address-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.address-details-grid .full-span {
+    grid-column: 1 / -1;
+}
+
+.address-detail-plate {
+    background: var(--input);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 72px;
+}
+
+.address-detail-plate.highlight {
+    background: #FAF6ED;
+    border-color: rgba(160, 118, 58, 0.45);
+}
+
+.address-detail-plate .detail-label {
+    font: 9px 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.address-detail-plate .detail-value {
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.address-detail-plate .detail-value.serif-recipient {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.address-inline-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+}
+
+/* In-place Address Editor — Built directly into section, no popup modal */
+.address-inline-workspace {
+    margin-top: 24px;
+    padding: 26px 22px;
+    background: #FAF7EE;
+    border: 1px solid rgba(160, 118, 58, 0.42);
+    border-radius: 14px;
+    display: none;
+    animation: inlineEditorIn 0.28s ease-out both;
+}
+
+.address-inline-workspace.is-active {
+    display: block;
+}
+
+@keyframes inlineEditorIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.workspace-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--border);
+}
+
+.workspace-title-bar h3 {
+    margin: 0;
+    font: 500 20px 'Libre Caslon Text', serif;
+}
+
+.workspace-title-bar span {
+    font: 9px 'IBM Plex Mono', monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.address-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.address-form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font: 9px 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 11px 13px;
+    background: var(--input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Archivo', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(160, 118, 58, 0.15);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 72px;
+}
+
+.address-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (max-width: 680px) {
+    .address-details-grid {
+        grid-template-columns: 1fr;
+    }
+    .address-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* SUBTLE HOVER ANIMATIONS FOR INTERACTIVE & REVIEW ELEMENTS */
+.card {
+    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(160, 118, 58, 0.42);
+    box-shadow: 0 18px 38px -18px rgba(36, 30, 20, 0.11);
+}
+
+.avatar {
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.32s ease;
+}
+
+.card:hover .avatar,
+.avatar:hover {
+    transform: scale(1.04) translateY(-1px);
+    box-shadow: 0 8px 20px -6px rgba(62, 74, 58, 0.28),
+                0 0 0 3px rgba(160, 118, 58, 0.2);
+}
+
+.side-nav a {
+    position: relative;
+    transition: color 0.25s ease,
+                padding-left 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.28s ease,
+                border-color 0.28s ease;
+}
+
+.side-nav a:hover {
+    color: var(--gold);
+    padding-left: 8px;
+    background: linear-gradient(90deg, rgba(160, 118, 58, 0.06) 0%, transparent 100%);
+    border-bottom-color: rgba(160, 118, 58, 0.38);
+}
+
+.stat {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.32s ease,
+                background-color 0.32s ease;
+}
+
+.stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(160, 118, 58, 0.5);
+    background: #FAF7EF;
+    box-shadow: 0 14px 28px -14px rgba(36, 30, 20, 0.13);
+}
+
+.stat strong {
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                color 0.28s ease;
+    transform-origin: left center;
+}
+
+.stat:hover strong {
+    color: var(--gold);
+    transform: scale(1.03);
+}
+
+.profile-row {
+    border-radius: 8px;
+    transition: background-color 0.26s ease,
+                padding-left 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                padding-right 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.26s ease;
+}
+
+.profile-row:hover {
+    background-color: rgba(232, 225, 206, 0.38);
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.profile-row .field-label {
+    transition: color 0.25s ease;
+}
+
+.profile-row:hover .field-label {
+    color: var(--gold);
+}
+
+.btn {
+    transition: background-color 0.26s ease,
+                color 0.26s ease,
+                border-color 0.26s ease,
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px -8px rgba(36, 30, 20, 0.24);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.address-status-banner {
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.28s ease,
+                background-color 0.28s ease;
+}
+
+.address-status-banner:hover {
+    transform: translateX(2px);
+    background: #EFE8D5;
+    box-shadow: 0 6px 18px -8px rgba(36, 30, 20, 0.08);
+}
+
+/* Address detail plates: all details remain 100% visible upfront; subtle lift & highlight on hover */
+.address-detail-plate {
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.28s ease,
+                background-color 0.28s ease,
+                box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.address-detail-plate:hover {
+    transform: translateY(-2.5px);
+    border-color: rgba(160, 118, 58, 0.55);
+    background: #FDFBF7;
+    box-shadow: 0 12px 24px -12px rgba(36, 30, 20, 0.11);
+}
+
+.address-detail-plate .detail-label {
+    transition: color 0.25s ease, letter-spacing 0.25s ease;
+}
+
+.address-detail-plate:hover .detail-label {
+    color: var(--gold);
+}
+
+.form-input:hover,
+.form-textarea:hover {
+    border-color: rgba(160, 118, 58, 0.5);
+}
+
+#ordersTable tbody tr {
+    transition: background-color 0.24s ease,
+                transform 0.24s ease;
+}
+
+#ordersTable tbody tr:hover {
+    background-color: rgba(232, 225, 206, 0.45);
+}
+
+.status {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.25s ease;
+}
+
+#ordersTable tbody tr:hover .status {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -4px rgba(36, 30, 20, 0.12);
+}
+
+.order-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    transition: color 0.22s ease,
+                background-color 0.22s ease,
+                transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.order-link:hover {
+    text-decoration: none;
+    background-color: rgba(160, 118, 58, 0.12);
+    transform: translateX(3px);
+}
+
+.footer-links a,
+.footer-links button {
+    transition: color 0.22s ease,
+                transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.footer-links a:hover,
+.footer-links button:hover {
+    color: var(--gold);
+    transform: translateX(3px);
 }
 
 /* RESPONSIVE */
@@ -584,7 +1248,18 @@ td {
     }
 
     .topbar {
-        padding: 18px 20px;
+        min-height: 70px;
+        padding: 12px 18px;
+    }
+
+    .topbar .logo {
+        width: 160px;
+    }
+
+    .topbar .logo img,
+    .topbar .logo svg.nav-logo-svg,
+    .topbar .logo svg.nav-logo-svg-fallback {
+        height: 64px;
     }
 
     .card {
@@ -600,13 +1275,25 @@ td {
 
 @media (max-width: 520px) {
     .topbar {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 12px;
+        padding: 10px 12px;
+        gap: 8px;
     }
 
-    .logo img {
+    .topbar .logo {
         width: 135px;
+    }
+
+    .topbar .logo img,
+    .topbar .logo svg.nav-logo-svg,
+    .topbar .logo svg.nav-logo-svg-fallback {
+        height: 56px;
+    }
+
+    .top-link {
+        min-height: 38px;
+        padding: 8px 11px;
+        border-radius: 11px;
+        font-size: 9px;
     }
 
     .stats {
@@ -691,6 +1378,7 @@ td {
 <header class="topbar">
     <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">
         <img
+            id="navLogoImg"
             src="{% static 'customer/images/uncommon-logo.png' %}"
             alt="UNCOMMON"
         >
@@ -723,15 +1411,16 @@ td {
         <!-- SIDEBAR -->
         <aside>
             <div class="card">
-                <div class="avatar">
+                <div class="avatar" id="avatarLetter">
                     {{ customer.name|first|upper }}
                 </div>
 
-                <div class="customer-name">{{ customer.name }}</div>
-                <div class="customer-email">{{ customer.email }}</div>
+                <div class="customer-name" id="profileNameDisplay">{{ customer_address.name|default:customer.name }}</div>
+                <div class="customer-email" id="profileEmailDisplay">{{ customer.email }}</div>
 
                 <nav class="side-nav">
                     <a href="#overview">Account overview</a>
+                    <a href="#address">Delivery address</a>
                     <a href="#orders">My orders</a>
                     <a href="{% url 'edit_customer_profile' %}">
                         Edit profile &rarr;
@@ -749,17 +1438,17 @@ td {
             <!-- ACCOUNT STATISTICS -->
             <div class="stats">
                 <div class="stat">
-                    <strong>{{ total_orders }}</strong>
+                    <strong id="statTotalOrders">{{ total_orders }}</strong>
                     <span>Total orders</span>
                 </div>
 
                 <div class="stat">
-                    <strong>{{ delivered_orders }}</strong>
+                    <strong id="statDeliveredOrders">{{ delivered_orders }}</strong>
                     <span>Delivered</span>
                 </div>
 
                 <div class="stat">
-                    <strong>{{ customer.username|length }}</strong>
+                    <strong id="statUsernameLength">{{ customer.username|length }}</strong>
                     <span>Username length</span>
                 </div>
             </div>
@@ -771,29 +1460,38 @@ td {
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Full name</div>
-                        <div class="field-value">{{ customer.name }}</div>
+                        <div class="field-value" id="fieldFullName">{{ customer_address.name|default:customer.name }}</div>
                     </div>
                 </div>
 
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Email address</div>
-                        <div class="field-value">{{ customer.email }}</div>
+                        <div class="field-value" id="fieldEmail">{{ customer.email }}</div>
                     </div>
                 </div>
 
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Username</div>
-                        <div class="field-value">{{ customer.username }}</div>
+                        <div class="field-value" id="fieldUsername">{{ customer.username }}</div>
                     </div>
                 </div>
 
                 <div class="profile-row">
                     <div>
                         <div class="field-label">Phone number</div>
-                        <div class="field-value">
-                            {{ customer.phone|default:"Not provided" }}
+                        <div class="field-value" id="fieldPhone">
+                            {{ customer_address.phone|default:"Not provided" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-row">
+                    <div>
+                        <div class="field-label">Shipping address</div>
+                        <div class="field-value" id="fieldAddressOverview">
+                            {{ customer_address.address_line|default:"Not provided" }}
                         </div>
                     </div>
                 </div>
@@ -807,6 +1505,119 @@ td {
                 </a>
             </div>
 
+            <!-- DELIVERY & SHIPPING ADDRESS — ALL DETAILS UPFRONT (NO INTEGRATION BOX) -->
+            <div class="card" id="address">
+                <div class="address-card-header">
+                    <div>
+                        <h2 class="section-title" style="margin-bottom:6px">Delivery address</h2>
+                        <p class="intro" style="font-size:12px">
+                            All dispatch and shipping details for your numbered pieces are displayed upfront below. Review them thoroughly before confirming any releases.
+                        </p>
+                    </div>
+                    <button type="button" class="btn" id="toggleAddressEditBtn">
+                        Change address &darr;
+                    </button>
+                </div>
+
+                <div class="address-status-banner">
+                    <span class="status-badge">&#10003; Primary Residence · Active For Dispatches</span>
+                    <span class="status-note">Parcels are insured, recorded to one recipient, and hand-delivered</span>
+                </div>
+
+                <!-- ALL ADDRESS DETAILS DISPLAYED UPFRONT (NO HOVER HIDING) -->
+                <div class="address-details-grid">
+                    <div class="address-detail-plate highlight full-span">
+                        <span class="detail-label">Recipient Name</span>
+                        <div class="detail-value serif-recipient" id="dispRecipientName">{{ customer_address.name|default:customer.name }}</div>
+                    </div>
+
+                    <div class="address-detail-plate full-span">
+                        <span class="detail-label">Street Address (House / Apartment / Suite / Area)</span>
+                        <div class="detail-value" id="dispStreetAddress">{{ customer_address.address_line|default:"Not provided" }}</div>
+                    </div>
+
+                    <div class="address-detail-plate">
+                        <span class="detail-label">City / Town</span>
+                        <div class="detail-value" id="dispCity">{{ customer_address.city|default:"Not provided" }}</div>
+                    </div>
+
+                    <div class="address-detail-plate">
+                        <span class="detail-label">State</span>
+                        <div class="detail-value" id="dispState">{{ customer_address.state|default:"Not provided" }}</div>
+                    </div>
+
+                    <div class="address-detail-plate">
+                        <span class="detail-label">PIN Code / Postal Code</span>
+                        <div class="detail-value" id="dispPincode">{{ customer_address.pincode|default:"Not provided" }}</div>
+                    </div>
+
+                    <div class="address-detail-plate">
+                        <span class="detail-label">Country</span>
+                        <div class="detail-value" id="dispCountry">India</div>
+                    </div>
+
+                    <div class="address-detail-plate full-span">
+                        <span class="detail-label">Primary Delivery Contact Phone</span>
+                        <div class="detail-value" id="dispPhone">{{ customer_address.phone|default:"Not provided" }}</div>
+                    </div>
+                </div>
+
+                <!-- IN-PLACE CHANGE IN ADDRESS WORKSPACE (INSIDE SECTION, NOT AN INTEGRATION BOX) -->
+                <div class="address-inline-workspace" id="addressInlineEditor">
+                    <div class="workspace-title-bar">
+                        <h3>Change delivery address</h3>
+                        <span>In-Place Section Edit</span>
+                    </div>
+                    <p style="font-size:12px; color:var(--muted); margin-bottom:18px;">
+                        Add or update your delivery destination here. Your saved address is stored securely with your account and shown above after saving.
+                    </p>
+
+                    <form method="POST" action="{% url 'save_address' %}" id="changeAddressForm" class="address-form">
+                        {% csrf_token %}
+                        <div class="address-form-grid">
+                            <div class="form-group full-width">
+                                <label for="addressInputName" class="form-label">Full Name / Recipient</label>
+                                <input type="text" id="addressInputName" name="name" class="form-input" value="{{ customer_address.name|default:customer.name|default:'' }}" required placeholder="e.g. Arjun Mehta">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="addressInputLine" class="form-label">Address (House / Flat / Street / Area)</label>
+                                <textarea id="addressInputLine" name="address_line" class="form-textarea" rows="3" required placeholder="e.g. Flat 4B, The Amaltas Archive, Lavelle Road, Shanthala Nagar">{{ customer_address.address_line|default:'' }}</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="addressInputCity" class="form-label">City / Town</label>
+                                <input type="text" id="addressInputCity" name="city" class="form-input" value="{{ customer_address.city|default:'' }}" required placeholder="e.g. Bengaluru">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="addressInputState" class="form-label">State</label>
+                                <input type="text" id="addressInputState" name="state" class="form-input" value="{{ customer_address.state|default:'' }}" required placeholder="e.g. Karnataka">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="addressInputPin" class="form-label">PIN Code</label>
+                                <input type="text" id="addressInputPin" name="pincode" class="form-input" value="{{ customer_address.pincode|default:'' }}" required placeholder="e.g. 560001" pattern="[0-9]{6}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="addressInputPhone" class="form-label">Delivery Contact Phone</label>
+                                <input type="tel" id="addressInputPhone" name="phone" class="form-input" value="{{ customer_address.phone|default:'' }}" required placeholder="e.g. +91 98765 43210">
+                            </div>
+                        </div>
+
+                        <div class="address-form-actions">
+                            <button type="submit" class="btn btn-save-address" id="saveAddressBtn">
+                                Save updated address &rarr;
+                            </button>
+                            <button type="button" class="btn btn-outline" id="cancelAddressEditBtn">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- RECENT ORDERS -->
             <div class="card" id="orders">
                 <h2 class="section-title">Your orders.</h2>
@@ -817,7 +1628,7 @@ td {
 
                 {% if orders %}
                 <div class="orders">
-                    <table>
+                    <table id="ordersTable">
                         <thead>
                             <tr>
                                 <th>Order</th>
@@ -828,7 +1639,7 @@ td {
                             </tr>
                         </thead>
 
-                        <tbody>
+                        <tbody id="ordersTbody">
                             {% for order in orders %}
                             <tr>
                                 <td class="order-number">
@@ -878,7 +1689,7 @@ td {
                 </a>
 
                 {% else %}
-                <div class="empty">
+                <div class="empty" id="emptyOrdersBox">
                     <p>No orders just yet.</p>
                     <p>Your next uncommon find is waiting.</p>
 
@@ -904,6 +1715,7 @@ td {
         <div class="footer-brand">
             <a href="{% url 'customer_home' %}" aria-label="UNCOMMON home">
                 <img
+                    id="footerLogoImg"
                     src="{% static 'customer/images/uncommon-logo.png' %}"
                     alt="UNCOMMON"
                     loading="lazy"
@@ -958,9 +1770,9 @@ td {
 <!-- ABOUT MODAL -->
 <div class="legal-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
     <div class="modal-panel">
-        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal-close" data-close-legal aria-label="Close dialog">&times;</button>
         <p class="eyebrow">OUR STORY</p>
-        <h2 class="modal-title" id="about-title">About  UNCOMMEN</h2>
+        <h2 class="modal-title" id="about-title">About UNCOMMEN</h2>
         <div class="modal-content">
             <p>
                 UNCOMMEN is built around individual style and thoughtfully
@@ -976,7 +1788,7 @@ td {
 <!-- CONTACT MODAL -->
 <div class="legal-modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title">
     <div class="modal-panel">
-        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal-close" data-close-legal aria-label="Close dialog">&times;</button>
         <p class="eyebrow">WE'RE HERE TO HELP</p>
         <h2 class="modal-title" id="contact-title">Contact Us</h2>
         <div class="modal-content">
@@ -991,7 +1803,7 @@ td {
 <!-- PRIVACY MODAL -->
 <div class="legal-modal" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
     <div class="modal-panel">
-        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal-close" data-close-legal aria-label="Close dialog">&times;</button>
         <p class="eyebrow">YOUR INFORMATION</p>
         <h2 class="modal-title" id="privacy-title">Privacy Policy</h2>
         <div class="modal-content">
@@ -1015,7 +1827,7 @@ td {
 <!-- TERMS MODAL -->
 <div class="legal-modal" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
     <div class="modal-panel">
-        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal-close" data-close-legal aria-label="Close dialog">&times;</button>
         <p class="eyebrow">PLEASE READ</p>
         <h2 class="modal-title" id="terms-title">Terms &amp; Conditions</h2>
         <div class="modal-content">
@@ -1039,7 +1851,7 @@ td {
 <!-- REFUNDS MODAL -->
 <div class="legal-modal" id="refund-modal" role="dialog" aria-modal="true" aria-labelledby="refund-title">
     <div class="modal-panel">
-        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal-close" data-close-legal aria-label="Close dialog">&times;</button>
         <p class="eyebrow">AFTER YOUR PURCHASE</p>
         <h2 class="modal-title" id="refund-title">Returns &amp; Refunds</h2>
         <div class="modal-content">
@@ -1063,7 +1875,7 @@ td {
 <!-- SHIPPING MODAL -->
 <div class="legal-modal" id="shipping-modal" role="dialog" aria-modal="true" aria-labelledby="shipping-title">
     <div class="modal-panel">
-        <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal-close" data-close-legal aria-label="Close dialog">&times;</button>
         <p class="eyebrow">DELIVERY INFORMATION</p>
         <h2 class="modal-title" id="shipping-title">Shipping Policy</h2>
         <div class="modal-content">
@@ -1091,35 +1903,419 @@ td {
 (function () {
     "use strict";
 
-    /* LOADER */
-    const loader = document.getElementById("siteLoader");
-    const loaderStartedAt = Date.now();
-    const minimumLoaderTime = 2500;
-    let loaderHidden = false;
+    /* PREVIEW BRIDGE: In Canvas or static preview where Django tags are unrendered,
+       render fallback SVG logo and realistic sample data so the page previews perfectly.
+       When running on a live Django server, Django replaces all tags so this does nothing. */
+    function ensurePreviewDataAndLogos() {
+        // 1. Logo fallback when {% static ... %} fails in raw browser preview (strictly 1 logo in header & 1 in footer)
+        const preloaderLogo = document.querySelector('.preloader-logo');
+        let logoMaskCounter = 0;
 
-    function hideLoader() {
-        if (loaderHidden || !loader) return;
+        function createStaticLogoSvg(isNavbarLogo) {
+            if (!preloaderLogo) return null;
+            const clone = preloaderLogo.cloneNode(true);
+            clone.setAttribute('class', isNavbarLogo ? 'nav-logo-svg nav-logo-svg-fallback' : 'footer-logo-svg');
+            if (!isNavbarLogo) {
+                clone.style.width = '155px';
+                clone.style.height = 'auto';
+            } else {
+                clone.style.transform = '';
+            }
+            clone.querySelectorAll('*').forEach(el => {
+                el.style.animation = 'none';
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+            });
 
-        loaderHidden = true;
+            // Use userSpaceOnUse SVG mask on a wrapper <g> around .uc-group-c and .uc-group-u
+            // so the center split band (x=122, y=120.2, w=268, h=47.3) is cleanly knocked out
+            // and never bleeds through the UNCOMMEN wordmark even when the navbar is 100% transparent
+            logoMaskCounter += 1;
+            const maskId = 'uc-logo-knockout-mask-' + logoMaskCounter;
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const defs = document.createElementNS(svgNS, 'defs');
+            const mask = document.createElementNS(svgNS, 'mask');
+            mask.setAttribute('id', maskId);
+            mask.setAttribute('maskUnits', 'userSpaceOnUse');
+            mask.setAttribute('maskContentUnits', 'userSpaceOnUse');
+            mask.setAttribute('x', '0');
+            mask.setAttribute('y', '0');
+            mask.setAttribute('width', '512');
+            mask.setAttribute('height', '300');
 
-        const elapsed = Date.now() - loaderStartedAt;
-        const remaining = Math.max(0, minimumLoaderTime - elapsed);
+            const bgRect = document.createElementNS(svgNS, 'rect');
+            bgRect.setAttribute('x', '0');
+            bgRect.setAttribute('y', '0');
+            bgRect.setAttribute('width', '512');
+            bgRect.setAttribute('height', '300');
+            bgRect.setAttribute('fill', 'white');
 
-        window.setTimeout(function () {
-            loader.classList.add("is-exiting");
-            window.setTimeout(function () {
-                loader.classList.add("is-hidden");
-                document.body.classList.remove("is-loading");
-            }, 720);
-        }, remaining);
+            const holeRect = document.createElementNS(svgNS, 'rect');
+            holeRect.setAttribute('x', '122');
+            holeRect.setAttribute('y', '120.2');
+            holeRect.setAttribute('width', '268');
+            holeRect.setAttribute('height', '47.3');
+            holeRect.setAttribute('rx', '2');
+            holeRect.setAttribute('fill', 'black');
+
+            mask.appendChild(bgRect);
+            mask.appendChild(holeRect);
+            defs.appendChild(mask);
+            clone.insertBefore(defs, clone.firstChild);
+
+            const groupC = clone.querySelector('.uc-group-c');
+            const groupU = clone.querySelector('.uc-group-u');
+            if (groupC && groupU && groupC.parentNode) {
+                const maskWrapper = document.createElementNS(svgNS, 'g');
+                maskWrapper.setAttribute('mask', 'url(#' + maskId + ')');
+                groupC.parentNode.insertBefore(maskWrapper, groupC);
+                maskWrapper.appendChild(groupC);
+                maskWrapper.appendChild(groupU);
+            }
+
+            const cutout = clone.querySelector('.uc-cutout-band');
+            if (cutout) {
+                if (isNavbarLogo) {
+                    cutout.style.fill = '';
+                } else {
+                    cutout.style.fill = 'var(--bg)';
+                }
+            }
+            return clone;
+        }
+
+        const navImg = document.getElementById('navLogoImg');
+        if (navImg && navImg.parentNode) {
+            const navLogoContainer = navImg.parentNode;
+            const handleNavLogo = () => {
+                // Prevent duplicate SVGs in the header
+                const existingSvgs = navLogoContainer.querySelectorAll('.nav-logo-svg, .nav-logo-svg-fallback, svg');
+                if (existingSvgs.length > 0) {
+                    existingSvgs.forEach((el, idx) => { if (idx > 0) el.remove(); });
+                    navImg.style.display = 'none';
+                    return;
+                }
+                const src = navImg.getAttribute('src') || '';
+                if (src.includes('{%') || (navImg.complete && !navImg.naturalWidth)) {
+                    const svg = createStaticLogoSvg(true);
+                    if (svg) {
+                        navImg.style.display = 'none';
+                        navLogoContainer.appendChild(svg);
+                    }
+                }
+            };
+            navImg.addEventListener('error', handleNavLogo, { once: true });
+            handleNavLogo();
+        }
+
+        const footerImg = document.getElementById('footerLogoImg');
+        if (footerImg && footerImg.parentNode) {
+            const footerLogoContainer = footerImg.parentNode;
+            const handleFooterLogo = () => {
+                // Prevent duplicate SVGs in the footer
+                const existingSvgs = footerLogoContainer.querySelectorAll('.footer-logo-svg, svg');
+                if (existingSvgs.length > 0) {
+                    existingSvgs.forEach((el, idx) => { if (idx > 0) el.remove(); });
+                    footerImg.style.display = 'none';
+                    return;
+                }
+                const src = footerImg.getAttribute('src') || '';
+                if (src.includes('{%') || (footerImg.complete && !footerImg.naturalWidth)) {
+                    const svg = createStaticLogoSvg(false);
+                    if (svg) {
+                        svg.setAttribute('class', 'footer-logo-svg');
+                        footerImg.style.display = 'none';
+                        footerLogoContainer.insertBefore(svg, footerImg);
+                    }
+                }
+            };
+            footerImg.addEventListener('error', handleFooterLogo, { once: true });
+            handleFooterLogo();
+        }
+
+        // 2. Realistic preview data if Django tags are unrendered (e.g. {{ customer_address.name|default:customer.name }})
+        const nameEl = document.getElementById('profileNameDisplay');
+        const isUnrenderedPreview = nameEl && nameEl.textContent.includes('{{');
+        if (isUnrenderedPreview) {
+            const avatar = document.getElementById('avatarLetter');
+            if (avatar) avatar.textContent = 'A';
+            if (nameEl) nameEl.textContent = 'Arjun Mehta';
+
+            const emailEl = document.getElementById('profileEmailDisplay');
+            if (emailEl) emailEl.textContent = 'arjun.mehta@uncommen.in';
+
+            const fnEl = document.getElementById('fieldFullName');
+            if (fnEl) fnEl.textContent = 'Arjun Mehta';
+
+            const feEl = document.getElementById('fieldEmail');
+            if (feEl) feEl.textContent = 'arjun.mehta@uncommen.in';
+
+            const fuEl = document.getElementById('fieldUsername');
+            if (fuEl) fuEl.textContent = 'arjun_mehta';
+
+            const fpEl = document.getElementById('fieldPhone');
+            if (fpEl) fpEl.textContent = '+91 98765 43210';
+
+            const stTot = document.getElementById('statTotalOrders');
+            if (stTot) stTot.textContent = '3';
+
+            const stDel = document.getElementById('statDeliveredOrders');
+            if (stDel) stDel.textContent = '2';
+
+                        const stLen = document.getElementById('statUsernameLength');
+            if (stLen) stLen.textContent = '11';
+
+            // Populate sample address in preview mode (all details displayed upfront)
+            const fieldAddr = document.getElementById('fieldAddressOverview');
+            if (fieldAddr) fieldAddr.textContent = 'Flat 4B, The Amaltas Archive, Lavelle Road, Shanthala Nagar, Bengaluru, Karnataka — 560001';
+
+            const dRecip = document.getElementById('dispRecipientName');
+            if (dRecip) dRecip.textContent = 'Arjun Mehta';
+
+            const dStreet = document.getElementById('dispStreetAddress');
+            if (dStreet) dStreet.textContent = 'Flat 4B, The Amaltas Archive, Lavelle Road, Shanthala Nagar';
+
+            const dCity = document.getElementById('dispCity');
+            if (dCity) dCity.textContent = 'Bengaluru';
+
+            const dState = document.getElementById('dispState');
+            if (dState) dState.textContent = 'Karnataka';
+
+            const dPin = document.getElementById('dispPincode');
+            if (dPin) dPin.textContent = '560001';
+
+            const dPhone = document.getElementById('dispPhone');
+            if (dPhone) dPhone.textContent = '+91 98765 43210';
+
+            // Fill address modal inputs for easy testing
+            const inName = document.getElementById('addressInputName');
+            if (inName && (!inName.value || inName.value.includes('{{'))) inName.value = 'Arjun Mehta';
+
+            const inLine = document.getElementById('addressInputLine');
+            if (inLine && (!inLine.value || inLine.value.includes('{{'))) inLine.value = 'Flat 4B, The Amaltas Archive, Lavelle Road, Shanthala Nagar';
+
+            const inCity = document.getElementById('addressInputCity');
+            if (inCity && (!inCity.value || inCity.value.includes('{{'))) inCity.value = 'Bengaluru';
+
+            const inState = document.getElementById('addressInputState');
+            if (inState && (!inState.value || inState.value.includes('{{'))) inState.value = 'Karnataka';
+
+            const inPin = document.getElementById('addressInputPin');
+            
+
+            const inPhone = document.getElementById('addressInputPhone');
+            
+
+            // Populate sample order rows if the table or empty box has raw template tags
+            const emptyBox = document.getElementById('emptyOrdersBox');
+            if (emptyBox) {
+                emptyBox.style.display = 'none';
+            }
+
+            const ordersContainer = document.querySelector('.orders');
+            let tbody = document.getElementById('ordersTbody');
+            if (!tbody && ordersContainer) {
+                ordersContainer.innerHTML = `
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTbody"></tbody>
+                    </table>
+                `;
+                tbody = document.getElementById('ordersTbody');
+            }
+
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td class="order-number">#UNC-8821</td>
+                        <td>18 Oct 2026</td>
+                        <td>₹28,500.00</td>
+                        <td><span class="status status-delivered">Delivered</span></td>
+                        <td><a href="#orders" class="order-link">VIEW &rarr;</a></td>
+                    </tr>
+                    <tr>
+                        <td class="order-number">#UNC-7940</td>
+                        <td>04 Oct 2026</td>
+                        <td>₹19,400.00</td>
+                        <td><span class="status status-shipped">Shipped</span></td>
+                        <td><a href="#orders" class="order-link">VIEW &rarr;</a></td>
+                    </tr>
+                    <tr>
+                        <td class="order-number">#UNC-6412</td>
+                        <td>22 Sep 2026</td>
+                        <td>₹14,200.00</td>
+                        <td><span class="status status-confirmed">Confirmed</span></td>
+                        <td><a href="#orders" class="order-link">VIEW &rarr;</a></td>
+                    </tr>
+                `;
+            }
+        }
     }
 
-    window.uncommonLoader = {
-        hide: hideLoader
-    };
+    /* INTEGRATED PRELOADER DOCKING INTO TOP-LEFT NAVBAR LOGO (SYNCED WITH HOME PAGE) */
+    const preloader = document.getElementById("siteLoader");
+    const preloaderLogo = preloader ? preloader.querySelector(".preloader-logo") : null;
+    const topbar = document.querySelector(".topbar");
+    const navLogo = document.querySelector(".topbar .logo");
 
-    window.addEventListener("load", hideLoader, { once: true });
-    window.setTimeout(hideLoader, 12000);
+    let hideTimer = null;
+    let dockTimer = null;
+    let removeTimer = null;
+    let isDismissing = false;
+    let hasPlayedWhileVisible = false;
+    let wasViewportHidden = false;
+
+    const ASSEMBLY_DURATION = 2450; // Time for U + C monogram & wordmark assembly (ms)
+    const DOCK_DURATION = 920;      // Duration of smooth flight to top-left corner (ms)
+
+    function isViewportVisible() {
+        if (document.visibilityState === "hidden") return false;
+        const w = window.innerWidth || document.documentElement.clientWidth || 0;
+        const h = window.innerHeight || document.documentElement.clientHeight || 0;
+        if (w < 20 || h < 20) return false;
+        if (preloaderLogo) {
+            const r = preloaderLogo.getBoundingClientRect();
+            if (r.width < 10 || r.height < 10) return false;
+        }
+        return true;
+    }
+
+    function computeCornerTransform() {
+        if (!preloaderLogo) return "";
+        const logoRect = preloaderLogo.getBoundingClientRect();
+        if (!logoRect.width || !logoRect.height) return "";
+
+        const targetEl = (navLogo && (navLogo.querySelector(".nav-logo-svg") || navLogo.querySelector("img"))) || navLogo;
+        const targetRect = targetEl
+            ? targetEl.getBoundingClientRect()
+            : { left: 32, top: 14, width: 200, height: 68 };
+
+        const targetWidth = targetRect.width || 200;
+        const targetHeight = targetRect.height || 68;
+
+        const scale = Math.min(targetWidth / logoRect.width, targetHeight / logoRect.height);
+        const startCenterX = logoRect.left + logoRect.width / 2;
+        const startCenterY = logoRect.top + logoRect.height / 2;
+        const endCenterX = targetRect.left + targetWidth / 2;
+        const endCenterY = targetRect.top + targetHeight / 2;
+
+        const deltaX = endCenterX - startCenterX;
+        const deltaY = endCenterY - startCenterY;
+
+        return `translate3d(${deltaX.toFixed(2)}px, ${deltaY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    }
+
+    function restartSvgAnimations() {
+        if (!preloader) return;
+        const animatedNodes = preloader.querySelectorAll(
+            ".uc-group-c, .uc-group-u, .uc-cutout-band, .uc-bars, .uc-wordmark, .preloader-progress"
+        );
+        animatedNodes.forEach(node => {
+            node.style.animation = "none";
+            void node.getBoundingClientRect();
+            node.style.animation = "";
+        });
+    }
+
+    function dockAndDismissPreloader() {
+        if (!preloader || isDismissing) return;
+        if (!isViewportVisible()) {
+            hasPlayedWhileVisible = false;
+            return;
+        }
+        isDismissing = true;
+        ensurePreviewDataAndLogos();
+
+        if (!preloaderLogo) {
+            document.body.classList.remove("is-loading");
+            preloader.classList.add("fade-out", "is-hidden");
+            return;
+        }
+
+        preloader.classList.add("is-docking");
+
+        requestAnimationFrame(() => {
+            const transformValue = computeCornerTransform();
+            if (transformValue) {
+                preloaderLogo.style.transform = transformValue;
+            }
+        });
+
+        window.clearTimeout(dockTimer);
+        dockTimer = window.setTimeout(() => {
+            document.body.classList.remove("is-loading");
+            preloader.classList.add("fade-out", "is-hidden");
+            window.clearTimeout(removeTimer);
+            removeTimer = window.setTimeout(() => {
+                if (preloaderLogo) {
+                    preloaderLogo.style.transform = "";
+                }
+                preloader.classList.remove("is-docking");
+            }, 520);
+        }, DOCK_DURATION);
+    }
+
+    function showPreloader() {
+        if (!preloader) return;
+        window.clearTimeout(hideTimer);
+        window.clearTimeout(dockTimer);
+        window.clearTimeout(removeTimer);
+        isDismissing = false;
+
+        if (preloaderLogo) {
+            preloaderLogo.style.transform = "";
+        }
+        preloader.classList.remove("is-docking", "fade-out", "is-hidden");
+        document.body.classList.add("is-loading");
+
+        if (isViewportVisible()) {
+            hasPlayedWhileVisible = true;
+            restartSvgAnimations();
+            hideTimer = window.setTimeout(dockAndDismissPreloader, ASSEMBLY_DURATION);
+        } else {
+            hasPlayedWhileVisible = false;
+        }
+    }
+
+    function checkVisibilityAndStart() {
+        const visible = isViewportVisible();
+        if (!visible) {
+            wasViewportHidden = true;
+            return;
+        }
+        if (!hasPlayedWhileVisible || wasViewportHidden) {
+            wasViewportHidden = false;
+            showPreloader();
+        }
+    }
+
+    if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(() => {
+            checkVisibilityAndStart();
+        });
+        ro.observe(document.documentElement);
+    }
+
+    document.addEventListener("visibilitychange", checkVisibilityAndStart);
+    window.addEventListener("focus", () => {
+        if (!hasPlayedWhileVisible) checkVisibilityAndStart();
+    });
+
+    ensurePreviewDataAndLogos();
+    requestAnimationFrame(checkVisibilityAndStart);
+
+    window.uncommonLoader = {
+        show: showPreloader,
+        hide: dockAndDismissPreloader
+    };
 
     /* DJANGO MESSAGE TOAST */
     const toast = document.getElementById("siteToast");
@@ -1141,11 +2337,111 @@ td {
     if (messages.length) {
         const messageText = messages[0].textContent.trim();
 
-        if (messageText) {
+        if (messageText && !messageText.includes('{{')) {
             window.setTimeout(function () {
                 showToast(messageText);
             }, 300);
         }
+    }
+
+    /* HOME-PAGE SYNCED SCROLL-TRANSPARENT NAVBAR & LOGO */
+    if (topbar) {
+        let scrollTicking = false;
+        const SCROLL_RANGE = 72; // px over which navbar & logo background smoothly interpolate to transparent
+
+        function updateNavbarOnScroll() {
+            const scrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+            const winH = window.innerHeight || document.documentElement.clientHeight || 800;
+            const docH = Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight
+            ) - winH;
+
+            const progress = Math.min(1, scrollY / SCROLL_RANGE);
+            const bgAlpha = (0.96 * (1 - progress)).toFixed(3);
+            const borderAlpha = (1 - progress).toFixed(3);
+            const blurPx = (16 * (1 - progress)).toFixed(1);
+
+            topbar.style.setProperty("--nav-bg-alpha", bgAlpha);
+            topbar.style.setProperty("--nav-border-alpha", borderAlpha);
+            topbar.style.setProperty("--nav-blur", `${blurPx}px`);
+
+            const pageProgress = docH > 0 ? Math.min(1, Math.max(0, scrollY / docH)) : 0;
+            topbar.style.setProperty("--page-scroll-progress", pageProgress.toFixed(4));
+
+            if (scrollY > 12) {
+                topbar.classList.add("is-scrolled");
+            } else {
+                topbar.classList.remove("is-scrolled");
+            }
+            scrollTicking = false;
+        }
+
+        window.addEventListener("scroll", function () {
+            if (!scrollTicking) {
+                window.requestAnimationFrame(updateNavbarOnScroll);
+                scrollTicking = true;
+            }
+        }, { passive: true });
+
+        updateNavbarOnScroll();
+    }
+
+    /* IN-PLACE ADDRESS EDITOR — submit to Django for database persistence */
+    const toggleEditBtn = document.getElementById("toggleAddressEditBtn");
+    const inlineEditor = document.getElementById("addressInlineEditor");
+    const cancelEditBtn = document.getElementById("cancelAddressEditBtn");
+    const addressForm = document.getElementById("changeAddressForm");
+
+    function openAddressEditor() {
+        if (!inlineEditor) return;
+        inlineEditor.classList.add("is-active");
+        if (toggleEditBtn) toggleEditBtn.textContent = "Close editor ↑";
+        const firstInput = document.getElementById("addressInputName");
+        if (firstInput) firstInput.focus();
+    }
+
+    function closeAddressEditor() {
+        if (!inlineEditor) return;
+        inlineEditor.classList.remove("is-active");
+        if (toggleEditBtn) toggleEditBtn.textContent = "Change address ↓";
+    }
+
+    if (toggleEditBtn) {
+        toggleEditBtn.addEventListener("click", function () {
+            if (inlineEditor && inlineEditor.classList.contains("is-active")) {
+                closeAddressEditor();
+            } else {
+                openAddressEditor();
+            }
+        });
+    }
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener("click", function () {
+            if (addressForm) addressForm.reset();
+            closeAddressEditor();
+        });
+    }
+
+    if (addressForm) {
+        addressForm.addEventListener("submit", function (event) {
+            const pin = (document.getElementById("addressInputPin")?.value || "").trim();
+            const phone = (document.getElementById("addressInputPhone")?.value || "").trim();
+
+            if (!/^[0-9]{6}$/.test(pin)) {
+                event.preventDefault();
+                alert("Please enter a valid 6-digit PIN code.");
+                document.getElementById("addressInputPin")?.focus();
+                return;
+            }
+
+            if (!/^[0-9+()\\s-]{10,16}$/.test(phone)) {
+                event.preventDefault();
+                alert("Please enter a valid delivery phone number.");
+                document.getElementById("addressInputPhone")?.focus();
+            }
+        });
     }
 
     /* POLICY MODALS */
@@ -1206,47 +2502,32 @@ td {
             if (activeModal) closeModal(activeModal);
         }
     });
-})();
 
-(() => {
+    // Support browser back/forward history for modals
     let modalHistoryOpen = false;
     let closingFromPopstate = false;
 
     function getOpenModal() {
-        return document.querySelector(
-            '.legal-modal.is-open, #reservation-modal.is-open, #reservation-alert.is-open'
-        );
+        return document.querySelector('.legal-modal.is-open');
     }
 
     function openModalHistory() {
         if (modalHistoryOpen) return;
-
-        history.pushState({ uncommonModal: true }, '', location.href);
-        modalHistoryOpen = true;
+        try {
+            history.pushState({ uncommonModal: true }, '', location.href);
+            modalHistoryOpen = true;
+        } catch (e) {}
     }
 
     function closeOpenModal() {
         const modal = getOpenModal();
         if (!modal) return false;
-
-        if (modal.matches('.legal-modal')) {
-            modal.querySelector('[data-close-legal]')?.click();
-        } else if (modal.id === 'reservation-modal') {
-            modal.querySelector('[data-close-reservation]')?.click();
-        } else if (modal.id === 'reservation-alert') {
-            document.getElementById('reservation-alert-close')?.click();
-        }
-
+        closeModal(modal);
         return true;
     }
 
-    // Track modal openings, including existing click handlers.
     document.addEventListener('click', event => {
-        if (
-            event.target.closest(
-                '[data-open-legal], [data-open-reservation]'
-            )
-        ) {
+        if (event.target.closest('[data-open-legal]')) {
             setTimeout(() => {
                 if (getOpenModal()) openModalHistory();
             }, 0);
@@ -1256,31 +2537,27 @@ td {
     window.addEventListener('popstate', () => {
         modalHistoryOpen = false;
         closingFromPopstate = true;
-
         closeOpenModal();
-
         closingFromPopstate = false;
     });
 
-    // When a modal is closed using its X or backdrop,
-    // remove its temporary history entry as well.
     document.addEventListener('click', event => {
         if (!modalHistoryOpen || closingFromPopstate) return;
-
         if (
-            event.target.closest(
-                '[data-close-legal], [data-close-reservation], #reservation-alert-close'
-            ) ||
-            event.target.classList.contains('legal-modal') ||
-            event.target.id === 'reservation-modal' ||
-            event.target.id === 'reservation-alert'
+            event.target.closest('[data-close-legal], .modal-close') ||
+            event.target.classList.contains('legal-modal')
         ) {
             modalHistoryOpen = false;
-            history.back();
+            try { history.back(); } catch (e) {}
         }
     });
-})();
 
+    // Make modal controls globally accessible for programmatic testing
+    window.uncommonModals = {
+        open: (id) => openModal(document.getElementById(id)),
+        closeAll: () => modals.forEach(closeModal)
+    };
+})();
 </script>
 
 </body>

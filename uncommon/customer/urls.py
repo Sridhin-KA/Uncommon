@@ -70,4 +70,11 @@ path(
 ),
 path("profile/", views.customer_profile, name="customer_profile"),
 path("profile/edit/", views.edit_customer_profile, name="edit_customer_profile"),
+  path("addresses/", views.manage_address, name="manage_address"),
+    path("addresses/save/", views.save_address, name="save_address"),
+    path(
+        "addresses/delete/<int:address_id>/",
+        views.delete_address,
+        name="delete_address"
+    ),
 ]

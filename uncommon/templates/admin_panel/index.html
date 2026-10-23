@@ -1,4 +1,4 @@
-{% load static %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -990,7 +990,7 @@
 
             <div>
 
-                <a href="{% url 'admin_index' %}" class="brand-desk-title">
+                <a href="#" class="brand-desk-title">
                     UNCOMMON<span>.</span>
                 </a>
 
@@ -1008,7 +1008,7 @@
             <!-- Logged in admin email -->
 
             <span class="admin-session">
-                {{ admin.email }}
+                {{ admin.email|default:admin|default:"Administrator" }}
             </span>
 
 
@@ -1211,11 +1211,7 @@
         <div class="drawer-footer">
 
             <div class="avatar-token">
-                {% if admin.email %}
-                    {{ admin.email|first|upper }}
-                {% else %}
-                    A
-                {% endif %}
+                {% if admin.email %}{{ admin.email|first|upper }}{% else %}A{% endif %}
             </div>
 
             <div>
@@ -1231,9 +1227,7 @@
                 </div>
 
                 <div class="drawer-admin-email">
-
-                    {{ admin.email }}
-
+                    {{ admin.email|default:admin|default:"" }}
                 </div>
 
             </div>
@@ -1269,7 +1263,7 @@
 
             <div class="database-status">
 
-                DATABASE: UNCOMMON_DB · CONNECTED
+                DATABASE: LIVE APPLICATION DATA
 
             </div>
 
@@ -1292,7 +1286,7 @@
                 </div>
 
                 <div class="metric-val">
-                    {{ total_customers }}
+                    {{ total_customers|default:0 }}
                 </div>
 
                 <div class="metric-foot">
@@ -1311,7 +1305,7 @@
                 </div>
 
                 <div class="metric-val">
-                   {{ total_products }}
+                   {{ total_products|default:0 }}
                 </div>
 
                 <div class="metric-foot">
@@ -1330,7 +1324,7 @@
                 </div>
 
                 <div class="metric-val">
-                    {{ total_orders }}
+                    {{ active_orders|default:0 }}
                 </div>
 
                 <div class="metric-foot">
@@ -1437,39 +1431,19 @@
                             {% for item in recent_order_items %}
                             <tr>
                                 <td>
-                                    <strong>{{ item.product.product_name|default:"Product" }}</strong>
-                                    <div class="product-description">
-                                        {{ item.product.description|default:"No description"|truncatechars:70 }}
-                                    </div>
+                                    <strong>{{ item.product.product_name|default:item.product.product_name|default:"Product" }}</strong>
+                                    <div class="product-description">Qty: {{ item.quantity|default:1 }} · Order #{{ item.order.id }}</div>
                                 </td>
+                                <td><span class="category-name">{{ item.product.category.category_name|default:item.product.category.category_name|default:"Uncategorised" }}</span></td>
                                 <td>
-                                    <span class="category-name">
-                                        {{ item.product.category.category_name|default:"Uncategorized" }}
-                                    </span>
+                                    <div class="patron-name">{{ item.order.customer.name|default:item.order.customer.email|default:"Customer" }}</div>
+                                    <div class="patron-info">Customer #{{ item.order.customer.id }}</div>
                                 </td>
-                                <td>
-                                    <div class="patron-name">
-                                        {{ item.order.customer|default:"Customer" }}
-                                    </div>
-                                    <div class="patron-info">
-                                        Order #{{ item.order.order_number|default:item.order.id }}
-                                    </div>
-                                </td>
-                                <td>
-                                    {% with status=item.order.status|default:"Pending"|upper %}
-                                    <span class="status-tag {% if status == 'DELIVERED' %}tag-registered{% elif status == 'PENDING' or status == 'CONFIRMED' or status == 'PROCESSING' or status == 'SHIPPED' %}tag-hold{% else %}tag-shelf{% endif %}">
-                                        {{ item.order.status|default:"Pending" }}
-                                    </span>
-                                    {% endwith %}
-                                </td>
-                                <td class="price">₹{{ item.price|default:0|floatformat:2 }}</td>
+                                <td><span class="status-tag tag-registered">{{ item.order.status|default:"PENDING" }}</span></td>
+                                <td class="price">₹{{ item.price|default:item.product.price|default:"—" }}</td>
                             </tr>
                             {% empty %}
-                            <tr>
-                                <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">
-                                    No order items available yet.
-                                </td>
-                            </tr>
+                            <tr><td colspan="5">No order items found yet.</td></tr>
                             {% endfor %}
                         </tbody>
 
@@ -1517,43 +1491,18 @@
                 <div>
                     {% for order in recent_orders %}
                     <div class="log-item">
-                        <span class="log-time">
-                            {{ order.created_at|date:"d M Y, H:i"|default:"Recent" }} · ORDER
-                        </span>
-                        <div class="log-desc">
-                            Order #{{ order.order_number|default:order.id }} was created.
-                            Status: {{ order.status|default:"Pending" }}.
-                        </div>
+                        <div class="log-time">ORDER #{{ order.id }} · {{ order.created_at|date:"d M Y, H:i" }}</div>
+                        <div class="log-desc">Order for {{ order.customer.name|default:order.customer.email|default:"Customer" }} — <strong>{{ order.status|default:"PENDING" }}</strong></div>
                     </div>
+                    {% empty %}
+                    <div class="log-item"><div class="log-desc">No recent orders to display.</div></div>
                     {% endfor %}
-
                     {% for product in recent_products %}
                     <div class="log-item">
-                        <span class="log-time">
-                            {{ product.created_at|date:"d M Y, H:i"|default:"Recent" }} · PRODUCT
-                        </span>
-                        <div class="log-desc">
-                            Product added or updated: {{ product.product_name|default:"Product" }}.
-                        </div>
+                        <div class="log-time">INVENTORY · PRODUCT #{{ product.id }}</div>
+                        <div class="log-desc">{{ product.product_name|default:product.product_name|default:"Product" }} added to the catalog.</div>
                     </div>
                     {% endfor %}
-
-                    {% for feedback in recent_feedback %}
-                    <div class="log-item">
-                        <span class="log-time">
-                            {{ feedback.created_at|date:"d M Y, H:i"|default:"Recent" }} · FEEDBACK
-                        </span>
-                        <div class="log-desc">
-                            New customer feedback received.
-                        </div>
-                    </div>
-                    {% endfor %}
-
-                    {% if not recent_orders and not recent_products and not recent_feedback %}
-                    <div class="log-item">
-                        <div class="log-desc">No recent database activity available.</div>
-                    </div>
-                    {% endif %}
                 </div>
 
             </section>
@@ -1677,6 +1626,341 @@
         });
 
     </script>
+
+
+<style>
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert{border-radius:18px}
+.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close{border-radius:12px}
+.search-input,.status-select,.form-select,.form-control,.form-input,.category-select,.filter,.nav-link,.drawer-link{border-radius:12px}
+.tag,.badge,.status-badge,.tag-badge,.tag-shelf,.product-alert-badge,.status-current{border-radius:8px}
+.product-image,.no-image,.current-image{border-radius:12px}
+.modal-box,.modal-overlay > .modal{border-radius:24px}
+.toast{border-radius:14px}
+.metrics-strip{gap:14px;background:transparent;border:0}
+.metric-card{border:1px solid var(--beige-border)}
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert,.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close{transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s cubic-bezier(.22,1,.36,1),background .15s,border-color .15s,color .15s}
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert{--lift:-3px}
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert:hover{transform:translateY(-3px);box-shadow:0 12px 24px -12px rgba(36,30,20,.35)}
+.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close:hover{transform:translateY(-2px);box-shadow:0 8px 16px -10px rgba(36,30,20,.4)}
+@supports (corner-shape:squircle){
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert,.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close,.search-input,.status-select,.form-select,.form-control,.form-input,.category-select,.filter,.nav-link,.drawer-link,.tag,.badge,.status-badge,.tag-badge,.tag-shelf,.product-alert-badge,.status-current,.product-image,.no-image,.current-image,.modal-box,.modal-overlay > .modal,.toast{corner-shape:squircle}
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert{border-radius:28px}
+.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close,.search-input,.status-select,.form-select,.form-control,.form-input,.category-select,.filter,.nav-link,.drawer-link{border-radius:20px}
+.tag,.badge,.status-badge,.tag-badge,.tag-shelf,.product-alert-badge,.status-current{border-radius:12px}
+.product-image,.no-image,.current-image{border-radius:20px}
+.modal-box,.modal-overlay > .modal{border-radius:36px}
+.toast{border-radius:22px}
+}
+@media(prefers-reduced-motion:reduce){.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert,.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close{transition:none}.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert:hover,.btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,.hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,.page-link,.modal-close:hover{transform:none;box-shadow:none}}
+</style>
+<style>
+.nav-link,.drawer-link{transition:transform .25s cubic-bezier(.22,1,.36,1),background .15s,color .15s}
+.nav-link:hover,.drawer-link:hover{transform:translateX(4px)}
+tbody tr{transition:background .2s ease}
+tbody tr:hover{background:rgba(198,156,92,.12)}
+.search-input,.status-select,.form-select,.form-control,.form-input,.category-select,.filter{transition:border-color .2s ease,box-shadow .2s ease}
+.search-input:hover,.status-select:hover,.form-select:hover,.form-control:hover,.form-input:hover,.category-select:hover,.filter:hover{border-color:#A0763A;box-shadow:0 6px 14px -10px rgba(36,30,20,.4)}
+@media(prefers-reduced-motion:reduce){.fx-btn,.nav-link,.drawer-link,tbody tr{transition:none}.fx-btn:hover,.nav-link:hover,.drawer-link:hover{transform:none;box-shadow:none}}
+</style>
+
+<style>
+.fx-btn{font-family:var(--font-sans,'Archivo',sans-serif);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;background:var(--accent-forest,#232E22);color:#EFEBE1;border:1px solid var(--accent-forest,#232E22);border-radius:2px;padding:9px 16px;cursor:pointer;transition:background .15s}
+.fx-btn:hover{background:#3a4a38}
+.fx-btn.float{position:fixed;right:20px;bottom:20px;z-index:60}
+.fx-scrim{position:fixed;inset:0;z-index:200;background:rgba(36,30,20,.55);display:none;align-items:flex-start;justify-content:center;padding:3vh 2vw;overflow:auto}
+.fx-scrim.on{display:flex}
+.fx{--bg:#EFEBE1;--card:#FBF8F1;--sub:#E9E0CD;--bd:#D6CCB5;--tx:#241E14;--mu:#6F6350;--gold:#C69C5C;--och:#A0763A;--for:#232E22;--good:#3f6b3a;--bad:#9c3b2a;
+width:min(1240px,100%);background:var(--bg);color:var(--tx);border:1px solid var(--bd);font:14px/1.5 var(--font-sans,'Archivo',sans-serif);max-height:94vh;overflow:auto;position:relative}
+.fx *{box-sizing:border-box}
+.fx-h{position:sticky;top:0;z-index:5;background:rgba(239,235,225,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:16px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.fx-h h2{font:700 22px var(--font-serif,'Libre Caslon Text',serif);letter-spacing:.06em;margin:0}
+.fx-sub{font:11px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+.fx-seg{display:inline-flex;border:1px solid var(--bd);margin-left:auto;background:var(--card)}
+.fx-seg button{background:none;border:0;border-right:1px solid var(--bd);padding:8px 16px;font:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--tx)}
+.fx-seg button:last-child{border:0}
+.fx-seg button[aria-pressed=true]{background:var(--for);color:#EFEBE1}
+.fx-x{background:var(--card);border:1px solid var(--bd);width:38px;height:38px;font-size:22px;cursor:pointer;line-height:1;color:var(--tx)}
+.fx-x:hover{background:var(--sub)}
+.fx-b{padding:20px 28px 36px}
+.fx-note{background:var(--card);border-left:3px solid var(--gold);padding:10px 14px;margin-bottom:18px;font-size:13px;color:var(--mu)}
+.fx-note.live{border-color:var(--good)}
+.fx h3{font:700 17px var(--font-serif,serif);margin:26px 0 12px;letter-spacing:.04em}
+.fx h4{font:700 15px var(--font-serif,serif);margin:0 0 10px}
+.fx-k{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.fx-c{background:var(--card);border:1px solid var(--bd);padding:12px 14px}
+.fx-c small{display:block;font:10.5px var(--font-mono,monospace);letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.fx-c b{display:block;font:500 22px var(--font-mono,monospace);margin:4px 0 2px}
+.fx-d{font-size:12px}.fx-d.up{color:var(--good)}.fx-d.dn{color:var(--bad)}
+.fx-r{display:grid;gap:12px;margin-bottom:12px}
+.fx-r.a{grid-template-columns:2fr 1fr}.fx-r.e{grid-template-columns:1fr 1fr}
+.fx-p{background:var(--card);border:1px solid var(--bd);padding:14px;min-width:0}
+.fx-cv{position:relative;height:290px}
+.fx table{width:100%;border-collapse:collapse;font-size:13px}
+.fx th,.fx td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap;font-family:var(--font-mono,monospace);font-size:12.5px}
+.fx th{font-weight:500;color:var(--mu);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.fx th:first-child,.fx td:first-child{text-align:left;font-family:var(--font-sans,sans-serif)}
+.fx tbody tr.pk{cursor:pointer}.fx tbody tr.pk:hover,.fx tbody tr.sel{background:var(--sub)}
+.fx .t td{font-weight:600;border-top:1px solid var(--tx)}.fx .s td:first-child{padding-left:20px;color:var(--mu)}
+.fx-sc{overflow:auto}
+.fx-tip{font-size:12px;color:var(--mu);margin-top:8px}
+.fx-lk a{color:var(--och);margin-right:16px}
+.fx{border-radius:22px}
+.fx-btn,.fx-x{border-radius:12px}
+.fx-c,.fx-p,.fx-note{border-radius:16px}
+.fx-seg{border-radius:12px;overflow:hidden}
+.fx-c,.fx-p,.fx-btn{--spring:cubic-bezier(.34,1.45,.64,1);transition:transform .6s var(--spring),box-shadow .6s var(--spring),background .15s}
+@supports (transition-timing-function:linear(0,1)){.fx-c,.fx-p,.fx-btn{--spring:linear(0,0.075,0.249,0.462,0.67,0.846,0.977,1.062,1.107,1.12,1.112,1.091,1.066,1.041,1.019,1.003,0.993,0.987,0.986,0.986,0.989,0.992,0.995,0.998,1,1.001,1.002,1.002,1.002,1.001,1.001,1.001,1)}}
+.fx-c:hover,.fx-p:hover{transform:translateY(-5px);box-shadow:0 18px 32px -16px rgba(36,30,20,.38)}
+.fx-btn:hover{transform:translateY(-3px);box-shadow:0 10px 18px -10px rgba(36,30,20,.4)}
+@supports (corner-shape:squircle){.fx,.fx-btn,.fx-x,.fx-c,.fx-p,.fx-note,.fx-seg{corner-shape:squircle}.fx{border-radius:36px}.fx-c,.fx-p,.fx-note{border-radius:28px}.fx-btn,.fx-x,.fx-seg{border-radius:22px}}
+@media(prefers-reduced-motion:reduce){.fx-c,.fx-p{transition:none}.fx-c:hover,.fx-p:hover{transform:none;box-shadow:none}}
+.fx button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(max-width:900px){.fx-k{grid-template-columns:1fr 1fr}.fx-r.a,.fx-r.e{grid-template-columns:1fr}.fx-h{padding:14px 16px}.fx-b{padding:16px}.fx-seg{margin-left:0}}
+</style>
+
+<div class="fx-scrim" id="fxScrim" aria-hidden="true">
+<section class="fx" id="fx" role="dialog" aria-modal="true" aria-labelledby="fxT">
+  <div class="fx-h">
+    <div><h2 id="fxT">Financial Desk</h2><div class="fx-sub" id="fxRange"></div></div>
+    <div class="fx-seg" id="fxSeg" role="group" aria-label="Period"><button type="button" aria-pressed="false" data-p="week">Weekly</button><button type="button" aria-pressed="true" data-p="month">Monthly</button><button type="button" aria-pressed="false" data-p="quarter">Quarterly</button></div>
+    <button type="button" class="fx-x" id="fxClose" aria-label="Close financial desk">&times;</button>
+  </div>
+  <div class="fx-b">
+    <div class="fx-note" id="fxNote"></div>
+    <div class="fx-k" id="fxK"></div>
+    <div class="fx-r a"><div class="fx-p"><h4>Net revenue and net profit</h4><div class="fx-cv"><canvas id="fxC1"></canvas></div><div class="fx-tip">Click a bar to open that period. Click a legend item to hide a series.</div></div>
+      <div class="fx-p"><h4 id="fxT2">Where each rupee goes</h4><div class="fx-cv"><canvas id="fxC2"></canvas></div></div></div>
+    <div class="fx-r e"><div class="fx-p"><h4>Margins</h4><div class="fx-cv"><canvas id="fxC3"></canvas></div></div>
+      <div class="fx-p"><h4>Cash on delivery risk</h4><div class="fx-cv"><canvas id="fxC4"></canvas></div></div></div>
+    <div class="fx-r e"><div class="fx-p"><h4 id="fxT5">Profit and loss</h4><table id="fxPl"></table></div>
+      <div class="fx-p"><h4>All periods</h4><div class="fx-sc"><table id="fxTb"></table></div></div></div>
+    <h3>GST</h3>
+    <div class="fx-k" id="fxGk"></div>
+    <div class="fx-r e"><div class="fx-p"><h4>GST collected, input credit and amount payable</h4><div class="fx-cv"><canvas id="fxC5"></canvas></div></div>
+      <div class="fx-p"><h4 id="fxT6">GST position</h4><table id="fxGt"></table><div class="fx-tip">5% on garments up to ₹2,500 per piece before GST, 18% above (since 22 Sep 2025). Credit rates on costs are assumptions. Confirm filing and credit eligibility with your accountant.</div></div></div>
+    <h3>Tax ledger</h3>
+    <div class="fx-p" id="fxLg"></div>
+  </div>
+</section>
+</div>
+
+
+<script>
+(function(){
+var M=document.getElementById('fxScrim'),$=function(s){return M.querySelector(s)};
+var API='/api/admin/finance/weekly/',LIVE=false,ERR='',W=[],P='month',S=[],sel=0,ch={},booted=false,opener=null;
+var F=['orders','gross','discounts','returns','rtoOrders','rtoRev','cogs','shipping','fees','ads','rtoCost','fixed','codOrders','s5','s18','intra','itcG','itcS','itcF','itcA','itcO'];
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function inr(n){var a=Math.abs(n),s=a>=1e7?(a/1e7).toFixed(2)+' Cr':a>=1e5?(a/1e5).toFixed(2)+' L':Math.round(a).toLocaleString('en-IN');return(n<0?'-':'')+'₹'+s}
+function pct(n){return(n*100).toFixed(1)+'%'}
+function p2(n){return('0'+n).slice(-2)}
+function iso(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+
+/* trigger button: placed in the top bar, or floating if no top bar is found */
+var btn=document.createElement('button');btn.type='button';btn.className='fx-btn';btn.textContent='Financials';btn.setAttribute('data-fin-open','');
+var host=document.querySelector('.topbar-right,.top-right');
+if(host){var lg=host.querySelector('form,.logout-link');lg?host.insertBefore(btn,lg):host.appendChild(btn)}else{btn.classList.add('float');document.body.appendChild(btn)}
+
+/* data */
+function load(){return fetch(API,{credentials:'same-origin'}).then(function(r){if(!r.ok)throw r.status;return r.json()}).then(function(j){ERR='';var a=j.weeks||[];LIVE=a.length>0;return a.map(function(x){var o={start:new Date(x.start+'T00:00:00')};F.forEach(function(f){o[f]=+x[f]||0});return o})}).catch(function(e){ERR=typeof e==='number'?'The finance data returned an error ('+e+').':'The finance data could not be reached. Check that the finance app is installed and that you are logged in as staff.';LIVE=false;return[]})}
+
+/* grouping */
+function fyq(d){var m=d.getMonth(),y=d.getFullYear(),f=m>=3?y:y-1;return'FY'+String(f).slice(2)+'-'+String(f+1).slice(2)+' Q'+(Math.floor(((m+9)%12)/3)+1)}
+function key(d,p){return p==='week'?iso(d):p==='month'?d.getFullYear()+'-'+p2(d.getMonth()+1):fyq(d)}
+function lab(k,p){var a=k.split('-');return p==='week'?a[2]+' '+MN[+a[1]-1]:p==='month'?MN[+a[1]-1]+' '+a[0].slice(2):k}
+function calc(x){x.net=x.gross-x.discounts-x.returns-x.rtoRev;x.gp=x.net-x.cogs;x.contrib=x.gp-x.shipping-x.fees-x.rtoCost;x.profit=x.contrib-x.ads-x.fixed;x.gm=x.net?x.gp/x.net:0;x.nm=x.net?x.profit/x.net:0;x.aov=x.orders?x.gross/x.orders:0;x.rtoRate=x.codOrders?x.rtoOrders/x.codOrders:0;x.roas=x.ads?x.net/x.ads:0;
+x.gstOut=.05*x.s5+.18*x.s18;x.itc=x.itcG+x.itcS+x.itcF+x.itcA+x.itcO;x.gstNet=x.gstOut-x.itc;x.gstEff=x.net?x.gstOut/x.net:0}
+function group(p){if(!W.length){var z={k:'-',n:0,label:'No data yet',partial:false};F.forEach(function(f){z[f]=0});calc(z);return[z]}var m={},o=[];W.forEach(function(w){var k=key(w.start,p);if(!m[k]){m[k]={k:k,n:0};F.forEach(function(f){m[k][f]=0});o.push(m[k])}F.forEach(function(f){m[k][f]+=w[f]});m[k].n++});
+var n=p==='quarter'?4:12,need=p==='month'?4:p==='quarter'?13:1;o=o.slice(-n);o.forEach(function(x){x.partial=x.n<need;calc(x);x.label=lab(x.k,p)+(x.partial?' *':'')});return o}
+
+/* drawing */
+function cs(v){return getComputedStyle($('#fx')).getPropertyValue(v).trim()}
+function delta(a,b,inv){if(!b)return'<span class="fx-d">&nbsp;</span>';var c=(a-b)/Math.abs(b),g=inv?c<0:c>0;return'<span class="fx-d '+(g?'up':'dn')+'">'+(c>0?'+':'')+(c*100).toFixed(1)+'% vs previous</span>'}
+function cards(id,L){$(id).innerHTML=L.map(function(x){return'<div class="fx-c"><small>'+x[0]+'</small><b>'+x[1]+'</b>'+(x[2]||'<span class="fx-d">&nbsp;</span>')+'</div>'}).join('')}
+function mk(id,cfg){if(ch[id])ch[id].destroy();ch[id]=new Chart($(id),cfg)}
+function kpis(){var c=S[sel],p=S[sel-1]||null,g=function(f,i){return p&&delta(c[f],p[f],i)};
+cards('#fxK',[['Net revenue',inr(c.net),g('net')],['Net profit',inr(c.profit),g('profit')],['Gross margin',pct(c.gm),g('gm')],['Net margin',pct(c.nm),g('nm')],['Orders',c.orders.toLocaleString('en-IN'),g('orders')],['Average order value',inr(c.aov),g('aov')],['COD return rate',pct(c.rtoRate),g('rtoRate',1)],['Net revenue per ₹1 of ads',c.roas.toFixed(2),g('roas')]])}
+function charts(){var tx=cs('--tx'),mu=cs('--mu'),bd=cs('--bd'),gold=cs('--gold'),och=cs('--och'),fo=cs('--for');Chart.defaults.color=mu;Chart.defaults.borderColor=bd;Chart.defaults.font.family="'Archivo',sans-serif";
+var lb=S.map(function(x){return x.label}),base={responsive:true,maintainAspectRatio:false},ax={ticks:{callback:function(v){return inr(v)}}},c=S[sel];
+mk('#fxC1',{data:{labels:lb,datasets:[{type:'bar',label:'Net revenue',data:S.map(function(x){return x.net}),backgroundColor:S.map(function(_,i){return i===sel?och:'rgba(198,156,92,.55)'})},{type:'line',label:'Net profit',data:S.map(function(x){return x.profit}),borderColor:fo,backgroundColor:fo,tension:.25,pointRadius:4}]},options:Object.assign({},base,{scales:{y:ax},onClick:function(e,els){if(els.length){sel=els[0].index;draw(1)}},plugins:{tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+inr(x.parsed.y)}}}}})});
+var parts=[['Cost of goods',c.cogs],['Shipping',c.shipping],['Payment fees',c.fees],['Return-to-origin loss',c.rtoCost],['Advertising',c.ads],['Fixed costs',c.fixed],['Net profit',Math.max(0,c.profit)]];
+$('#fxT2').textContent='Where each rupee goes, '+c.label.replace(' *','');
+mk('#fxC2',{type:'doughnut',data:{labels:parts.map(function(x){return x[0]}),datasets:[{data:parts.map(function(x){return x[1]}),borderColor:cs('--card'),backgroundColor:['#6b5b43','#8a7a5e','#b59a68','#9c3b2a','#3a382f','#a99a78',cs('--good')]}]},options:Object.assign({},base,{plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(x){return x.label+': '+inr(x.parsed)+' ('+(c.net?(x.parsed/c.net*100).toFixed(1):0)+'% of net revenue)'}}}}})});
+mk('#fxC3',{type:'line',data:{labels:lb,datasets:[{label:'Gross margin',data:S.map(function(x){return x.gm*100}),borderColor:och,backgroundColor:och,tension:.25},{label:'Net margin',data:S.map(function(x){return x.nm*100}),borderColor:fo,backgroundColor:fo,tension:.25}]},options:Object.assign({},base,{scales:{y:{ticks:{callback:function(v){return v+'%'}}}},plugins:{tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+x.parsed.y.toFixed(1)+'%'}}}}})});
+mk('#fxC4',{data:{labels:lb,datasets:[{type:'bar',label:'COD orders returned',data:S.map(function(x){return x.rtoOrders}),backgroundColor:'rgba(156,59,42,.6)',yAxisID:'y'},{type:'line',label:'Return rate',data:S.map(function(x){return x.rtoRate*100}),borderColor:fo,backgroundColor:fo,yAxisID:'y1'}]},options:Object.assign({},base,{scales:{y:{title:{display:true,text:'Orders'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:function(v){return v+'%'}}}}})})}
+function row(a,v,cl,c){return'<tr class="'+(cl||'')+'"><td>'+a+'</td><td>'+inr(v)+'</td>'+(c?'<td>'+(c.net?pct(v/c.net):'')+'</td>':'')+'</tr>'}
+function pl(){var c=S[sel],R=function(a,v,cl){return row(a,v,cl,c)};$('#fxT5').textContent='Profit and loss, '+c.label.replace(' *','')+(c.partial?' (period still running)':'');
+$('#fxPl').innerHTML='<thead><tr><th></th><th>Amount</th><th>% of net</th></tr></thead><tbody>'+R('Gross sales',c.gross)+R('Discounts',-c.discounts,'s')+R('Customer returns',-c.returns,'s')+R('COD orders never accepted',-c.rtoRev,'s')+R('Net revenue',c.net,'t')+R('Cost of goods',-c.cogs,'s')+R('Gross profit',c.gp,'t')+R('Shipping',-c.shipping,'s')+R('Payment gateway fees',-c.fees,'s')+R('Return-to-origin loss',-c.rtoCost,'s')+R('Contribution',c.contrib,'t')+R('Advertising',-c.ads,'s')+R('Fixed costs',-c.fixed,'s')+R('Net profit',c.profit,'t')+'</tbody>'}
+function tb(){$('#fxTb').innerHTML='<thead><tr><th>Period</th><th>Orders</th><th>Net revenue</th><th>Gross margin</th><th>Net profit</th><th>COD return</th></tr></thead><tbody>'+S.map(function(x,i){return'<tr class="pk'+(i===sel?' sel':'')+'" data-i="'+i+'" tabindex="0"><td>'+x.label+'</td><td>'+x.orders+'</td><td>'+inr(x.net)+'</td><td>'+pct(x.gm)+'</td><td>'+inr(x.profit)+'</td><td>'+pct(x.rtoRate)+'</td></tr>'}).join('')+'</tbody><tfoot><tr><td colspan="6" class="fx-tip">* period still running or incomplete</td></tr></tfoot>'}
+function gst(){var c=S[sel],p=S[sel-1]||null,lb=S.map(function(x){return x.label}),tx=c.s5+c.s18,sh=tx?c.intra/tx:0,g=function(f,i){return p&&delta(c[f],p[f],i)};
+cards('#fxGk',[['GST collected',inr(c.gstOut),g('gstOut')],['Input tax credit',inr(c.itc),g('itc')],['Net GST to pay',inr(c.gstNet),g('gstNet',1)],['GST as share of net sales',pct(c.gstEff)]]);
+mk('#fxC5',{data:{labels:lb,datasets:[{type:'bar',label:'GST collected',data:S.map(function(x){return x.gstOut}),backgroundColor:'rgba(198,156,92,.65)'},{type:'bar',label:'Input tax credit',data:S.map(function(x){return x.itc}),backgroundColor:'rgba(111,99,80,.55)'},{type:'line',label:'Net GST to pay',data:S.map(function(x){return x.gstNet}),borderColor:cs('--for'),backgroundColor:cs('--for'),tension:.25}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{callback:function(v){return inr(v)}}}},plugins:{tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+inr(x.parsed.y)}}}}}});
+var R=function(a,v,cl){return row(a,v,cl)};$('#fxT6').textContent='GST position, '+c.label.replace(' *','');
+$('#fxGt').innerHTML='<tbody>'+R('Net sales taxed at 5%',c.s5,'s')+R('Net sales taxed at 18%',c.s18,'s')+R('GST collected',c.gstOut,'t')+R('CGST and SGST (buyers in Kerala)',c.gstOut*sh,'s')+R('IGST (buyers in other states)',c.gstOut*(1-sh),'s')+R('Credit on goods bought (5%)',-c.itcG,'s')+R('Credit on shipping',-c.itcS,'s')+R('Credit on payment gateway fees',-c.itcF,'s')+R('Credit on advertising',-c.itcA,'s')+R('Credit on rent and software',-c.itcO,'s')+R('Net GST to pay',c.gstNet,'t')+'</tbody>'}
+
+/* tax ledger */
+function fyLabel(d){var m=d.getMonth(),y=d.getFullYear(),f=m>=3?y:y-1;return f+'-'+String(f+1).slice(2)}
+function ledger(){var n=new Date(),cur=fyLabel(n),prev=fyLabel(new Date(n.getFullYear()-1,n.getMonth(),n.getDate()));$('#fxLg').innerHTML='<div class="fx-tip" style="margin:0 0 10px">Every sale, credit note and tax-paid cost is posted automatically and can never be edited or deleted. Download the full year for your accountant.</div><div class="fx-lk"><a href="/finance/ledger/'+cur+'.csv">Download FY '+cur+' (CSV)</a><a href="/finance/ledger/'+prev+'.csv">Download FY '+prev+' (CSV)</a></div>'}
+function draw(keep){if(!keep){S=group(P);sel=S.length-1}$('#fxRange').textContent=LIVE?S[0].label.replace(' *','')+' to '+S[S.length-1].label.replace(' *',''):'No data yet';
+$('#fxNote').className='fx-note'+(LIVE?' live':'');$('#fxNote').innerHTML=LIVE?'<b>Live data</b>':'<b>No finance data available.</b> '+(ERR||'The finance API returned no weekly records.');
+kpis();charts();pl();tb();gst();ledger()}
+
+/* open, close, events */
+function loadChart(cb){if(window.Chart)return cb();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';s.onload=cb;s.onerror=function(){$('#fxNote').textContent='The chart library could not load. Check your internet connection and reopen.'};document.head.appendChild(s)}
+function open_(){opener=document.activeElement;M.classList.add('on');M.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('#fxClose').focus();
+if(booted){draw(1);return}$('#fxNote').className='fx-note';$('#fxNote').textContent='Loading financial data...';loadChart(function(){load().then(function(rows){W=rows;booted=LIVE;draw()})})}
+function close_(){M.classList.remove('on');M.setAttribute('aria-hidden','true');document.body.style.overflow='';if(opener&&opener.focus)opener.focus()}
+document.addEventListener('click',function(e){if(e.target.closest('[data-fin-open]'))open_()});
+$('#fxClose').onclick=close_;M.addEventListener('mousedown',function(e){if(e.target===M)close_()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&M.classList.contains('on'))close_()});
+$('#fxSeg').onclick=function(e){var b=e.target.closest('button');if(!b||!window.Chart||!S.length)return;P=b.dataset.p;M.querySelectorAll('#fxSeg button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});draw()};
+$('#fxTb').onclick=function(e){var t=e.target.closest('tr[data-i]');if(t&&S.length){sel=+t.dataset.i;draw(1)}};
+$('#fxTb').onkeydown=function(e){if(e.key==='Enter'){var t=e.target.closest('tr[data-i]');if(t){sel=+t.dataset.i;draw(1)}}};
+if(location.hash==='#financials')open_();
+})();
+</script>
+
+
+<style>
+/* Purchase Order modal — UNCOMMON admin theme */
+.po-scrim{position:fixed;inset:0;z-index:300;background:rgba(36,30,20,.62);display:none;align-items:flex-start;justify-content:center;padding:3vh 2vw;overflow:auto;backdrop-filter:blur(4px)}
+.po-scrim.open{display:flex}.po-modal{width:min(1180px,100%);max-height:94vh;overflow:auto;background:var(--beige-bg,#EFEBE1);color:var(--text-primary,#241E14);border:1px solid var(--beige-border,#D6CCB5);border-radius:24px;box-shadow:0 24px 80px #0003}
+.po-head{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;background:rgba(239,235,225,.97);border-bottom:1px solid var(--beige-border,#D6CCB5);backdrop-filter:blur(8px)}
+.po-head h2{font:700 23px var(--font-serif,serif)}.po-kicker{font:10px var(--font-mono,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted,#6F6350);margin-bottom:4px}
+.po-close{border:1px solid var(--beige-border,#D6CCB5);background:var(--beige-card,#FBF8F1);font-size:25px;width:40px;height:40px;cursor:pointer;border-radius:12px}
+.po-body{padding:22px 24px 28px}.po-section{background:var(--beige-card,#FBF8F1);border:1px solid var(--beige-border,#D6CCB5);border-radius:16px;padding:18px;margin-bottom:16px}.po-section h3{font:700 17px var(--font-serif,serif);margin-bottom:14px}
+.po-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.po-field{display:flex;flex-direction:column;gap:6px;min-width:0}.po-field label{font:10px var(--font-mono,monospace);letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted,#6F6350)}
+.po-field input,.po-field select,.po-field textarea{width:100%;min-width:0;border:1px solid var(--beige-border,#D6CCB5);border-radius:10px;padding:10px 11px;background:#fffdf8;color:var(--text-primary,#241E14);font:13px var(--font-sans,Arial,sans-serif)}.po-field textarea{min-height:75px;resize:vertical}
+.po-table-wrap{overflow-x:auto}.po-table{width:100%;border-collapse:collapse;min-width:760px}.po-table th,.po-table td{padding:9px;border-bottom:1px solid var(--beige-border,#D6CCB5);text-align:left}.po-table th{font:10px var(--font-mono,monospace);text-transform:uppercase;color:var(--text-muted,#6F6350);background:var(--beige-subtle,#E9E0CD)}.po-table input,.po-table select{width:100%;min-width:75px;padding:9px;border:1px solid var(--beige-border,#D6CCB5);border-radius:8px;background:#fffdf8}.po-table .po-product{min-width:170px}.po-line-total{font:12px var(--font-mono,monospace);white-space:nowrap}.po-remove{border:1px solid #d9b7ac;background:#fff5f1;color:#8b3425;border-radius:8px;padding:7px 10px;cursor:pointer}
+.po-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.po-btn{border:1px solid var(--text-primary,#241E14);background:transparent;color:var(--text-primary,#241E14);border-radius:10px;padding:11px 15px;cursor:pointer;font:11px var(--font-mono,monospace);letter-spacing:.05em;text-transform:uppercase}.po-btn.primary{background:var(--accent-forest,#232E22);color:#fff;border-color:var(--accent-forest,#232E22)}.po-btn.add{border-color:var(--beige-border,#D6CCB5);background:var(--beige-subtle,#E9E0CD)}
+.po-totals{margin-left:auto;max-width:390px;display:grid;gap:8px}.po-total-row{display:flex;justify-content:space-between;gap:16px;font:12px var(--font-mono,monospace)}.po-total-row.grand{font-weight:700;font-size:16px;border-top:1px solid var(--beige-border,#D6CCB5);padding-top:12px;margin-top:4px}.po-help{font-size:12px;color:var(--text-muted,#6F6350);line-height:1.5;margin-top:10px}
+@media(max-width:760px){.po-scrim{padding:0}.po-modal{max-height:100vh;border-radius:0}.po-head{padding:15px}.po-body{padding:14px}.po-grid{grid-template-columns:1fr}.po-section{padding:14px}.po-actions .po-btn{flex:1}}
+</style>
+
+
+<!-- Purchase Order modal -->
+<div class="po-scrim" id="purchaseOrderScrim" aria-hidden="true">
+  <section class="po-modal" role="dialog" aria-modal="true" aria-labelledby="purchaseOrderTitle">
+    <header class="po-head">
+      <div><div class="po-kicker">UNCOMMON · Procurement</div><h2 id="purchaseOrderTitle">New Purchase Order</h2></div>
+      <button type="button" class="po-close" id="purchaseOrderClose" aria-label="Close purchase order">&times;</button>
+    </header>
+    <form id="purchaseOrderForm" method="post" action="/admin_panel/purchases/create/">
+      {% csrf_token %}
+      <div class="po-body">
+        <section class="po-section"><h3>Order details</h3><div class="po-grid">
+          <div class="po-field"><label for="po_number">Purchase order number</label><input id="po_number" name="po_number" placeholder="PO-2026-0001" required></div>
+          <div class="po-field"><label for="po_supplier_name">Vendor / supplier name</label><input id="po_supplier_name" name="supplier_name" placeholder="Enter vendor or supplier name" required></div>
+          <div class="po-field"><label for="po_supplier_contact">Contact person</label><input id="po_supplier_contact" name="supplier_contact_person" placeholder="Contact person"></div>
+          <div class="po-field"><label for="po_supplier_phone">Vendor phone</label><input id="po_supplier_phone" name="supplier_phone" type="tel" placeholder="+91 98765 43210"></div>
+          <div class="po-field"><label for="po_supplier_email">Vendor email</label><input id="po_supplier_email" name="supplier_email" type="email" placeholder="vendor@example.com"></div>
+          <div class="po-field"><label for="po_supplier_gstin">Vendor GSTIN</label><input id="po_supplier_gstin" name="supplier_gstin" maxlength="15" placeholder="Optional GSTIN"></div>
+          <div class="po-field"><label for="po_supplier_address">Vendor address</label><textarea id="po_supplier_address" name="supplier_address" placeholder="Vendor billing address"></textarea></div>
+          <div class="po-field"><label for="po_status">Status</label><select id="po_status" name="status"><option value="draft">Draft</option><option value="submitted">Submit for approval</option></select></div>
+          <div class="po-field"><label for="po_order_date">Order date</label><input type="date" id="po_order_date" name="order_date" required></div>
+          <div class="po-field"><label for="po_delivery_date">Expected delivery</label><input type="date" id="po_delivery_date" name="expected_delivery_date"></div>
+          <div class="po-field"><label for="po_reference">Supplier quotation / reference</label><input id="po_reference" name="reference_number" placeholder="Quotation or reference"></div>
+        </div></section>
+        <section class="po-section"><h3>Delivery & tax</h3><div class="po-grid">
+          <div class="po-field"><label for="po_warehouse">Destination warehouse</label><input id="po_warehouse" name="destination_warehouse" placeholder="Main warehouse"></div>
+          <div class="po-field"><label for="po_place_supply">Place of supply</label><input id="po_place_supply" name="place_of_supply" placeholder="Kerala"></div>
+          <div class="po-field"><label for="po_interstate">Supply type</label><select id="po_interstate" name="is_interstate"><option value="false">Intrastate (CGST + SGST)</option><option value="true">Interstate (IGST)</option></select></div>
+          <div class="po-field"><label for="po_shipping_address">Ship-to address</label><textarea id="po_shipping_address" name="shipping_address" placeholder="Delivery address"></textarea></div>
+          <div class="po-field"><label for="po_delivery_method">Delivery method</label><input id="po_delivery_method" name="delivery_method" placeholder="Supplier delivery / courier"></div>
+          <div class="po-field"><label for="po_terms">Payment / delivery terms</label><input id="po_terms" name="terms_and_conditions" placeholder="e.g. Net 30 days"></div>
+        </div></section>
+        <section class="po-section"><h3>Products ordered</h3><div class="po-table-wrap"><table class="po-table"><thead><tr><th>Product name</th><th>Qty</th><th>Unit price (₹)</th><th>Discount %</th><th>GST %</th><th>Line total</th><th></th></tr></thead><tbody id="purchaseOrderLines"></tbody></table></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="po-btn add" id="addPurchaseLine">+ Add product</button><button type="button" class="po-btn" id="exportPurchaseExcel">Export Excel</button></div><span class="po-help">Enter product names manually. Export downloads the current purchase order details and line items as an Excel-compatible spreadsheet.</span></div>
+        </section>
+        <section class="po-section"><h3>Charges & totals</h3><div class="po-grid">
+          <div class="po-field"><label for="po_discount_type">Order discount type</label><select id="po_discount_type" name="discount_type"><option value="fixed">Fixed amount</option><option value="percent">Percentage</option></select></div>
+          <div class="po-field"><label for="po_discount_value">Order discount value</label><input type="number" min="0" step="0.01" id="po_discount_value" name="discount_value" value="0"></div>
+          <div class="po-field"><label for="po_shipping_cost">Shipping charge (₹)</label><input type="number" min="0" step="0.01" id="po_shipping_cost" name="shipping_cost" value="0"></div>
+          <div class="po-field"><label for="po_other_charges">Other charges (₹)</label><input type="number" min="0" step="0.01" id="po_other_charges" name="other_charges" value="0"></div>
+          <div class="po-field"><label for="po_adjustment">Adjustment (₹)</label><input type="number" step="0.01" id="po_adjustment" name="adjustment_amount" value="0"></div>
+          <div class="po-field"><label for="po_currency">Currency</label><select id="po_currency" name="currency"><option value="INR">INR — Indian Rupee</option></select></div>
+        </div>
+        <div class="po-totals" style="margin-top:20px"><div class="po-total-row"><span>Subtotal</span><strong id="poSubtotal">₹0.00</strong></div><div class="po-total-row"><span>Line discounts</span><strong id="poLineDiscounts">− ₹0.00</strong></div><div class="po-total-row"><span>Order discount</span><strong id="poOrderDiscount">− ₹0.00</strong></div><div class="po-total-row"><span>Taxable amount</span><strong id="poTaxable">₹0.00</strong></div><div class="po-total-row"><span>CGST</span><strong id="poCgst">₹0.00</strong></div><div class="po-total-row"><span>SGST</span><strong id="poSgst">₹0.00</strong></div><div class="po-total-row"><span>IGST</span><strong id="poIgst">₹0.00</strong></div><div class="po-total-row"><span>Shipping + other charges</span><strong id="poExtra">₹0.00</strong></div><div class="po-total-row grand"><span>Grand total</span><strong id="poGrandTotal">₹0.00</strong></div></div></section>
+        <section class="po-section"><h3>Internal notes</h3><div class="po-field"><label for="po_internal_notes">Notes for your team</label><textarea id="po_internal_notes" name="internal_notes" placeholder="Supplier discussion, approval context, or other internal notes"></textarea></div></section>
+        <div class="po-actions"><button type="button" class="po-btn" id="purchaseOrderCancel">Cancel</button><button type="submit" class="po-btn primary">Save Purchase Order</button></div>
+        <p class="po-help">Vendor and product details are entered manually; this form does not fetch supplier or product records from database tables. Saving still requires your Django endpoint to accept these manual fields.</p>
+      </div>
+    </form>
+  </section>
+</div>
+<script>
+(function(){
+  const scrim=document.getElementById('purchaseOrderScrim');
+  if(!scrim)return;
+  const form=document.getElementById('purchaseOrderForm');
+  const body=document.getElementById('purchaseOrderLines');
+  const openBtn=document.createElement('button');
+  openBtn.type='button';openBtn.className='fx-btn';openBtn.textContent='Purchase Order';openBtn.setAttribute('data-purchase-open','');
+  const host=document.querySelector('.topbar-right,.top-right');
+  const finance=document.querySelector('[data-fin-open]');
+  if(host){if(finance&&finance.parentElement===host)host.insertBefore(openBtn,finance.nextSibling);else{const logout=host.querySelector('form,.logout-link');logout?host.insertBefore(openBtn,logout):host.appendChild(openBtn)}}else{openBtn.classList.add('float');openBtn.style.right='150px';document.body.appendChild(openBtn)}
+  const money=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  function open(){scrim.classList.add('open');scrim.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.getElementById('po_supplier').focus();if(!body.children.length)addLine();}
+  function close(){scrim.classList.remove('open');scrim.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  openBtn.addEventListener('click',open);document.getElementById('purchaseOrderClose').addEventListener('click',close);document.getElementById('purchaseOrderCancel').addEventListener('click',close);
+  scrim.addEventListener('mousedown',e=>{if(e.target===scrim)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&scrim.classList.contains('open'))close()});
+  const val=id=>Math.max(0,Number(document.getElementById(id).value)||0);
+  function addLine(){const tr=document.createElement('tr');tr.innerHTML='<td><input name="product_name[]" type="text" placeholder="Enter product name" required></td><td><input name="quantity[]" type="number" min="0.001" step="0.001" value="1" required></td><td><input name="unit_price[]" type="number" min="0" step="0.01" value="0" required></td><td><input name="discount_percent[]" type="number" min="0" max="100" step="0.01" value="0"></td><td><input name="gst_rate[]" type="number" min="0" max="100" step="0.01" value="0"></td><td class="po-line-total">₹0.00</td><td><button type="button" class="po-remove" aria-label="Remove product line">×</button></td>';body.appendChild(tr);tr.addEventListener('input',calculate);tr.querySelector('.po-remove').addEventListener('click',()=>{tr.remove();if(!body.children.length)addLine();calculate()});calculate();}
+  function calculate(){let subtotal=0,lineDiscount=0,taxable=0,cgst=0,sgst=0,igst=0;const interstate=document.getElementById('po_interstate').value==='true';[...body.querySelectorAll('tr')].forEach(tr=>{const inputs=tr.querySelectorAll('input');const qty=Math.max(0,Number(inputs[0].value)||0),price=Math.max(0,Number(inputs[1].value)||0),disc=Math.min(100,Math.max(0,Number(inputs[2].value)||0)),rate=Math.max(0,Number(inputs[3].value)||0);const sub=qty*price,d=sub*disc/100,t=sub-d,tax=t*rate/100;subtotal+=sub;lineDiscount+=d;taxable+=t;if(interstate)igst+=tax;else{cgst+=tax/2;sgst+=tax/2}tr.querySelector('.po-line-total').textContent=money(t+tax)});const discountType=document.getElementById('po_discount_type').value;const discountValue=val('po_discount_value');const orderDiscount=Math.min(taxable,discountType==='percent'?taxable*Math.min(100,discountValue)/100:discountValue);const ratio=taxable?((taxable-orderDiscount)/taxable):0;cgst*=ratio;sgst*=ratio;igst*=ratio;const finalTaxable=taxable-orderDiscount;const extra=val('po_shipping_cost')+val('po_other_charges');const total=finalTaxable+cgst+sgst+igst+extra+(Number(document.getElementById('po_adjustment').value)||0);document.getElementById('poSubtotal').textContent=money(subtotal);document.getElementById('poLineDiscounts').textContent='− '+money(lineDiscount);document.getElementById('poOrderDiscount').textContent='− '+money(orderDiscount);document.getElementById('poTaxable').textContent=money(finalTaxable);document.getElementById('poCgst').textContent=money(cgst);document.getElementById('poSgst').textContent=money(sgst);document.getElementById('poIgst').textContent=money(igst);document.getElementById('poExtra').textContent=money(extra);document.getElementById('poGrandTotal').textContent=money(total);}
+  document.getElementById('addPurchaseLine').addEventListener('click',addLine);form.addEventListener('input',calculate);document.getElementById('po_interstate').addEventListener('change',calculate);document.getElementById('po_discount_type').addEventListener('change',calculate);
+  function csvCell(value){const text=String(value==null?'':value).replace(/\r?\n/g,' ');return '"'+text.replace(/"/g,'""')+'"';}
+  function exportExcel(){
+    calculate();
+    const rows=[
+      ['UNCOMMON - PURCHASE ORDER'],
+      ['Purchase order number',document.getElementById('po_number').value],
+      ['Order date',document.getElementById('po_order_date').value],
+      ['Expected delivery',document.getElementById('po_delivery_date').value],
+      ['Status',document.getElementById('po_status').selectedOptions[0]?.text||''],
+      ['Vendor name',document.getElementById('po_supplier_name').value],
+      ['Contact person',document.getElementById('po_supplier_contact').value],
+      ['Vendor phone',document.getElementById('po_supplier_phone').value],
+      ['Vendor email',document.getElementById('po_supplier_email').value],
+      ['Vendor GSTIN',document.getElementById('po_supplier_gstin').value],
+      ['Vendor address',document.getElementById('po_supplier_address').value],
+      ['Reference',document.getElementById('po_reference').value],
+      ['Destination warehouse',document.getElementById('po_warehouse').value],
+      ['Place of supply',document.getElementById('po_place_supply').value],
+      ['Supply type',document.getElementById('po_interstate').selectedOptions[0]?.text||''],
+      [],
+      ['Product name','Quantity','Unit price (INR)','Discount %','GST %','Line total (INR)']
+    ];
+    [...body.querySelectorAll('tr')].forEach(tr=>{
+      const inputs=tr.querySelectorAll('input');
+      const name=inputs[0]?.value||'';
+      const qty=Number(inputs[1]?.value)||0, price=Number(inputs[2]?.value)||0;
+      const discount=Math.min(100,Math.max(0,Number(inputs[3]?.value)||0));
+      const gst=Math.max(0,Number(inputs[4]?.value)||0);
+      const line=(qty*price)*(1-discount/100)*(1+gst/100);
+      rows.push([name,qty,price,discount,gst,line.toFixed(2)]);
+    });
+    rows.push([],['Subtotal',document.getElementById('poSubtotal').textContent],
+      ['Line discounts',document.getElementById('poLineDiscounts').textContent],
+      ['Order discount',document.getElementById('poOrderDiscount').textContent],
+      ['Taxable amount',document.getElementById('poTaxable').textContent],
+      ['CGST',document.getElementById('poCgst').textContent],
+      ['SGST',document.getElementById('poSgst').textContent],
+      ['IGST',document.getElementById('poIgst').textContent],
+      ['Shipping + other charges',document.getElementById('poExtra').textContent],
+      ['Grand total',document.getElementById('poGrandTotal').textContent],
+      ['Payment / delivery terms',document.getElementById('po_terms').value],
+      ['Internal notes',document.getElementById('po_internal_notes').value]);
+    const csv='\ufeff'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+    const po=(document.getElementById('po_number').value||'purchase-order').replace(/[^a-z0-9_-]/gi,'_');
+    link.href=url;link.download=po+'.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+  }
+  document.getElementById('exportPurchaseExcel').addEventListener('click',exportExcel);
+  const today=new Date();document.getElementById('po_order_date').value=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+})();
+</script>
 
 </body>
 

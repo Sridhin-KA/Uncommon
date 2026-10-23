@@ -27,9 +27,24 @@ SECRET_KEY = 'django-insecure-x-fti_-55mup=ir^yg!nvnu1)onw#2$lhyf9rn!6=ze$+$qvia
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "*",
+    "uncommen.in",
+    "www.uncommen.in",
+    "https://uncommon-jd85.onrender.com/"
+    ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://uncommen.in",
+    "https://www.uncommen.in",
+]
 
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 # Application definition
 
 INSTALLED_APPS = [

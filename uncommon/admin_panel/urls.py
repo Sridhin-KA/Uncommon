@@ -49,10 +49,16 @@ path(
     add_feedback,
     name='add_feedback'
 ),
+   
 path(
     'feedback/delete/<int:feedback_id>/',
     delete_feedback,
     name='delete_feedback'
 ),
     path('test-email/', test_email, name='test_email'),
+    path(
+    "purchases/create/",
+   create_purchase_order,
+    name="create_purchase_order",
+),
 ]

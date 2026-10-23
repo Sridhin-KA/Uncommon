@@ -1127,6 +1127,205 @@ body::after {
 @media(max-width:1100px){.room-selector{grid-template-columns:1fr auto;gap:12px;padding:12px 24px}.room-selector-tabs{grid-column:1/-1;grid-row:2;justify-self:center;max-width:100%;overflow-x:auto}.room-status{grid-column:2;grid-row:1}.room-return{grid-column:1;grid-row:1}}
 @media(max-width:640px){.room-selector{display:flex;flex-direction:column;align-items:stretch;padding:12px 14px;gap:12px}.room-return{align-self:flex-start}.room-selector-tabs{width:100%;justify-content:flex-start;overflow-x:auto}.room-tab{padding:11px 12px;gap:7px}.room-tab span{display:none}.room-tab b{font-size:9px}.room-status{align-self:flex-start;white-space:normal;line-height:1.5}}
 
+
+
+        /* One unified collection navbar: logo, room tabs, bag and home link */
+        .unified-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: clamp(12px, 2vw, 26px);
+        }
+        .unified-room-tabs {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(10px, 2vw, 26px);
+            border: 0;
+            padding: 0;
+            width: auto;
+            order: initial;
+        }
+        .unified-room-tabs .room-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: var(--muted);
+            white-space: nowrap;
+            font: 10px var(--mono);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .unified-room-tabs .room-tab span {
+            font-size: 8px;
+            color: #A0763A;
+            letter-spacing: .08em;
+        }
+        .unified-room-tabs .room-tab b { font-weight: 500; font-size: 10px; }
+        .unified-room-tabs .room-tab:hover,
+        .unified-room-tabs .room-tab.active {
+            color: var(--ink);
+            border-color: var(--border);
+            background: rgba(198,156,92,.08);
+        }
+        .unified-nav-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: clamp(12px, 1.8vw, 24px);
+            flex-shrink: 0;
+        }
+        .unified-nav-actions .bag-nav-link { padding: 8px 0; }
+        @media (max-width: 1000px) {
+            .unified-nav { flex-wrap: wrap; }
+            .unified-room-tabs {
+                order: 3;
+                flex-basis: 100%;
+                width: 100%;
+                justify-content: center;
+                border-top: 1px solid var(--border);
+                padding-top: 10px;
+                overflow-x: auto;
+            }
+            .unified-nav-actions { margin-left: auto; }
+        }
+        @media (max-width: 600px) {
+            .unified-nav { gap: 12px; }
+            .unified-nav-actions { gap: 12px; }
+            .unified-nav-actions .back-link { font-size: 8px; }
+            .unified-room-tabs { justify-content: flex-start; gap: 6px; }
+            .unified-room-tabs .room-tab { padding: 9px 8px; gap: 5px; }
+            .unified-room-tabs .room-tab span { display: none; }
+            .unified-room-tabs .room-tab b { font-size: 9px; }
+        }
+
+</style>
+<style>
+
+/* Homepage-matched navigation: room links replace homepage section anchors. */
+.site-header{position:sticky;top:0;z-index:500;background:rgba(239,235,225,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.site-header .nav{max-width:1320px;margin:auto;padding:17px 40px;display:flex;align-items:center;justify-content:space-between;gap:clamp(14px,2vw,25px)}
+.site-header .logo{display:flex;align-items:center;flex:0 0 auto;width:clamp(145px,17vw,215px)}.site-header .logo img{display:block;width:100%;height:auto;max-height:64px;object-fit:contain}
+.site-header .nav-links{display:flex;align-items:center;justify-content:center;gap:clamp(12px,1.6vw,22px)}
+.site-header .nav-links a,.site-header .nav-actions a,.site-header .account-trigger{font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.site-header .nav-links a{position:relative;display:inline-flex;align-items:center;gap:7px;padding:10px 0;color:var(--muted);white-space:nowrap}
+.site-header .nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:4px;height:1px;background:var(--gold);transition:right .28s cubic-bezier(.22,1,.36,1)}
+.site-header .nav-links a:hover::after,.site-header .nav-links a.active::after{right:0}.site-header .nav-links a:hover,.site-header .nav-links a.active{color:var(--ink)}.site-header .room-number{color:#A0763A;font-size:8px;letter-spacing:.08em}
+.site-header .nav-actions{display:flex;align-items:center;gap:14px;flex:0 0 auto}.site-header .nav-actions a{color:var(--muted);white-space:nowrap;text-decoration:none}.site-header .nav-actions a:hover{color:#A0763A}.site-header .nav-actions .wishlist-link{display:inline-flex;align-items:center;gap:6px}.site-header .wishlist-symbol{font:22px/1 var(--serif)}
+.site-header .nav-actions .bag-link{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--ink);padding:11px 15px;color:var(--ink)}.site-header .nav-actions .bag-link:hover{background:var(--ink);color:var(--bg)}.site-header .bag-count{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 2px;border-radius:50%;background:var(--gold);color:var(--ink);font-size:9px}
+.site-header .nav-toggle{display:none;border:1px solid var(--border);background:transparent;color:var(--ink);padding:10px 12px;font:10px var(--mono);text-transform:uppercase;letter-spacing:.1em;cursor:pointer}.site-header .account-trigger{display:inline-flex;align-items:center;gap:8px;padding:10px 0;border:0;background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap}.site-header .nav-dropdown{position:relative}.site-header .nav-dropdown-menu{position:absolute;top:calc(100% + 8px);right:0;left:auto;z-index:100;display:none;width:225px;padding:8px;background:var(--card);border:1px solid var(--border);box-shadow:0 15px 35px #241e1418}.site-header .nav-dropdown-menu.open{display:block}.site-header .nav-dropdown-menu>a,.site-header .dropdown-logout{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:13px 11px;color:var(--muted);font:10px var(--mono);text-align:left;border:0;background:transparent;cursor:pointer}.site-header .nav-dropdown-menu>a:hover,.site-header .dropdown-logout:hover{background:var(--subtle);color:var(--ink)}.site-header .account-menu-heading{padding:12px 11px;color:var(--muted);font-size:10px}
+@media(max-width:1100px){.site-header .nav{padding:14px 24px;gap:14px}.site-header .nav-links{gap:12px}.site-header .room-number{display:none}.site-header .nav-actions{gap:10px}.site-header .wishlist-label{display:none}}
+@media(max-width:760px){.site-header .nav{flex-wrap:wrap;padding:14px 20px;gap:12px}.site-header .logo{width:160px}.site-header .logo img{max-height:60px}.site-header .nav-toggle{display:block;order:2;margin-left:auto}.site-header .nav-actions{order:3}.site-header .nav-links{display:none;order:4;width:100%;padding:12px 0 5px;border-top:1px solid var(--border);align-items:flex-start;flex-direction:column;gap:8px}.site-header .nav-links.open{display:flex}.site-header .nav-links a{padding:8px 0}.site-header .room-number{display:inline}.site-header .nav-actions .bag-link{padding:9px 10px}.site-header .nav-dropdown-menu{position:absolute;width:220px}.site-header .account-menu{right:0;left:auto}}
+@media(max-width:420px){.site-header .nav{padding:11px 13px;gap:8px}.site-header .logo{width:135px}.site-header .logo img{max-height:54px}.site-header .nav-actions{gap:8px}.site-header .account-trigger{font-size:9px}}
+
+</style>
+<style>
+
+/* Unified, responsive collection navbar */
+.site-header {
+  position: fixed !important;
+  inset: 0 0 auto 0;
+  width: 100%;
+  z-index: 1500;
+  background: rgba(239,235,225,.97);
+  border-bottom: 1px solid rgba(35,34,27,.14);
+  box-shadow: 0 8px 28px rgba(20,25,18,.06);
+  transform: translateY(0);
+  transition: transform .38s cubic-bezier(.22,1,.36,1), background .25s ease, box-shadow .25s ease;
+  will-change: transform;
+}
+.site-header.navbar-hidden { transform: translateY(-110%); }
+.site-header.navbar-revealed { transform: translateY(0); }
+.site-header .nav {
+  width: min(100%, 1440px);
+  min-height: 88px;
+  margin: 0 auto;
+  padding: 12px clamp(16px, 3.4vw, 52px);
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(16px, 2.5vw, 38px);
+}
+.site-header .logo { width: clamp(145px, 16vw, 210px); min-width: 0; }
+.site-header .logo img { display:block; width:100%; height:62px; max-height:62px; object-fit:contain; }
+.site-header .nav-links.section-room-links { display:flex; justify-content:center; align-items:center; gap:clamp(14px, 2.2vw, 34px); min-width:0; }
+.site-header .nav-links.section-room-links a { padding:12px 0; font-size:10px; letter-spacing:.11em; }
+.site-header .nav-actions { display:flex; align-items:center; justify-content:flex-end; gap:clamp(9px, 1.25vw, 18px); }
+.site-header .nav-actions a, .site-header .account-trigger { font-size:10px; letter-spacing:.08em; }
+.site-header .nav-actions .bag-link { padding:10px 13px; }
+body { --uncommon-header-space: 88px; }
+body::before { content:""; display:block; height:var(--uncommon-header-space); }
+@media (max-width: 980px) {
+  .site-header .nav { grid-template-columns: minmax(130px, 175px) minmax(0,1fr) auto; gap:14px; min-height:78px; padding:10px 18px; }
+  .site-header .logo img { height:54px; max-height:54px; }
+  .site-header .nav-links.section-room-links { gap:14px; }
+  .site-header .nav-links.section-room-links a { font-size:9px; letter-spacing:.06em; }
+  .site-header .room-number { display:none; }
+  .site-header .wishlist-label { display:none; }
+  body { --uncommon-header-space:78px; }
+}
+@media (max-width: 760px) {
+  .site-header .nav { display:flex; flex-wrap:wrap; min-height:0; gap:10px 12px; padding:10px 14px; }
+  .site-header .logo { width:140px; }
+  .site-header .logo img { height:48px; max-height:48px; }
+  .site-header .nav-toggle { display:block; order:2; margin-left:auto; }
+  .site-header .nav-actions { order:3; gap:9px; }
+  .site-header .nav-links.section-room-links { display:none; order:4; width:100%; flex-direction:column; align-items:stretch; gap:0; padding:8px 0 2px; border-top:1px solid rgba(35,34,27,.12); }
+  .site-header .nav-links.section-room-links.open { display:flex; }
+  .site-header .nav-links.section-room-links a { justify-content:space-between; width:100%; padding:12px 3px; border-bottom:1px solid rgba(35,34,27,.08); font-size:10px; }
+  .site-header .room-number { display:inline; }
+  .site-header .nav-actions .bag-link { padding:8px 10px; }
+  body { --uncommon-header-space:72px; }
+}
+@media (max-width: 420px) {
+  .site-header .nav { padding:9px 10px; gap:8px; }
+  .site-header .logo { width:112px; }
+  .site-header .logo img { height:42px; max-height:42px; }
+  .site-header .nav-actions { gap:7px; }
+  .site-header .nav-actions a, .site-header .account-trigger { font-size:9px; }
+  .site-header .nav-actions .bag-link { padding:7px 8px; }
+}
+/* Compact hover controls: reveal only navigation buttons, not the full header */
+.site-header.navbar-controls-only {
+  background: transparent !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: translateY(0) !important;
+}
+.site-header.navbar-controls-only .nav {
+  width: 100%; min-height: 0; padding: 12px 22px;
+  display: flex; justify-content: center; gap: 10px;
+}
+.site-header.navbar-controls-only .logo { display: none !important; }
+.site-header.navbar-controls-only .nav-links.section-room-links {
+  display: flex !important; width: auto; padding: 0; border: 0; gap: 8px;
+}
+.site-header.navbar-controls-only .nav-links.section-room-links a,
+.site-header.navbar-controls-only .nav-actions a,
+.site-header.navbar-controls-only .account-trigger {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 11px 15px; border: 1px solid rgba(35,34,27,.22);
+  border-radius: 999px; background: rgba(239,235,225,.97); color: #24231c;
+  box-shadow: 0 5px 18px rgba(0,0,0,.09); font-size: 10px;
+}
+.site-header.navbar-controls-only .nav-actions { gap: 8px; }
+.site-header.navbar-controls-only .nav-actions .bag-link { padding: 11px 15px; }
+.site-header.navbar-controls-only .nav-toggle { display: none !important; }
+@media (max-width:760px) {
+  .site-header.navbar-controls-only .nav { flex-wrap: wrap; padding: 8px 10px; gap: 7px; }
+  .site-header.navbar-controls-only .nav-links.section-room-links { flex-direction: row; overflow-x: auto; max-width: 100%; }
+  .site-header.navbar-controls-only .nav-links.section-room-links a,
+  .site-header.navbar-controls-only .nav-actions a,
+  .site-header.navbar-controls-only .account-trigger { padding: 9px 11px; font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) { .site-header { transition:none; } }
 </style>
 </head>
 
@@ -1170,40 +1369,36 @@ body::after {
 
 <div class="page-door-transition" id="page-door-transition" aria-hidden="true"><div class="door-panel left"></div><div class="door-panel right"></div><div class="door-center-mark">UNCOMMON · Entering the archive</div></div>
 
-<!-- NAVBAR -->
+<!-- SINGLE UNIFIED NAVBAR -->
 <header class="site-header">
-    <div class="wrap nav">
-
-        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">
-            <img
-                src="{% static 'customer/images/uncommon-logo.png' %}"
-                alt="UNCOMMON"
-            >
-        </a>
-
-        
-        <a href="{% url 'bag_view' %}" class="bag-nav-link">
-            Bag · <span id="bag-count">{{ bag_count|default:0 }}</span>
-        </a>
-
-        <a href="{% url 'customer_home' %}" class="back-link">
-            ← Back to home
-        </a>
-
+    <div class="nav">
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home"><img src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMON" fetchpriority="high"></a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" onclick="toggleNav(this)">Menu</button>
+        <nav class="nav-links section-room-links" id="primary-nav" aria-label="Choose a collection room">
+            <a href="{% url 'section_products' 'HIM' %}" class="{% if section == 'HIM' %}active{% endif %}"><span class="room-number">ROOM 01</span> HIM</a>
+            <a href="{% url 'section_products' 'HER' %}" class="{% if section == 'HER' %}active{% endif %}"><span class="room-number">ROOM 02</span> HER</a>
+            <a href="{% url 'section_products' 'RARE' %}" class="{% if section == 'RARE' %}active{% endif %}"><span class="room-number">ROOM 03</span> THE HUNDRED</a>
+        </nav>
+        <div class="nav-actions">
+            <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Wishlist" title="Wishlist"><span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Wishlist</span></a>
+            <a class="bag-link" href="{% url 'bag_view' %}" aria-label="Shopping bag"><span>Bag</span><span class="bag-count" id="bag-count">{{ bag_count|default:0 }}</span></a>
+            <div class="nav-dropdown account-dropdown">
+                
+                <div class="nav-dropdown-menu account-menu">
+                    {% if customer %}
+                        <div class="account-menu-heading">Signed in as {{ customer.name }}</div>
+                        <a href="/my-orders/">My Orders <span aria-hidden="true">↗</span></a>
+                        <a href="{% url 'wishlist_view' %}">Wishlist <span aria-hidden="true">↗</span></a>
+                        <form action="{% url 'admin_logout' %}" method="POST">{% csrf_token %}<button type="submit" class="dropdown-logout">Logout <span aria-hidden="true">↗</span></button></form>
+                    {% else %}
+                        <a href="{% url 'login' %}">Sign in <span aria-hidden="true">↗</span></a>
+                        <a href="{% url 'customer_register' %}">Create account <span aria-hidden="true">↗</span></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </header>
-
-
-<!-- ARCHITECTURAL ROOM SELECTOR -->
-<nav class="room-selector" aria-label="Choose a collection room">
-  <a class="room-return" href="{% url 'customer_home' %}">← RETURN TO THE HOUSE</a>
-  <div class="room-selector-tabs">
-    <a href="{% url 'section_products' 'HIM' %}" class="room-tab {% if section == 'HIM' %}active{% endif %}"><span>ROOM 01</span><b>HIM</b></a>
-    <a href="{% url 'section_products' 'HER' %}" class="room-tab {% if section == 'HER' %}active{% endif %}"><span>ROOM 02</span><b>HER</b></a>
-    <a href="{% url 'section_products' 'RARE' %}" class="room-tab {% if section == 'RARE' %}active{% endif %}"><span>ROOM 03</span><b>THE HUNDRED</b></a>
-  </div>
-  <div class="room-status"><i></i>{% if section == 'HIM' %}THE HIM COLLECTION{% elif section == 'HER' %}THE HER COLLECTION{% else %}6 EDITIONS AVAILABLE · 1 OF 100 CAP{% endif %}</div>
-</nav>
 
 <!-- MAIN COLLECTION -->
 <main class="wrap">
@@ -1987,6 +2182,69 @@ body::after {
     document.body.classList.add('is-transitioning');
     window.setTimeout(() => { window.location.href = link.href; }, 740);
   }, true);
+})();
+
+</script>
+
+
+<script>
+/* Homepage navbar behaviour: hide after scrolling; reveal only near the top edge */
+(() => {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  let lastScrollY = window.scrollY;
+  let pointerNearTop = false;
+  let hideTimer = null;
+
+  const reveal = () => {
+    header.classList.remove('navbar-hidden');
+    header.classList.add('navbar-revealed');
+    header.classList.toggle('navbar-controls-only', window.scrollY > 80 && pointerNearTop);
+    if (hideTimer) window.clearTimeout(hideTimer);
+    if (!pointerNearTop && window.scrollY > 80) {
+      hideTimer = window.setTimeout(() => {
+        if (!pointerNearTop) {
+          header.classList.add('navbar-hidden');
+          header.classList.remove('navbar-revealed', 'navbar-controls-only');
+        }
+      }, 1400);
+    }
+  };
+
+  const hide = () => {
+    if (window.scrollY > 80 && !pointerNearTop) {
+      header.classList.add('navbar-hidden');
+      header.classList.remove('navbar-revealed', 'navbar-controls-only');
+    }
+  };
+
+  window.addEventListener('scroll', () => {
+    const currentY = window.scrollY;
+    if (currentY <= 80) {
+      if (hideTimer) window.clearTimeout(hideTimer);
+      header.classList.remove('navbar-hidden', 'navbar-controls-only');
+      header.classList.add('navbar-revealed');
+    } else if (currentY > lastScrollY + 2) {
+      hide();
+    }
+    lastScrollY = currentY;
+  }, { passive: true });
+
+  document.addEventListener('mousemove', event => {
+    pointerNearTop = event.clientY <= 90;
+    if (pointerNearTop) reveal();
+    else if (window.scrollY > 80) {
+      if (hideTimer) window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(hide, 650);
+    }
+  }, { passive: true });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Tab' && window.scrollY > 80) reveal();
+  });
+
+  // Keep the navbar visible at the top on initial load.
+  if (window.scrollY > 80) hide();
 })();
 
 </script>

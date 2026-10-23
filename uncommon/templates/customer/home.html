@@ -255,13 +255,9 @@
             .footer-bottom { flex-direction:column; }
         }
         @media (prefers-reduced-motion:reduce) {
-            html { scroll-behavior:auto; }
-            *,*::before,*::after { transition:none !important; }
+            html { scroll-behavior:smooth; }
         }
-        .btn {
-                font-size: 9px;
-                padding: 8px 11px;
-            }
+        /* Restored full editorial button proportions */
 
 /* ===== Compact premium navbar ===== */
 
@@ -709,649 +705,1712 @@
     }
 }
 
-    
-/* Real product actions on homepage cards */
-.product-image-wrap { position:relative; }
-.home-wishlist-form { position:absolute; top:12px; right:12px; z-index:4; margin:0; }
-.home-wishlist-button { width:42px; height:42px; display:grid; place-items:center; border:1px solid #DED5C5; border-radius:50%; background:#FFFCF7; color:#241E14; font:27px/1 Arial,sans-serif; cursor:pointer; box-shadow:0 2px 8px rgba(36,30,20,.08); transition:transform .2s,color .2s,border-color .2s; }
-.home-wishlist-button:hover { color:#8B3028; border-color:#8B3028; transform:scale(1.07); }
-.home-product-actions { display:grid; grid-template-columns:1fr; gap:8px; padding:0 19px 19px; }
-.home-add-to-bag { width:100%; min-height:44px; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border:1px solid var(--forest); background:var(--forest); color:var(--cream); font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; cursor:pointer; transition:background .2s,color .2s,border-color .2s; }
-.home-add-to-bag:hover:not(:disabled) { background:var(--gold); border-color:var(--gold); color:var(--ink); }
-.home-add-to-bag:disabled { opacity:.55; cursor:not-allowed; }
-.home-add-to-bag .button-arrow { font-size:15px; }
-.home-product-view { display:block; color:var(--ochre); font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
-.home-product-view:hover { color:var(--ink); }
-.home-toast { position:fixed; right:22px; bottom:22px; z-index:100100; display:flex; align-items:center; gap:12px; width:min(430px,calc(100vw - 28px)); padding:16px; border:1px solid var(--border); border-top:3px solid var(--gold); background:var(--card); box-shadow:0 16px 50px #241e1426; opacity:0; visibility:hidden; transform:translateY(12px); transition:opacity .22s,transform .22s,visibility .22s; }
-.home-toast.show { opacity:1; visibility:visible; transform:translateY(0); }
-.home-toast.error { border-top-color:#8A3027; }
-.home-toast-icon { width:32px; height:32px; flex:0 0 auto; display:grid; place-items:center; border-radius:50%; background:var(--forest); color:white; }
-.home-toast.error .home-toast-icon { background:#8A3027; }
-.home-toast-copy { display:grid; gap:4px; min-width:0; flex:1; }
-.home-toast-copy strong { font:15px var(--serif); }
-.home-toast-copy span { color:var(--muted); font:10px/1.6 var(--mono); overflow-wrap:anywhere; }
-.home-toast-link { color:var(--ink); font:9px var(--mono); white-space:nowrap; border-bottom:1px solid var(--gold); padding-bottom:3px; }
-.home-toast-close { border:0; background:transparent; color:var(--muted); font-size:20px; cursor:pointer; align-self:flex-start; }
-@media(max-width:520px) { .home-product-actions { padding:0 14px 14px; } .home-toast { right:14px; bottom:14px; } }
 
-
-/* Exact animated logo reveal shared with the UNCOMMON homepage */
-.site-loader { gap:0; }
-.site-loader .preloader-content { display:flex; flex-direction:column; align-items:center; gap:24px; }
-.site-loader .preloader-logo { display:block; width:min(360px,84vw); height:auto; overflow:visible; }
-.site-loader .uc-monogram-shadow { filter:drop-shadow(3px 5px 5px rgba(0,0,0,.16)); }
-.site-loader .uc-fill { fill:#121212; fill-rule:evenodd; }
-.site-loader .uc-cutout-band { fill:#efede0; transform-origin:256px 144px; animation:ucBandSlice 2.6s cubic-bezier(.22,1,.36,1) forwards; }
-.site-loader .uc-group-c { animation:ucSlideC 2.6s cubic-bezier(.22,1,.36,1) forwards; }
-.site-loader .uc-group-u { animation:ucSlideU 2.6s cubic-bezier(.22,1,.36,1) forwards; }
-.site-loader .uc-bars { transform-origin:256px 144px; animation:ucBarsExpand 2.6s cubic-bezier(.22,1,.36,1) forwards; }
-.site-loader .uc-wordmark { transform-origin:256px 144px; animation:ucWordmarkReveal 2.6s cubic-bezier(.22,1,.36,1) forwards; }
-.site-loader .preloader-bar { width:140px; height:3px; background:rgba(18,18,18,.10); border-radius:99px; overflow:hidden; }
-.site-loader .preloader-progress { height:100%; width:40%; background:#8c6d46; border-radius:99px; animation:barProgress 1.4s ease-in-out infinite; }
-.site-loader .site-loader-label { color:#6F6350; font:9px var(--mono); letter-spacing:.2em; text-transform:uppercase; }
-@keyframes ucSlideC { 0%{opacity:0;transform:translateX(36px)} 16%{opacity:1;transform:translateX(28px)} 68%,100%{opacity:1;transform:translateX(0)} }
-@keyframes ucSlideU { 0%,5%{opacity:0;transform:translateX(-36px)} 20%{opacity:.55;transform:translateX(-26px)} 38%{opacity:1;transform:translateX(-14px)} 68%,100%{opacity:1;transform:translateX(0)} }
-@keyframes ucBandSlice { 0%,14%{transform:scaleY(0) scaleX(.35);opacity:0} 28%,100%{transform:scaleY(1) scaleX(1);opacity:1} }
-@keyframes ucBarsExpand { 0%,16%{opacity:0;transform:scaleX(.15)} 34%,100%{opacity:1;transform:scaleX(1)} }
-@keyframes ucWordmarkReveal { 0%,18%{opacity:0;transform:translateY(2px) scale(.97)} 36%,100%{opacity:1;transform:translateY(0) scale(1)} }
-@keyframes barProgress { 0%{transform:translateX(-100%)} 100%{transform:translateX(300%)} }
-@media(prefers-reduced-motion:reduce) {
-  .site-loader .uc-group-c,.site-loader .uc-group-u,.site-loader .uc-cutout-band,.site-loader .uc-bars,.site-loader .uc-wordmark,.site-loader .preloader-progress { animation:none !important; }
-}
-
-
-/* Shared luxury door-close page transition */
-.page-door-transition{position:fixed;inset:0;z-index:1000000;pointer-events:none;visibility:hidden;overflow:hidden}
-.page-door-transition .door-panel{position:absolute;top:0;bottom:0;width:50.2%;background:#efede0;transition:transform .72s cubic-bezier(.77,0,.18,1);will-change:transform}
-.page-door-transition .door-panel.left{left:0;transform:translateX(-102%);border-right:1px solid rgba(160,118,58,.22)}
-.page-door-transition .door-panel.right{right:0;transform:translateX(102%);border-left:1px solid rgba(160,118,58,.22)}
-.page-door-transition .door-center-mark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.86);opacity:0;z-index:2;color:#241e14;font:10px var(--mono,monospace);letter-spacing:.28em;text-transform:uppercase;transition:opacity .22s ease .28s,transform .4s ease .25s;white-space:nowrap}
-.page-door-transition.is-closing{visibility:visible;pointer-events:auto}
-.page-door-transition.is-closing .door-panel{transform:translateX(0)}
-.page-door-transition.is-closing .door-center-mark{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.site-loader,.site-loader#site-loader,#uncommon-loader{transition:opacity .55s ease,visibility .55s ease}
-.site-loader.is-exiting .preloader-content,#uncommon-loader.is-exiting .preloader-content{animation:brandMoveToNav .72s cubic-bezier(.65,0,.35,1) forwards}
-.site-loader.is-exiting .preloader-bar,.site-loader.is-exiting .site-loader-label,#uncommon-loader.is-exiting .preloader-bar,#uncommon-loader.is-exiting .loader-track,#uncommon-loader.is-exiting .loader-label{opacity:0;transition:opacity .18s ease}
-@keyframes brandMoveToNav{0%{transform:translate(0,0) scale(1);opacity:1}65%{opacity:1}100%{transform:translate(calc(-43vw + 30px),calc(-42vh + 28px)) scale(.22);opacity:.08}}
-@media(max-width:760px){@keyframes brandMoveToNav{0%{transform:translate(0,0) scale(1);opacity:1}65%{opacity:1}100%{transform:translate(calc(-39vw + 22px),calc(-42vh + 24px)) scale(.2);opacity:.05}}}
-@media(prefers-reduced-motion:reduce){.page-door-transition .door-panel,.page-door-transition .door-center-mark{transition:none}.site-loader.is-exiting .preloader-content,#uncommon-loader.is-exiting .preloader-content{animation:none}}
-
-
-
-/* ===== Reference-page editorial finish: nav, cards, footer and motion ===== */
-:root {
-  --bg:#EFEBE1; --card:#FBF8F1; --subtle:#E9E0CD; --border:#D6CCB5;
-  --ink:#241E14; --muted:#6F6350; --gold:#C69C5C; --ochre:#A0763A;
-  --forest:#232E22; --cream:#F5F1E6; --serif:'Libre Caslon Text',Georgia,serif;
-  --sans:'Archivo',Arial,sans-serif; --mono:'IBM Plex Mono',monospace;
-}
-html { scroll-behavior:smooth; }
-body { background:var(--bg); color:var(--ink); font-family:var(--sans); }
-a { text-underline-offset:4px; }
-img { backface-visibility:hidden; }
-.site-header, header {
-  position:sticky; top:0; z-index:500;
-  background:rgba(239,235,225,.94); backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px); border-bottom:1px solid var(--border);
-  transition:background .38s ease,border-color .38s ease,box-shadow .38s ease;
-}
-.site-header.is-scrolled { background:rgba(239,235,225,.78); box-shadow:0 10px 30px #241e140a; }
-.site-header .nav, header .nav {
-  min-height:76px; gap:clamp(14px,2vw,28px);
-}
-.logo { flex-shrink:0; }
-.logo img { object-fit:contain; transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .3s ease; }
-.logo:hover img { transform:scale(1.025); }
-.nav-links a, .section-nav a, .nav-actions a, .bag-nav-link, .back-link {
-  position:relative; transition:color .25s ease,background .25s ease,border-color .25s ease;
-}
-.nav-links a::after, .section-nav a::after {
-  content:""; position:absolute; left:0; right:100%; bottom:4px; height:1px;
-  background:var(--ochre); transition:right .28s cubic-bezier(.22,1,.36,1);
-}
-.nav-links a:hover::after, .section-nav a:hover::after { right:0; }
-.nav-links a:hover, .section-nav a:hover, .back-link:hover { color:var(--ochre); }
-.nav-actions .bag-link, .bag-nav-link {
-  border:1px solid var(--ink); padding:10px 14px; border-radius:12px;
-  transition:transform .25s ease,background .25s ease,color .25s ease;
-}
-.nav-actions .bag-link:hover, .bag-nav-link:hover {
-  background:var(--ink); color:var(--bg); transform:translateY(-1px);
-}
-.nav-toggle, .account-trigger { border-radius:10px; transition:all .25s ease; }
-.hero-copy > .eyebrow,.hero-copy h1,.hero-copy > p,.hero-actions,.hero-note {
-  animation:reference-rise .75s cubic-bezier(.2,.7,.2,1) both;
-}
-.hero-copy > .eyebrow { animation-delay:.08s; }
-.hero-copy h1 { animation-delay:.16s; }
-.hero-copy > p { animation-delay:.24s; }
-.hero-actions { animation-delay:.32s; }
-.hero-note { animation-delay:.4s; }
-@keyframes reference-rise { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
-.room, .product, .process-card, .service-item { transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease,border-color .3s ease; }
-.room { isolation:isolate; }
-.room > img { transition:transform .75s cubic-bezier(.22,1,.36,1),filter .5s ease; }
-.room:hover > img { transform:scale(1.055); filter:saturate(1.05); }
-.product {
-  overflow:hidden; border-radius:14px; border-color:var(--border);
-  transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease,border-color .35s ease;
-}
-.product:hover { transform:translateY(-6px); border-color:#BDA779; box-shadow:0 22px 44px -18px rgba(36,30,20,.18); }
-.product-image, .product img { transition:transform .65s cubic-bezier(.22,1,.36,1),filter .35s ease; }
-.product:hover .product-image, .product:hover img { transform:scale(1.035); filter:saturate(1.04); }
-.product-flag { backdrop-filter:blur(8px); background:rgba(251,248,241,.92); border:1px solid #A0763A55; }
-.product-bottom { border-top:1px solid #A0763A35; }
-.btn, button, .text-link { transition:transform .24s ease,background .24s ease,color .24s ease,border-color .24s ease,box-shadow .24s ease; }
-.btn:hover, .reservation-submit:hover { transform:translateY(-2px); }
-footer { padding:58px 0 28px; }
-.footer-main { gap:44px; padding-bottom:42px; }
-.footer-brand { font:600 27px var(--serif); letter-spacing:.12em; }
-.footer-tagline { margin-top:10px; color:var(--muted); font:9px var(--mono); letter-spacing:.06em; }
-.footer-columns, .footer-grid { display:flex; flex-wrap:wrap; gap:clamp(28px,4vw,58px); }
-.footer-col { display:flex; flex-direction:column; gap:12px; min-width:110px; }
-.footer-col strong { color:var(--ochre); font:9px var(--mono); letter-spacing:.13em; text-transform:uppercase; }
-.footer-col a, .footer-col button { color:var(--muted); transition:color .2s ease,transform .2s ease; }
-.footer-col a:hover, .footer-col button:hover { color:var(--ink); transform:translateX(3px); }
-.footer-bottom { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-top:22px; border-top:1px solid var(--border); color:var(--muted); font:9px var(--mono); letter-spacing:.04em; }
-/* The closing doors match the reference portal instead of a plain wipe. */
-.page-door-transition {
-  --portal-bg:#1B1610; --portal-panel:#231C14; --portal-accent:#C69C5C;
-  position:fixed; inset:0; z-index:1000000; pointer-events:none; visibility:hidden;
-  overflow:hidden; display:flex; align-items:center; justify-content:center;
-}
-.page-door-transition[data-room="HER"] { --portal-bg:#241715; --portal-panel:#2D1D1A; --portal-accent:#D8AD86; }
-.page-door-transition[data-room="RARE"] { --portal-bg:#131B12; --portal-panel:#1B261A; --portal-accent:#E3BA7C; }
-.page-door-transition .door-panel {
-  position:absolute; top:0; bottom:0; width:50.5%; background:var(--portal-panel);
-  will-change:transform; transition:transform .68s cubic-bezier(.76,0,.24,1);
-}
-.page-door-transition .door-panel::before {
-  content:""; position:absolute; inset:26px; border:1px solid rgba(198,156,92,.24); border-radius:14px;
-}
-.page-door-transition .door-panel.left {
-  left:0; transform:translate3d(-102%,0,0); border-right:1px solid var(--portal-accent);
-  background:linear-gradient(135deg,var(--portal-bg),var(--portal-panel));
-}
-.page-door-transition .door-panel.right {
-  right:0; transform:translate3d(102%,0,0); border-left:1px solid var(--portal-accent);
-  background:linear-gradient(225deg,var(--portal-bg),var(--portal-panel));
-}
-.page-door-transition .door-center-mark {
-  position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; gap:10px;
-  width:min(300px,78vw); padding:30px 24px; text-align:center; color:#F5F1E6;
-  background:radial-gradient(circle at 30% 22%,#ffffff14,#0006),var(--portal-panel);
-  border:1px solid var(--portal-accent); box-shadow:0 28px 70px #0007,inset 0 0 0 5px #c69c5c18;
-  opacity:0; transform:scale(.84) translateY(12px);
-  transition:opacity .28s ease .18s,transform .42s cubic-bezier(.22,1,.36,1) .16s;
-  font:10px var(--mono); letter-spacing:.16em; text-transform:uppercase; white-space:normal;
-}
-.page-door-transition .door-center-mark::before {
-  content:"✦"; display:grid; place-items:center; width:52px; height:52px; border:1px dashed var(--portal-accent);
-  border-radius:50%; color:var(--portal-accent); font:22px var(--serif); letter-spacing:0;
-}
-.page-door-transition .door-center-mark::after {
-  content:"A considered collection"; color:#c9c4b4; font:9px var(--mono); letter-spacing:.13em;
-}
-.page-door-transition.is-closing { visibility:visible; pointer-events:auto; }
-.page-door-transition.is-closing .door-panel { transform:translate3d(0,0,0); }
-.page-door-transition.is-closing .door-center-mark { opacity:1; transform:scale(1) translateY(0); }
-.page-door-transition.is-closing::after {
-  content:""; position:absolute; top:0; bottom:0; left:50%; width:2px; z-index:2;
-  background:linear-gradient(180deg,transparent,var(--portal-accent),#fff5df,var(--portal-accent),transparent);
-  box-shadow:0 0 26px 4px #e3ba7c80; opacity:0; animation:door-seam .48s ease .12s forwards;
-}
-@keyframes door-seam { to { opacity:1; } }
-body::after {
-  content:""; position:fixed; inset:0; z-index:9000; pointer-events:none; opacity:.018;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-@media(max-width:760px) {
-  .page-door-transition .door-panel::before { inset:12px; border-radius:10px; }
-  .page-door-transition .door-center-mark { width:min(260px,80vw); padding:24px 18px; }
-  .footer-columns,.footer-grid { width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px 20px; }
-}
-@media(prefers-reduced-motion:reduce) {
-  .room,.product,.product img,.product-image,.nav-links a::after,.section-nav a::after,
-  .page-door-transition .door-panel,.page-door-transition .door-center-mark { transition-duration:.01ms !important; }
-  .hero-copy > * { animation:none !important; }
-}
-
-
-/* Reference-matched architectural double-door close + centered archive plaque */
-.page-door-transition {
-  --portal-bg:#071b10;
-  --portal-panel:#0b2416;
-  --portal-accent:#b89a55;
-  background:#071b10;
-  isolation:isolate;
-}
-.page-door-transition .door-panel {
-  width:50.15%;
-  background:#0b2416;
-  box-shadow:inset 0 0 80px #0003;
-  transition:transform .82s cubic-bezier(.78,0,.18,1);
-}
-.page-door-transition .door-panel::before {
-  inset:18px;
-  border:1px solid rgba(184,154,85,.15);
-  border-radius:0;
-}
-.page-door-transition .door-panel.left {
-  background:linear-gradient(110deg,#06180e 0%,#0c2919 100%);
-  border-right:1px solid rgba(184,154,85,.75);
-}
-.page-door-transition .door-panel.right {
-  background:linear-gradient(250deg,#06180e 0%,#0c2919 100%);
-  border-left:1px solid rgba(184,154,85,.75);
-}
-.page-door-transition .door-center-mark {
-  position:absolute;
-  left:50%; top:50%;
-  width:166px; min-height:118px;
-  box-sizing:border-box;
-  padding:34px 14px 17px;
-  gap:7px;
-  display:flex; align-items:center; justify-content:center;
-  color:#eee8d7;
-  background:linear-gradient(145deg,rgba(21,44,28,.98),rgba(7,24,14,.98));
-  border:1px solid #b89a55;
-  border-radius:2px;
-  box-shadow:0 0 0 5px rgba(184,154,85,.07),0 18px 60px #0008;
-  font:10px var(--serif,Georgia,serif);
-  font-size:20px;
-  letter-spacing:.015em;
-  text-transform:none;
-  white-space:normal;
-  line-height:1.1;
-  opacity:0;
-  transform:translate(-50%,-46%) scale(.92);
-  transition:opacity .32s ease .22s,transform .46s cubic-bezier(.2,.8,.2,1) .2s;
-}
-.page-door-transition .door-center-mark::before {
-  content:"✧";
-  position:absolute;
-  top:10px; left:50%;
-  transform:translateX(-50%);
-  width:28px; height:28px;
-  display:grid; place-items:center;
-  border:1px solid rgba(184,154,85,.8);
-  border-radius:50%;
-  color:#c8ad68;
-  font-size:15px;
-}
-.page-door-transition .door-center-mark::after {
-  content:"A CONSIDERED COLLECTION";
-  position:absolute;
-  bottom:10px; left:0; right:0;
-  color:#c3bda9;
-  font:6px var(--mono,monospace);
-  letter-spacing:.13em;
-  text-align:center;
-}
-.page-door-transition.is-closing .door-center-mark {
-  opacity:1;
-  transform:translate(-50%,-50%) scale(1);
-}
-.page-door-transition.is-closing::after {
-  content:"";
-  position:absolute; top:0; bottom:0; left:50%; width:1px;
-  z-index:2; background:linear-gradient(180deg,transparent,#b89a55 22%,#e7d8a6 50%,#b89a55 78%,transparent);
-  box-shadow:0 0 18px 2px #b89a5540;
-  opacity:0; animation:door-seam .6s ease .12s forwards;
-}
-.page-door-transition[data-room="HER"] { --portal-bg:#211310; --portal-panel:#2a1915; --portal-accent:#d5ad83; background:#211310; }
-.page-door-transition[data-room="HER"] .door-panel.left {background:linear-gradient(110deg,#1b100e,#321e18);}
-.page-door-transition[data-room="HER"] .door-panel.right {background:linear-gradient(250deg,#1b100e,#321e18);}
-.page-door-transition[data-room="HIM"] { --portal-bg:#101c16; --portal-panel:#17291f; --portal-accent:#b89a55; }
-@media(max-width:600px) {
- .page-door-transition .door-panel::before { inset:10px; }
- .page-door-transition .door-center-mark { width:148px; min-height:108px; font-size:18px; }
-}
-
-
-/* Collection-specific architectural doors: brown / oxblood / forest green */
-.page-door-transition[data-room="HIM"] { --portal-bg:#24160f; --portal-panel:#392419; --portal-accent:#c7a46a; background:#24160f; }
-.page-door-transition[data-room="HIM"] .door-panel.left { background:linear-gradient(110deg,#1d120c 0%,#382319 52%,#4a3020 100%); border-right:1px solid rgba(199,164,106,.82); }
-.page-door-transition[data-room="HIM"] .door-panel.right { background:linear-gradient(250deg,#1d120c 0%,#382319 52%,#4a3020 100%); border-left:1px solid rgba(199,164,106,.82); }
-.page-door-transition[data-room="HIM"] .door-panel::before { border-color:rgba(199,164,106,.42); box-shadow:inset 0 0 0 5px rgba(199,164,106,.035); }
-.page-door-transition[data-room="HIM"] .door-center-mark { color:#f2e8d4; background:linear-gradient(145deg,#4b3020,#24160f); border-color:#c7a46a; box-shadow:0 0 0 5px rgba(199,164,106,.10),0 18px 60px #0009; }
-.page-door-transition[data-room="HIM"] .door-center-mark::before { color:#d9b779; border-color:#c7a46a; }
-.page-door-transition[data-room="HIM"].is-closing::after { background:linear-gradient(180deg,transparent,#9b7545 22%,#f1d7a0 50%,#9b7545 78%,transparent); box-shadow:0 0 18px 2px #c7a46a55; }
-
-.page-door-transition[data-room="HER"] { --portal-bg:#260e16; --portal-panel:#3a1421; --portal-accent:#d4a0a6; background:#260e16; }
-.page-door-transition[data-room="HER"] .door-panel.left { background:linear-gradient(110deg,#1c0a10 0%,#35131e 52%,#4b1c2b 100%); border-right:1px solid rgba(212,160,166,.82); }
-.page-door-transition[data-room="HER"] .door-panel.right { background:linear-gradient(250deg,#1c0a10 0%,#35131e 52%,#4b1c2b 100%); border-left:1px solid rgba(212,160,166,.82); }
-.page-door-transition[data-room="HER"] .door-panel::before { border-color:rgba(212,160,166,.42); box-shadow:inset 0 0 0 5px rgba(212,160,166,.035); }
-.page-door-transition[data-room="HER"] .door-center-mark { color:#f6e8e8; background:linear-gradient(145deg,#4b1c2b,#260e16); border-color:#d4a0a6; box-shadow:0 0 0 5px rgba(212,160,166,.10),0 18px 60px #0009; }
-.page-door-transition[data-room="HER"] .door-center-mark::before { color:#e5b8bd; border-color:#d4a0a6; }
-.page-door-transition[data-room="HER"].is-closing::after { background:linear-gradient(180deg,transparent,#a15e70 22%,#f4d5d8 50%,#a15e70 78%,transparent); box-shadow:0 0 18px 2px #d4a0a655; }
-
-.page-door-transition[data-room="RARE"] { --portal-bg:#071b10; --portal-panel:#102a1b; --portal-accent:#c7aa69; background:#071b10; }
-.page-door-transition[data-room="RARE"] .door-panel.left { background:linear-gradient(110deg,#04130b 0%,#0c2919 52%,#173c28 100%); border-right:1px solid rgba(199,170,105,.82); }
-.page-door-transition[data-room="RARE"] .door-panel.right { background:linear-gradient(250deg,#04130b 0%,#0c2919 52%,#173c28 100%); border-left:1px solid rgba(199,170,105,.82); }
-.page-door-transition[data-room="RARE"] .door-panel::before { border-color:rgba(199,170,105,.42); box-shadow:inset 0 0 0 5px rgba(199,170,105,.035); }
-.page-door-transition[data-room="RARE"] .door-center-mark { color:#edf0df; background:linear-gradient(145deg,#173c28,#071b10); border-color:#c7aa69; box-shadow:0 0 0 5px rgba(199,170,105,.10),0 18px 60px #0009; }
-.page-door-transition[data-room="RARE"] .door-center-mark::before { color:#d9c183; border-color:#c7aa69; }
-.page-door-transition[data-room="RARE"].is-closing::after { background:linear-gradient(180deg,transparent,#8c7743 22%,#e7d9a6 50%,#8c7743 78%,transparent); box-shadow:0 0 18px 2px #c7aa6955; }
-
-
-
-/* ===== Screenshot-matched floating luxury navbar ===== */
-.site-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 500 !important;
-  padding: 14px 0 18px;
-  background: rgba(239,235,225,.94) !important;
-  border-bottom: 1px solid rgba(198,156,92,.28) !important;
-  backdrop-filter: blur(18px) saturate(1.08) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
-  transition: padding .38s cubic-bezier(.22,1,.36,1), background .38s ease, box-shadow .38s ease;
-}
-.site-header .nav {
-  width: min(1320px, 100%);
-  min-height: 82px;
-  margin: 0 auto;
-  padding: 10px clamp(20px, 4vw, 52px);
-  display: grid !important;
-  grid-template-columns: minmax(145px, 205px) minmax(0, 1fr) auto;
-  align-items: center;
-  gap: clamp(16px, 2.5vw, 38px);
-  transition: min-height .38s ease, padding .38s ease;
-}
-.site-header .logo { width: clamp(135px, 16vw, 190px); max-width: 100%; }
-.site-header .logo img { max-height: 66px; width: 100%; object-fit: contain; }
-.site-header .nav-links {
-  justify-self: center;
+/* ===== Integrated Preloader & Top-Left Corner Logo Animation ===== */
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #efede0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(16px, 2.3vw, 34px);
-  padding: 14px clamp(18px, 2vw, 28px);
-  border: 1px solid rgba(198,156,92,.38);
-  border-radius: 15px;
-  background: rgba(251,248,241,.78);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 5px 18px rgba(36,30,20,.025);
-  transition: padding .35s ease, gap .35s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.55s;
 }
-.site-header .nav-links > a {
-  position: relative;
-  padding: 7px 0;
-  color: #786b55;
-  font: 9px var(--mono, monospace);
-  letter-spacing: .105em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition: color .25s ease;
+.preloader-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
-.site-header .nav-links > a::after {
-  content: "";
-  position: absolute;
-  left: 0; right: 100%; bottom: 1px;
-  height: 1px;
-  background: var(--ochre, #A0763A);
-  transition: right .3s cubic-bezier(.22,1,.36,1);
-}
-.site-header .nav-links > a:hover { color: var(--ink, #241E14); }
-.site-header .nav-links > a:hover::after { right: 0; }
-.site-header .nav-actions { display:flex; align-items:center; justify-content:flex-end; gap:12px; white-space:nowrap; }
-.site-header .wishlist-link,
-.site-header .bag-link,
-.site-header .account-trigger {
-  min-height: 42px;
-  display: inline-flex;
+.preloader-content {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border: 1px solid rgba(198,156,92,.4);
-  border-radius: 11px;
-  background: rgba(251,248,241,.56);
-  color: var(--muted, #6F6350);
-  font: 9px var(--mono, monospace);
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  transition: transform .28s ease, background .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease;
+  gap: 24px;
 }
-.site-header .wishlist-link:hover,
-.site-header .account-trigger:hover {
-  transform: translateY(-2px); color: var(--ink, #241E14); border-color: var(--gold, #C69C5C);
-  background: #fffdf7; box-shadow: 0 8px 20px rgba(36,30,20,.07);
+.preloader-logo {
+  width: 360px;
+  max-width: 84vw;
+  height: auto;
+  overflow: visible;
 }
-.site-header .bag-link { border-color: var(--ink, #241E14); color: var(--ink, #241E14); background: rgba(251,248,241,.55); }
-.site-header .bag-link:hover { transform: translateY(-2px); background: var(--ink, #241E14); color: var(--bg, #EFEBE1); box-shadow: 0 8px 22px rgba(36,30,20,.12); }
-.site-header .bag-count { transition: transform .25s ease, background .25s ease; }
-.site-header .bag-link:hover .bag-count { transform: scale(1.08); background: var(--cream, #F5F1E6); color: var(--ink, #241E14); }
-.site-header .wishlist-symbol { font-size: 20px; }
-.site-header .nav-toggle { display: none; }
-.site-header.is-scrolled {
-  padding: 5px 0 7px;
-  background: rgba(239,235,225,.84) !important;
-  box-shadow: 0 12px 34px rgba(36,30,20,.08);
-  border-bottom-color: rgba(160,118,58,.32) !important;
+.uc-monogram-shadow {
+  filter: drop-shadow(3px 5px 5px rgba(0, 0, 0, 0.16));
 }
-.site-header.is-scrolled .nav { min-height: 64px; padding-top: 5px; padding-bottom: 5px; }
-.site-header.is-scrolled .logo img { max-height: 52px; }
-.site-header.is-scrolled .nav-links { padding-top: 9px; padding-bottom: 9px; gap: clamp(14px, 2vw, 28px); background: rgba(251,248,241,.9); box-shadow: 0 5px 20px rgba(36,30,20,.045); }
-.site-header.is-scrolled .wishlist-link,
-.site-header.is-scrolled .bag-link,
-.site-header.is-scrolled .account-trigger { min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
-@media (max-width: 1080px) {
-  .site-header .nav { grid-template-columns: minmax(120px,160px) minmax(0,1fr) auto; gap: 14px; padding-inline: 22px; }
-  .site-header .nav-links { gap: 15px; padding-inline: 16px; }
-  .site-header .nav-links > a { font-size: 8px; letter-spacing: .07em; }
-  .site-header .nav-actions { gap: 7px; }
-  .site-header .wishlist-label { display:none; }
-  .site-header .wishlist-link { width: 42px; padding-inline: 8px; }
-  .site-header .account-trigger { max-width: 140px; overflow:hidden; }
+.uc-fill {
+  fill: #121212;
+  fill-rule: evenodd;
+}
+.uc-cutout-band {
+  fill: #efede0;
+  transform-origin: 256px 144px;
+  animation: ucBandSlice 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.uc-group-c {
+  animation: ucSlideC 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.uc-group-u {
+  animation: ucSlideU 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.uc-bars {
+  transform-origin: 256px 144px;
+  animation: ucBarsExpand 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.uc-wordmark {
+  transform-origin: 256px 144px;
+  animation: ucWordmarkReveal 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ucSlideC {
+  0% { opacity: 0; transform: translateX(36px); }
+  16% { opacity: 1; transform: translateX(28px); }
+  68%, 100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes ucSlideU {
+  0%, 5% { opacity: 0; transform: translateX(-36px); }
+  20% { opacity: 0.55; transform: translateX(-26px); }
+  38% { opacity: 1; transform: translateX(-14px); }
+  68%, 100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes ucBandSlice {
+  0%, 14% { transform: scaleY(0) scaleX(0.35); opacity: 0; }
+  28%, 100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+}
+@keyframes ucBarsExpand {
+  0%, 16% { opacity: 0; transform: scaleX(0.15); }
+  34%, 100% { opacity: 1; transform: scaleX(1); }
+}
+@keyframes ucWordmarkReveal {
+  0%, 18% { opacity: 0; transform: translateY(2px) scale(0.97); }
+  36%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.preloader-bar {
+  width: 140px;
+  height: 3px;
+  background: rgba(18, 18, 18, 0.10);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.preloader-progress {
+  height: 100%;
+  width: 40%;
+  background: #8c6d46;
+  border-radius: 99px;
+  animation: barProgress 1.4s ease-in-out infinite;
+}
+@keyframes barProgress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.preloader-overlay {
+  transition: background-color 0.68s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.45s;
+}
+.preloader-logo {
+  transform-origin: center center;
+  will-change: transform, opacity;
+  transition: transform 0.88s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease;
+}
+.preloader-bar {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.preloader-overlay.is-docking {
+  background-color: rgba(239, 237, 224, 0);
+  pointer-events: none;
+}
+.preloader-overlay.is-docking .preloader-bar {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.preloader-overlay.is-docking .uc-group-c,
+.preloader-overlay.is-docking .uc-group-u,
+.preloader-overlay.is-docking .uc-cutout-band,
+.preloader-overlay.is-docking .uc-bars,
+.preloader-overlay.is-docking .uc-wordmark {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+.site-header .logo {
+  transition: opacity 0.32s ease;
+}
+body.is-loading .site-header .logo {
+  opacity: 0;
+}
+
+/* ===== Squircle Shape for Bag & Profile/Account Controls ===== */
+.nav-actions .bag-link,
+.bag-link,
+.account-trigger {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  corner-shape: squircle;
+  transition: background-color 0.22s ease,
+              color 0.22s ease,
+              border-color 0.22s ease,
+              box-shadow 0.22s ease,
+              transform 0.22s ease;
+}
+.nav-dropdown-menu,
+.account-menu {
+  border-radius: 16px;
+  corner-shape: squircle;
+  overflow: hidden;
+}
+.nav-dropdown-menu > a,
+.dropdown-logout {
+  border-radius: 10px;
+  corner-shape: squircle;
+}
+.nav-toggle {
+  border-radius: 12px;
+  corner-shape: squircle;
 }
 @media (max-width: 760px) {
-  .site-header { padding: 7px 0; }
-  .site-header .nav { min-height: 62px; grid-template-columns: minmax(0,1fr) auto auto; gap: 10px; padding: 5px 16px; }
-  .site-header .logo { width: 128px; }
-  .site-header .logo img { max-height: 49px; }
-  .site-header .nav-toggle { display:inline-flex; grid-column: 3; grid-row: 1; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid var(--border); border-radius:11px; background:rgba(251,248,241,.8); color:var(--ink); }
-  .site-header .nav-actions { grid-column:2; grid-row:1; }
-  .site-header .nav-actions .account-dropdown { display:none; }
-  .site-header .nav-links { display:none; position:absolute; top:calc(100% + 8px); left:12px; right:12px; z-index:550; padding:12px; border-radius:16px; background:rgba(251,248,241,.98); border:1px solid var(--border); box-shadow:0 18px 45px rgba(36,30,20,.13); flex-direction:column; align-items:stretch; gap:2px; }
-  .site-header .nav-links.is-open { display:flex; animation: nav-menu-in .22s ease-out both; }
-  .site-header .nav-links > a { padding:13px 12px; font-size:10px; }
-  .site-header .nav-links > a::after { left:12px; right:100%; bottom:7px; }
-  .site-header .nav-links > a:hover::after { right:calc(100% - 12px); }
-  .site-header .nav-actions .wishlist-link, .site-header .nav-actions .bag-link { min-height:39px; }
-  .site-header.is-scrolled .nav { min-height:56px; }
+  .nav-actions .bag-link,
+  .bag-link,
+  .account-trigger {
+    min-height: 39px;
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
 }
 @media (max-width: 420px) {
-  .site-header .logo { width: 108px; }
-  .site-header .nav { padding-inline: 12px; gap: 7px; }
-  .site-header .nav-actions { gap: 6px; }
-  .site-header .nav-actions .wishlist-link { display:none; }
-  .site-header .nav-actions .bag-link { padding-inline: 10px; }
+  .nav-actions .bag-link,
+  .bag-link,
+  .account-trigger {
+    border-radius: 11px;
+  }
 }
 
-
-
-/* ===== Strong frosted-glass navbar while scrolling ===== */
+/* ===== Scroll-Triggered Transparent Navbar (Zero Layout Shift) ===== */
+.site-header {
+  background-color: rgba(239, 235, 225, var(--nav-bg-alpha, 0.96));
+  backdrop-filter: blur(var(--nav-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--nav-blur, 16px));
+  border-bottom: 1px solid rgba(214, 204, 181, var(--nav-border-alpha, 1));
+  transition: background-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              border-bottom-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              -webkit-backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: background-color, border-bottom-color, backdrop-filter;
+}
 .site-header.is-scrolled {
-  background: rgba(239, 235, 225, 0.48) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(155%) !important;
-  backdrop-filter: blur(24px) saturate(155%) !important;
-  border-bottom: 1px solid rgba(214, 204, 181, 0.42) !important;
-  box-shadow: 0 12px 36px rgba(36, 30, 20, 0.055) !important;
+  --nav-bg-alpha: 0;
+  --nav-blur: 0px;
+  --nav-border-alpha: 0;
+  background-color: transparent;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  border-bottom-color: transparent;
 }
-.site-header.is-scrolled .nav-links {
-  background: rgba(251, 248, 241, 0.34) !important;
-  -webkit-backdrop-filter: blur(22px) saturate(145%);
-  backdrop-filter: blur(22px) saturate(145%);
-  border: 1px solid rgba(255, 253, 247, 0.58);
-  box-shadow: 0 8px 24px rgba(36, 30, 20, 0.035) !important;
+/* Ensure preloader and navbar animations work in preview even if OS reduced-motion is set */
+.preloader-overlay,
+.preloader-logo,
+.preloader-bar,
+.preloader-progress,
+.uc-group-c,
+.uc-group-u,
+.uc-cutout-band,
+.uc-bars,
+.uc-wordmark {
+  animation-play-state: running !important;
+}
+.preloader-overlay {
+  transition: background-color 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.48s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.48s !important;
+}
+.preloader-logo {
+  transition: transform 0.92s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.38s ease !important;
+}
+.preloader-bar {
+  transition: opacity 0.28s ease, transform 0.28s ease !important;
+}
+.site-header {
+  transition: background-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              border-bottom-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              -webkit-backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.site-header .logo svg.nav-logo-svg-fallback {
+  display: block;
+  width: 100%;
+  height: 76px;
+  overflow: visible;
+}
+@media (max-width: 760px) {
+  .site-header .logo svg.nav-logo-svg-fallback {
+    height: 64px;
+  }
+}
+@media (max-width: 420px) {
+  .site-header .logo svg.nav-logo-svg-fallback {
+    height: 56px;
+  }
+}
+footer .footer-brand {
+  display: inline-flex;
+  align-items: center;
+  width: clamp(165px, 17vw, 215px);
+  letter-spacing: normal;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+}
+footer .footer-brand:hover {
+  transform: translateY(-1px);
+}
+footer .footer-brand img,
+footer .footer-brand svg.footer-logo-svg-fallback {
+  display: block;
+  width: 100%;
+  height: 68px;
+  max-height: none;
+  object-fit: contain;
+  overflow: visible;
+}
+@media (max-width: 760px) {
+  footer .footer-brand {
+    width: 155px;
+  }
+  footer .footer-brand img,
+  footer .footer-brand svg.footer-logo-svg-fallback {
+    height: 60px;
+  }
+}
+
+
+/* ===== Premium Editorial Polish, Tactile Grain & Micro-Interactions ===== */
+
+/* Subtle archival cotton paper grain overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0.026;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Unified squircle silhouette across Wishlist, Bag, and Account controls */
+.nav-actions .wishlist-link,
+.wishlist-link {
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  corner-shape: squircle;
+  background: rgba(251, 248, 241, 0.45);
+  transition: background-color 0.25s ease,
+              border-color 0.25s ease,
+              color 0.25s ease,
+              transform 0.22s ease,
+              box-shadow 0.25s ease;
+}
+.nav-actions .wishlist-link:hover,
+.wishlist-link:hover {
+  border-color: var(--ochre);
+  background: var(--card);
+  color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -10px rgba(36, 30, 20, 0.18);
+}
+.wishlist-symbol {
+  font-size: 16px !important;
+  line-height: 1 !important;
+  color: var(--ochre);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.wishlist-link:hover .wishlist-symbol {
+  transform: scale(1.15);
+}
+.nav-actions .bag-link:hover,
+.bag-link:hover,
+.account-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -10px rgba(36, 30, 20, 0.22);
+}
+
+/* Hide section links ("The Rooms", "Services", "How It Works", "The Hundred") while scrolling;
+   reveal them when the cursor moves over the navbar and hide again on cursor leave or scroll resume */
+@media (min-width: 761px) {
+  .site-header .nav-links {
+    padding: 4px 18px;
+    border-radius: 16px;
+    corner-shape: squircle;
+    border: 1px solid transparent;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                backdrop-filter 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                padding 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                margin 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+  .site-header.is-scrolled:not(.is-nav-hovered) .nav-links {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(-8px) !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+  }
+  .site-header.is-scrolled.is-nav-hovered .nav-links {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+    background-color: rgba(251, 248, 241, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-color: rgba(214, 204, 181, 0.78);
+    box-shadow: 0 10px 28px -12px rgba(36, 30, 20, 0.16);
+  }
+}
+@media (max-width: 1050px) and (min-width: 761px) {
+  .site-header .nav-links {
+    border-top-color: rgba(214, 204, 181, var(--nav-border-alpha, 1));
+    border-radius: 0;
+  }
+  .site-header.is-scrolled:not(.is-nav-hovered) .nav-links {
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    border-width: 0 !important;
+    overflow: hidden !important;
+  }
+  .site-header.is-scrolled.is-nav-hovered .nav-links {
+    justify-self: center;
+    width: fit-content;
+    max-height: 60px;
+    padding: 4px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(214, 204, 181, 0.78);
+  }
 }
 .site-header.is-scrolled .wishlist-link,
-.site-header.is-scrolled .bag-link,
 .site-header.is-scrolled .account-trigger {
-  background: rgba(251, 248, 241, 0.32) !important;
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  border-color: rgba(160, 118, 58, 0.36);
+  background-color: rgba(251, 248, 241, 0.86);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(214, 204, 181, 0.85);
+  box-shadow: 0 10px 24px -12px rgba(36, 30, 20, 0.14);
 }
 .site-header.is-scrolled .bag-link {
-  background: rgba(251, 248, 241, 0.28) !important;
-  border-color: rgba(36, 30, 20, 0.55) !important;
+  background-color: rgba(251, 248, 241, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 24px -12px rgba(36, 30, 20, 0.16);
 }
-.site-header.is-scrolled .nav-toggle {
-  background: rgba(251, 248, 241, 0.32) !important;
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-}
-@supports not ((backdrop-filter: blur(1px))) {
-  .site-header.is-scrolled { background: rgba(239, 235, 225, 0.88) !important; }
+.site-header.is-scrolled .bag-link:hover {
+  background-color: var(--ink);
+  color: var(--bg);
 }
 
+/* Refined squircle buttons across hero and sections */
+.btn,
+.reservation-submit,
+.reserve-close {
+  border-radius: 14px;
+  corner-shape: squircle;
+  transition: background-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn:hover,
+.reservation-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -12px rgba(36, 30, 20, 0.28);
+}
 
+/* Cohesive squircle framing on cards, rooms, imagery, and dialogs */
+.hero-image {
+  border-radius: 18px;
+  corner-shape: squircle;
+  box-shadow: 0 26px 55px -24px rgba(36, 30, 20, 0.28);
+}
+.hero-inset {
+  border-radius: 14px;
+  corner-shape: squircle;
+}
+.manifesto-images img {
+  border-radius: 14px;
+  corner-shape: squircle;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.6s ease;
+}
+.manifesto-images img:hover {
+  transform: translateY(-4px) scale(1.015);
+}
+.room {
+  border-radius: 18px;
+  corner-shape: squircle;
+  border: 1px solid rgba(198, 156, 92, 0.22);
+  box-shadow: 0 22px 48px -22px rgba(20, 24, 13, 0.36);
+}
+.room-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.25s ease, color 0.25s ease;
+}
+.room:hover .room-link {
+  gap: 11px;
+  color: #f3d29b;
+}
 
-/* FINAL NAVBAR FIX: on scroll show only the compact navigation contents,
-   not a full-width coloured header strip or empty vertical space. */
-.site-header {
-  background: transparent !important;
-  border-bottom: 0 !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  transition: padding .3s ease !important;
+/* Archive plate styling for product cards */
+.product {
+  border-radius: 16px;
+  corner-shape: squircle;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease;
 }
-.site-header .nav {
-  width: min(1440px, 100%);
-  min-height: 0 !important;
-  margin: 0 auto;
-  padding: 14px clamp(18px, 4vw, 54px) !important;
-  gap: clamp(12px, 2vw, 28px) !important;
-  transition: padding .3s ease, gap .3s ease !important;
+.product:hover {
+  transform: translateY(-6px);
+  border-color: rgba(160, 118, 58, 0.55);
+  box-shadow: 0 22px 44px -18px rgba(36, 30, 20, 0.16);
 }
-.site-header.is-scrolled {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
+.product-flag {
+  border-radius: 8px;
+  corner-shape: squircle;
+  backdrop-filter: blur(8px);
+  background: rgba(251, 248, 241, 0.92);
+  border: 1px solid rgba(160, 118, 58, 0.3);
 }
-.site-header.is-scrolled .nav {
-  padding-top: 9px !important;
-  padding-bottom: 9px !important;
+.product-bottom {
+  border-top: 1px solid rgba(160, 118, 58, 0.24);
 }
-/* The glass belongs only to the actual navigation links and controls. */
-.site-header .nav-links {
-  padding: 7px 18px;
-  border: 1px solid rgba(198,156,92,.28);
-  border-radius: 15px;
-  background: rgba(251,248,241,.64);
-  backdrop-filter: blur(18px) saturate(145%);
-  -webkit-backdrop-filter: blur(18px) saturate(145%);
-  box-shadow: 0 8px 26px rgba(36,30,20,.045), inset 0 1px 0 rgba(255,255,255,.55);
-  transition: padding .3s ease, background .3s ease, border-color .3s ease, box-shadow .3s ease;
+.product-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.site-header.is-scrolled .nav-links {
-  padding: 5px 16px;
-  background: rgba(251,248,241,.48);
-  border-color: rgba(198,156,92,.34);
-  box-shadow: 0 8px 26px rgba(36,30,20,.07), inset 0 1px 0 rgba(255,255,255,.5);
+.product-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ochre);
+  box-shadow: 0 0 0 3px rgba(160, 118, 58, 0.16);
 }
-.site-header .nav-actions .wishlist-link,
-.site-header .nav-actions .bag-link,
-.site-header .nav-actions .account-trigger,
-.site-header .nav-actions .register-link {
+
+/* Double-ringed embossed brass medallion for .number-seal */
+.number-seal {
+  background: radial-gradient(circle at 30% 26%, #E8CA8D 0%, #C69C5C 42%, #9A7035 78%, #775524 100%);
+  box-shadow: 0 20px 42px -12px rgba(40, 25, 10, 0.52),
+              inset 0 0 0 2px rgba(255, 250, 238, 0.42),
+              inset 0 0 0 7px rgba(44, 28, 12, 0.22);
+  transform: rotate(calc(-8deg + var(--seal-rotate, 0deg)));
+  transition: transform 0.25s ease-out;
+}
+
+/* Interactive editorial service rows */
+.service-item {
+  padding: 21px 8px;
+  transition: padding 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.3s ease,
+              border-color 0.3s ease;
+}
+.service-item:hover {
+  padding-left: 16px;
+  padding-right: 16px;
+  border-bottom-color: var(--ochre);
+  background: linear-gradient(90deg, rgba(198, 156, 92, 0.11), rgba(198, 156, 92, 0.02) 70%, transparent);
+}
+.service-item strong {
+  transition: color 0.25s ease;
+}
+.service-item:hover strong {
+  color: var(--ochre);
+}
+
+/* Process grid and The Hundred vault ledger */
+.process-grid {
+  border-radius: 18px;
+  corner-shape: squircle;
+  overflow: hidden;
+  box-shadow: 0 18px 40px -22px rgba(36, 30, 20, 0.1);
+}
+.process-card {
+  transition: background-color 0.3s ease;
+}
+.process-card:hover {
+  background-color: #FEFCF7;
+}
+.hundred-card {
+  border-radius: 18px;
+  corner-shape: squircle;
+  border: 1px solid rgba(198, 156, 92, 0.38);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+              0 26px 60px -24px rgba(0, 0, 0, 0.42);
+}
+.reserve-dialog {
+  border-radius: 24px;
+  corner-shape: squircle;
+}
+.reservation-field input,
+.reservation-field select,
+.reservation-field textarea {
   border-radius: 12px;
-  background: rgba(251,248,241,.60);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border-color: rgba(198,156,92,.35);
-  box-shadow: 0 5px 18px rgba(36,30,20,.035), inset 0 1px 0 rgba(255,255,255,.55);
-  transition: padding .3s ease, background .25s ease, border-color .25s ease, transform .25s ease;
+  corner-shape: squircle;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.site-header .nav-actions .wishlist-link { padding: 10px 14px; }
-.site-header .nav-actions .account-trigger { padding: 10px 12px; }
-.site-header.is-scrolled .nav-actions .wishlist-link,
-.site-header.is-scrolled .nav-actions .bag-link,
-.site-header.is-scrolled .nav-actions .account-trigger,
-.site-header.is-scrolled .nav-actions .register-link { padding-top: 8px; padding-bottom: 8px; }
-.site-header .nav-actions .bag-link { background: rgba(251,248,241,.68); }
-.site-header .nav-actions .register-link { background: rgba(36,30,20,.92); color: var(--bg); }
-.site-header .logo img { transition: width .3s ease, max-height .3s ease, transform .3s ease; }
-.site-header.is-scrolled .logo img { max-height: 48px; }
-@media (max-width: 900px) {
-  .site-header .nav { padding-left: 18px !important; padding-right: 18px !important; }
-  .site-header .nav-links { gap: 13px; padding-inline: 12px; }
+.reservation-field input:focus,
+.reservation-field select:focus,
+.reservation-field textarea:focus {
+  box-shadow: 0 0 0 3px rgba(198, 156, 92, 0.2);
 }
-@media (max-width: 680px) {
-  .site-header, .site-header.is-scrolled { background: transparent !important; }
-  .site-header .nav { gap: 9px !important; padding: 8px 12px !important; }
-  .site-header .nav-links { padding: 6px 10px; }
-  .site-header.is-scrolled .nav-links { padding: 5px 9px; }
+.success-card {
+  border-radius: 22px;
+  corner-shape: squircle;
+}
+
+/* Staggered hero & scroll-reveal choreography */
+.hero-copy > *,
+.hero-art {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+body.is-loading .hero-copy > *,
+body.is-loading .hero-art {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.hero-copy > :nth-child(1) { transition-delay: 0.06s; }
+.hero-copy > :nth-child(2) { transition-delay: 0.14s; }
+.hero-copy > :nth-child(3) { transition-delay: 0.22s; }
+.hero-copy > :nth-child(4) { transition-delay: 0.30s; }
+.hero-copy > :nth-child(5) { transition-delay: 0.38s; }
+.hero-art { transition-delay: 0.18s; }
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 
-/* VIDEO MATCH: when scrolling, the header wrapper collapses to zero height;
-   only the logo, link capsule, and action controls remain as floating glass. */
-.site-header {
-  height:auto !important;
-  min-height:0 !important;
-  overflow:visible !important;
-}
-.site-header .nav {
-  position:relative !important;
-  min-height:0 !important;
-}
-.site-header.is-scrolled {
-  position:fixed !important;
-  top:0 !important; left:0 !important; right:0 !important;
-  height:0 !important;
-  min-height:0 !important;
-  padding:0 !important;
-  overflow:visible !important;
-  background:transparent !important;
-  border:0 !important; box-shadow:none !important;
-  pointer-events:none !important;
-}
-.site-header.is-scrolled .nav {
-  width:min(1440px,100%) !important;
-  min-height:0 !important;
-  margin:0 auto !important;
-  padding:12px clamp(18px,4vw,54px) !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  gap:clamp(12px,2vw,28px) !important;
-  pointer-events:none !important;
-}
-.site-header.is-scrolled .nav > * { pointer-events:auto !important; }
-.site-header.is-scrolled .logo {
-  padding:5px 9px !important;
-  border-radius:13px !important;
-  background:rgba(251,248,241,.52) !important;
-  border:1px solid rgba(255,255,255,.45) !important;
-  backdrop-filter:blur(18px) saturate(150%) !important;
-  -webkit-backdrop-filter:blur(18px) saturate(150%) !important;
-  box-shadow:0 8px 24px rgba(20,24,16,.08), inset 0 1px 0 rgba(255,255,255,.5) !important;
-}
-.site-header.is-scrolled .nav-links,
-.site-header.is-scrolled .nav-actions .wishlist-link,
-.site-header.is-scrolled .nav-actions .bag-link,
-.site-header.is-scrolled .nav-actions .account-trigger,
-.site-header.is-scrolled .nav-actions .register-link {
-  background:rgba(251,248,241,.48) !important;
-  backdrop-filter:blur(20px) saturate(155%) !important;
-  -webkit-backdrop-filter:blur(20px) saturate(155%) !important;
-  border-color:rgba(255,255,255,.48) !important;
-  box-shadow:0 8px 26px rgba(20,24,16,.08), inset 0 1px 0 rgba(255,255,255,.55) !important;
-}
-@media(max-width:680px) {
- .site-header.is-scrolled .nav { padding:8px 12px !important; gap:8px !important; }
- .site-header.is-scrolled .logo { padding:4px 6px !important; }
+/* ===== Full-Page Editorial Scrolling Animation Suite ===== */
+
+/* Top burnished-gold scroll progress bar along the header top edge (zero layout shift) */
+.site-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ochre), var(--gold), #E8CA8D);
+  transform: scaleX(var(--page-scroll-progress, 0));
+  transform-origin: left center;
+  transition: transform 0.1s linear;
+  pointer-events: none;
+  z-index: 130;
 }
 
-</style>
+/* Active scroll-spy state for navigation links */
+.nav-links > a.is-active-section {
+  color: var(--ink);
+}
+.nav-links > a.is-active-section::after {
+  right: 0;
+}
+
+/* Continuous scroll-scrubbed parallax on Hero imagery & seal */
+.hero-image {
+  will-change: transform;
+  transform: translate3d(0, var(--hero-img-y, 0px), 0) scale(var(--hero-img-scale, 1));
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+.hero-inset {
+  will-change: transform;
+  transform: translate3d(0, var(--hero-inset-y, 0px), 0);
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero-copy {
+  will-change: transform, opacity;
+  transform: translate3d(0, var(--hero-copy-y, 0px), 0);
+}
+
+/* Continuous internal image parallax inside The Rooms & Manifesto gallery */
+.room > img {
+  will-change: transform;
+  transform: translate3d(0, var(--room-img-y, 0px), 0) scale(1.08);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+}
+.room:hover > img {
+  transform: translate3d(0, var(--room-img-y, 0px), 0) scale(1.13);
+}
+.manifesto-images img {
+  will-change: transform, opacity;
+}
+
+/* Eyebrow line-draw animation on scroll */
+.eyebrow::before {
+  transform-origin: left center;
+  transform: scaleX(1);
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+.reveal-on-scroll.eyebrow::before,
+.reveal-on-scroll .eyebrow::before {
+  transform: scaleX(0.15);
+}
+.reveal-on-scroll.is-revealed.eyebrow::before,
+.reveal-on-scroll.is-revealed .eyebrow::before {
+  transform: scaleX(1);
+}
+
+/* Directional & 3D scroll-reveal choreography variants */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0);
+  transition: opacity 0.82s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.82s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  will-change: opacity, transform;
+}
+.reveal-on-scroll.reveal-scale {
+  transform: translate3d(0, 42px, 0) scale(0.955);
+}
+.reveal-on-scroll.reveal-left {
+  transform: translate3d(-34px, 0, 0);
+}
+.reveal-on-scroll.reveal-right {
+  transform: translate3d(34px, 0, 0);
+}
+.reveal-on-scroll.reveal-row {
+  transform: translate3d(-18px, 12px, 0);
+}
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+    
+/* ===== Interactive Room Threshold Animation & Room Landing Experience (Him / Her / The Hundred) ===== */
+
+/* Architectural Double-Door Portal Overlay */
+.room-portal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95000;
+  pointer-events: none;
+  visibility: hidden;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --portal-bg: #1B1610;
+  --portal-panel: #221C14;
+  --portal-accent: #C69C5C;
+  --portal-text: #F5F1E6;
+}
+.room-portal-overlay[data-portal-room="HIM"] {
+  --portal-bg: #1B1610;
+  --portal-panel: #231C14;
+  --portal-accent: #C69C5C;
+  --portal-text: #F5F1E6;
+}
+.room-portal-overlay[data-portal-room="HER"] {
+  --portal-bg: #241715;
+  --portal-panel: #2D1D1A;
+  --portal-accent: #D8AD86;
+  --portal-text: #FAF3EC;
+}
+.room-portal-overlay[data-portal-room="RARE"] {
+  --portal-bg: #131B12;
+  --portal-panel: #1B261A;
+  --portal-accent: #E3BA7C;
+  --portal-text: #F5F1E6;
+}
+.room-portal-overlay.is-active {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.portal-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background: var(--portal-panel);
+  will-change: transform;
+  transition: transform 0.62s cubic-bezier(0.76, 0, 0.24, 1) !important;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.portal-door::before {
+  content: "";
+  position: absolute;
+  inset: 28px;
+  border: 1px solid rgba(198, 156, 92, 0.24);
+  border-radius: 16px;
+  pointer-events: none;
+}
+.portal-door-left {
+  left: 0;
+  transform: translate3d(-102%, 0, 0);
+  border-right: 1px solid var(--portal-accent);
+  background: linear-gradient(135deg, var(--portal-bg) 0%, var(--portal-panel) 100%);
+}
+.portal-door-right {
+  right: 0;
+  transform: translate3d(102%, 0, 0);
+  border-left: 1px solid var(--portal-accent);
+  background: linear-gradient(225deg, var(--portal-bg) 0%, var(--portal-panel) 100%);
+}
+
+/* Center seam light beam */
+.portal-seam-glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%) scaleY(0);
+  background: linear-gradient(180deg, transparent, var(--portal-accent), #FFF5DF, var(--portal-accent), transparent);
+  box-shadow: 0 0 28px 4px rgba(227, 186, 124, 0.55);
+  opacity: 0;
+  z-index: 3;
+  transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease !important;
+}
+
+/* Central Rotating Brass Key Medallion */
+.portal-medallion {
+  position: relative;
+  z-index: 5;
+  width: min(320px, 84vw);
+  padding: 34px 28px;
+  border-radius: 26px;
+  corner-shape: squircle;
+  background: radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.42)), var(--portal-panel);
+  border: 1px solid var(--portal-accent);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+              inset 0 0 0 6px rgba(198, 156, 92, 0.12);
+  color: var(--portal-text);
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.84) translateY(12px);
+  transition: opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.48s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.portal-ring {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  border: 1px dashed var(--portal-accent);
+  display: grid;
+  place-items: center;
+  position: relative;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.portal-ring::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(227, 186, 124, 0.45);
+}
+.portal-ring-num {
+  font: 500 13px var(--mono);
+  letter-spacing: 0.16em;
+  color: var(--portal-accent);
+}
+.portal-kicker {
+  font: 10px var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--portal-accent);
+  margin-bottom: 8px;
+}
+.portal-title {
+  margin: 0 0 8px;
+  font: 400 clamp(28px, 4.5vw, 38px)/1.08 var(--serif);
+  color: var(--portal-text);
+}
+.portal-subtitle {
+  margin: 0;
+  font: 9px/1.6 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 230, 0.72);
+}
+
+/* Portal states: closing -> unlocking -> opening */
+.room-portal-overlay.is-closing .portal-door-left,
+.room-portal-overlay.is-unlocking .portal-door-left {
+  transform: translate3d(0, 0, 0);
+}
+.room-portal-overlay.is-closing .portal-door-right,
+.room-portal-overlay.is-unlocking .portal-door-right {
+  transform: translate3d(0, 0, 0);
+}
+.room-portal-overlay.is-closing .portal-medallion {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+.room-portal-overlay.is-unlocking .portal-medallion {
+  opacity: 1;
+  transform: scale(1.03) translateY(0);
+}
+.room-portal-overlay.is-unlocking .portal-ring {
+  transform: rotate(180deg) scale(1.08);
+}
+.room-portal-overlay.is-unlocking .portal-seam-glow {
+  opacity: 1;
+  transform: translateX(-50%) scaleY(1);
+}
+.room-portal-overlay.is-opening .portal-door-left {
+  transform: translate3d(-102%, 0, 0);
+}
+.room-portal-overlay.is-opening .portal-door-right {
+  transform: translate3d(102%, 0, 0);
+}
+.room-portal-overlay.is-opening .portal-medallion {
+  opacity: 0;
+  transform: scale(1.12) translateY(-8px);
+}
+.room-portal-overlay.is-opening .portal-seam-glow {
+  opacity: 0;
+  transform: translateX(-50%) scaleY(1.2);
+}
+
+/* Hide main homepage sections while inside a Room view, keeping header & footer intact */
+body.in-room-view > main {
+  display: none !important;
+}
+.room-landing-view {
+  display: none;
+  min-height: 82vh;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: background-color 0.45s ease, color 0.45s ease;
+}
+body.in-room-view .room-landing-view {
+  display: block;
+}
+
+/* Room-specific atmospheric palettes (applied to both the active subnav state and each room section block) */
+.room-landing-view[data-active-room="HIM"],
+.room-section-block[data-room-section="HIM"] {
+  --room-bg: #EFEBE1;
+  --room-card: #FBF8F1;
+  --room-subtle: #E6DEC8;
+  --room-border: #D6CCB5;
+  --room-ink: #241E14;
+  --room-muted: #6F6350;
+  --room-accent: #A0763A;
+  --room-gold: #C69C5C;
+  --room-hero-bg: linear-gradient(135deg, #211B13 0%, #2E251A 55%, #1A150E 100%);
+  --room-hero-text: #F5F1E6;
+  background: var(--room-bg);
+  color: var(--room-ink);
+}
+.room-landing-view[data-active-room="HER"],
+.room-section-block[data-room-section="HER"] {
+  --room-bg: #F6F0E8;
+  --room-card: #FDFBF7;
+  --room-subtle: #EDE1D3;
+  --room-border: #DECBB8;
+  --room-ink: #2A1D1A;
+  --room-muted: #735A53;
+  --room-accent: #9E5A4D;
+  --room-gold: #C89678;
+  --room-hero-bg: linear-gradient(135deg, #32201D 0%, #462D28 55%, #261715 100%);
+  --room-hero-text: #FAF4EE;
+  background: var(--room-bg);
+  color: var(--room-ink);
+}
+.room-landing-view[data-active-room="RARE"],
+.room-section-block[data-room-section="RARE"] {
+  --room-bg: #1B241A;
+  --room-card: #222D21;
+  --room-subtle: #2A3729;
+  --room-border: rgba(198, 156, 92, 0.32);
+  --room-ink: #F5F1E6;
+  --room-muted: #C5BFA8;
+  --room-accent: #E3BA7C;
+  --room-gold: #C69C5C;
+  --room-hero-bg: linear-gradient(135deg, #131A12 0%, #1F2B1E 55%, #10160F 100%);
+  --room-hero-text: #F5F1E6;
+  background: var(--room-bg);
+  color: var(--room-ink);
+}
+.room-section-block {
+  position: relative;
+  border-bottom: 1px solid var(--room-border);
+  scroll-margin-top: calc(var(--site-header-height, 105px) + 68px);
+}
+
+/* Room Sub-Navigation / Threshold Switcher Bar — synced with primary navbar on scroll */
+.room-subnav-bar {
+  background-color: rgba(239, 235, 225, var(--nav-bg-alpha, 0.94));
+  backdrop-filter: blur(var(--nav-blur, 14px));
+  -webkit-backdrop-filter: blur(var(--nav-blur, 14px));
+  border-bottom: 1px solid rgba(214, 204, 181, var(--nav-border-alpha, 1));
+  padding: 12px 0;
+  position: sticky;
+  top: var(--site-header-height, 105px);
+  z-index: 90;
+  transition: background-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              border-bottom-color 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              -webkit-backdrop-filter 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room-subnav-bar.is-scrolled {
+  background-color: transparent !important;
+  backdrop-filter: blur(0px) !important;
+  -webkit-backdrop-filter: blur(0px) !important;
+  border-bottom-color: transparent !important;
+  pointer-events: none;
+}
+.room-subnav-bar.is-scrolled .room-back-btn,
+.room-subnav-bar.is-scrolled .room-switcher-pills,
+.room-subnav-bar.is-scrolled .room-subnav-meta {
+  pointer-events: auto;
+}
+.room-subnav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.room-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid var(--room-border);
+  border-radius: 14px;
+  corner-shape: squircle;
+  background: rgba(251, 248, 241, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #241E14;
+  font: 10px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -12px rgba(36, 30, 20, 0.16);
+  transition: transform 0.22s ease, border-color 0.22s ease, background-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+}
+.room-back-btn:hover {
+  border-color: var(--ochre);
+  background: #FBF8F1;
+  transform: translateX(-3px);
+}
+.room-switcher-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  border-radius: 16px;
+  corner-shape: squircle;
+  background: rgba(233, 224, 205, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(214, 204, 181, 0.85);
+  box-shadow: 0 10px 26px -12px rgba(36, 30, 20, 0.18);
+}
+.room-switch-pill {
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  corner-shape: squircle;
+  background: transparent;
+  color: #6F6350;
+  font: 10px var(--mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease, border-color 0.25s ease;
+}
+.room-switch-pill:hover {
+  color: #241E14;
+}
+.room-switch-pill.is-active {
+  background: #FBF8F1;
+  color: #241E14;
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.22);
+  border-color: #D6CCB5;
+}
+.room-subnav-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 15px;
+  border-radius: 14px;
+  corner-shape: squircle;
+  background: rgba(251, 248, 241, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(214, 204, 181, 0.85);
+  box-shadow: 0 10px 24px -12px rgba(36, 30, 20, 0.16);
+  font: 9px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #A0763A;
+}
+.room-meta-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--room-accent);
+  box-shadow: 0 0 0 3px rgba(198, 156, 92, 0.2);
+}
+
+/* Room Editorial Hero Banner */
+.room-hero {
+  background: var(--room-hero-bg);
+  color: var(--room-hero-text);
+  padding: 68px 0 74px;
+  border-bottom: 1px solid var(--room-border);
+  position: relative;
+  overflow: hidden;
+}
+.room-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 78% 28%, rgba(198, 156, 92, 0.16), transparent 55%);
+  pointer-events: none;
+}
+.room-hero-grid {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 54px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.room-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.room-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--room-gold);
+  font: 10px var(--mono);
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+.room-hero-kicker::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+}
+.room-hero-title {
+  margin: 18px 0 16px;
+  font: 400 clamp(38px, 5vw, 64px)/1.05 var(--serif);
+  letter-spacing: -0.02em;
+  color: var(--room-hero-text);
+}
+.room-hero-desc {
+  max-width: 540px;
+  margin: 0 0 26px;
+  color: rgba(245, 241, 230, 0.82);
+  font-size: 15px;
+  line-height: 1.85;
+}
+.room-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.room-stat-box strong {
+  display: block;
+  font: 400 24px/1.1 var(--serif);
+  color: var(--room-gold);
+}
+.room-stat-box span {
+  display: block;
+  margin-top: 5px;
+  font: 9px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 230, 0.68);
+}
+
+/* Room Hero Visual Plate */
+.room-hero-visual {
+  position: relative;
+  padding-right: 14px;
+}
+.room-hero-img-frame {
+  position: relative;
+  border-radius: 20px;
+  corner-shape: squircle;
+  overflow: hidden;
+  border: 1px solid rgba(198, 156, 92, 0.35);
+  box-shadow: 0 28px 65px -20px rgba(0, 0, 0, 0.55);
+  background: #231E17;
+  height: 390px;
+}
+.room-hero-img-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room-hero-img-frame:hover img {
+  transform: scale(1.045);
+}
+.room-hero-seal {
+  position: absolute;
+  bottom: -16px;
+  left: -20px;
+  width: 114px;
+  height: 114px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #26180A;
+  background: radial-gradient(circle at 30% 26%, #E8CA8D 0%, #C69C5C 44%, #9A7035 80%, #775524 100%);
+  box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.55),
+              inset 0 0 0 2px rgba(255, 250, 238, 0.45),
+              inset 0 0 0 6px rgba(44, 28, 12, 0.22);
+  transform: rotate(-7deg);
+}
+.room-hero-seal strong {
+  font: 600 21px/1 var(--serif);
+}
+.room-hero-seal span {
+  margin-top: 6px;
+  font: 8px var(--mono);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+/* Interactive Filter, Search & Sort Controls */
+.room-catalogue-section {
+  padding: 56px 0 88px;
+}
+.room-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 34px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--room-border);
+}
+.room-category-pills {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.room-cat-pill {
+  min-height: 38px;
+  padding: 8px 15px;
+  border: 1px solid var(--room-border);
+  border-radius: 13px;
+  corner-shape: squircle;
+  background: var(--room-card);
+  color: var(--room-muted);
+  font: 10px var(--mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room-cat-pill:hover {
+  border-color: var(--room-accent);
+  color: var(--room-ink);
+  transform: translateY(-1px);
+}
+.room-cat-pill.is-active {
+  background: var(--room-ink);
+  color: var(--room-bg);
+  border-color: var(--room-ink);
+  box-shadow: 0 10px 22px -12px rgba(0, 0, 0, 0.35);
+}
+.room-landing-view[data-active-room="RARE"] .room-cat-pill.is-active,
+.room-section-block[data-room-section="RARE"] .room-cat-pill.is-active {
+  background: var(--room-gold);
+  color: #1A1610;
+  border-color: var(--room-gold);
+}
+
+.room-search-sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.room-search-input,
+.room-sort-select {
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid var(--room-border);
+  border-radius: 13px;
+  corner-shape: squircle;
+  background: var(--room-card);
+  color: var(--room-ink);
+  font: 11px var(--sans);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.room-search-input {
+  width: 215px;
+}
+.room-search-input::placeholder {
+  color: var(--room-muted);
+}
+.room-search-input:focus,
+.room-sort-select:focus {
+  border-color: var(--room-accent);
+  box-shadow: 0 0 0 3px rgba(198, 156, 92, 0.18);
+}
+
+/* Related Products Grid & Animated Cards */
+.room-products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.room-product-card {
+  background: var(--room-card);
+  border: 1px solid var(--room-border);
+  border-radius: 18px;
+  corner-shape: squircle;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translate3d(0, 28px, 0) scale(0.97);
+  animation: roomCardIn 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.32s ease;
+}
+@keyframes roomCardIn {
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+.room-product-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--room-accent);
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.24);
+}
+.room-card-media {
+  position: relative;
+  height: 305px;
+  overflow: hidden;
+  background: var(--room-subtle);
+  cursor: pointer;
+}
+.room-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room-product-card:hover .room-card-media img {
+  transform: scale(1.05);
+}
+.room-card-badges {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  right: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+.room-serial-pill {
+  padding: 6px 10px;
+  border-radius: 9px;
+  corner-shape: squircle;
+  background: rgba(24, 20, 14, 0.84);
+  backdrop-filter: blur(8px);
+  color: #F5F1E6;
+  border: 1px solid rgba(198, 156, 92, 0.45);
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.room-wish-btn {
+  pointer-events: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  corner-shape: squircle;
+  border: 1px solid rgba(214, 204, 181, 0.75);
+  background: rgba(251, 248, 241, 0.9);
+  backdrop-filter: blur(8px);
+  color: #241E14;
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.room-wish-btn:hover {
+  transform: scale(1.08);
+}
+.room-wish-btn.is-wished {
+  background: #8B3028;
+  border-color: #8B3028;
+  color: #FFF;
+}
+
+.room-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+.room-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: var(--room-accent);
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.room-card-title {
+  margin: 10px 0 8px;
+  font: 400 22px/1.18 var(--serif);
+  color: var(--room-ink);
+  cursor: pointer;
+}
+.room-card-title:hover {
+  color: var(--room-accent);
+}
+.room-card-desc {
+  margin: 0 0 16px;
+  color: var(--room-muted);
+  font-size: 12.5px;
+  line-height: 1.75;
+  flex: 1 1 auto;
+}
+
+/* Scarcity allocation bar inside product card */
+.room-scarcity-wrap {
+  margin-bottom: 15px;
+}
+.room-scarcity-labels {
+  display: flex;
+  justify-content: space-between;
+  font: 8.5px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--room-muted);
+  margin-bottom: 5px;
+}
+.room-scarcity-labels strong {
+  color: var(--room-accent);
+  font-weight: 500;
+}
+.room-scarcity-track {
+  height: 3px;
+  background: rgba(160, 118, 58, 0.18);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.room-scarcity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--room-accent), var(--room-gold));
+  border-radius: 99px;
+}
+
+.room-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--room-border);
+}
+.room-card-price {
+  font: 500 13px var(--mono);
+  color: var(--room-ink);
+}
+.room-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.room-btn-inspect,
+.room-btn-bag {
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  corner-shape: squircle;
+  font: 9px var(--mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.room-btn-inspect {
+  border: 1px solid var(--room-border);
+  background: transparent;
+  color: var(--room-ink);
+}
+.room-btn-inspect:hover {
+  border-color: var(--room-accent);
+  background: var(--room-subtle);
+}
+.room-btn-bag {
+  border: 1px solid var(--room-ink);
+  background: var(--room-ink);
+  color: var(--room-bg);
+}
+.room-landing-view[data-active-room="RARE"] .room-btn-bag,
+.room-section-block[data-room-section="RARE"] .room-btn-bag {
+  border-color: var(--room-gold);
+  background: var(--room-gold);
+  color: #1A1610;
+}
+.room-btn-bag:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+.room-btn-bag.is-held {
+  background: #2E472D;
+  border-color: #2E472D;
+  color: #F5F1E6;
+}
+
+/* Quick-View Product Dossier Modal */
+.room-dossier-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 19, 14, 0.76);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.room-dossier-modal.is-open {
+  display: flex;
+}
+.room-dossier-dialog {
+  width: min(860px, 100%);
+  max-height: min(90vh, 820px);
+  overflow: auto;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid rgba(160, 118, 58, 0.45);
+  border-radius: 24px;
+  corner-shape: squircle;
+  box-shadow: 0 34px 95px rgba(0, 0, 0, 0.45);
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  animation: legalDialogIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.room-dossier-media {
+  position: relative;
+  min-height: 380px;
+  background: var(--subtle);
+}
+.room-dossier-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.room-dossier-content {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.room-dossier-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.room-dossier-title {
+  margin: 4px 0 0;
+  font: 400 clamp(25px, 3.2vw, 33px)/1.12 var(--serif);
+}
+.room-dossier-price {
+  font: 500 16px var(--mono);
+  color: var(--ochre);
+}
+.room-dossier-specs {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.room-dossier-spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+.room-dossier-spec-row span:first-child {
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.room-serial-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 4px;
+}
+.serial-chip {
+  padding: 6px 11px;
+  border-radius: 9px;
+  corner-shape: squircle;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font: 9px var(--mono);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.serial-chip.is-selected {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+/* Editorial Toast Notification */
+.uncommon-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 800;
+  padding: 14px 18px;
+  border-radius: 16px;
+  corner-shape: squircle;
+  background: #1E1912;
+  color: #F5F1E6;
+  border: 1px solid var(--gold);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font: 11px var(--sans);
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.uncommon-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.uncommon-toast-badge {
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: var(--gold);
+  color: #1E1912;
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 960px) {
+  .room-hero-grid,
+  .room-dossier-dialog {
+    grid-template-columns: 1fr;
+  }
+  .room-products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .room-subnav-bar {
+    top: var(--site-header-height, 88px);
+  }
+}
+@media (max-width: 600px) {
+  .room-products-grid {
+    grid-template-columns: 1fr;
+  }
+  .room-switcher-pills {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .room-switch-pill {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 8px 8px;
+  }
+  .room-search-input {
+    width: 100%;
+  }
+}
+
+    </style>
+
+    <!-- Logo-only fix: blend the white pixels of the existing logo PNG into the page background. -->
+    <style id="logo-background-fix">
+      .site-header .logo img,
+      footer .footer-brand img {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        mix-blend-mode: multiply;
+      }
+    </style>
 </head>
 <body class="is-loading">
-<div class="site-loader" id="site-loader" role="status" aria-live="polite" aria-label="Loading UNCOMMON">
-    <div class="preloader-content">
-        <svg viewBox="115 42 282 200" class="preloader-logo" aria-label="UNCOMMEN">
+<!-- Fullscreen UNCOMMEN Preloader -->
+<div id="page-preloader" class="preloader-overlay">
+  <div class="preloader-content">
+    <!-- Custom Animated UNCOMMEN SVG Logo -->
+    <svg viewBox="115 42 282 200" class="preloader-logo" aria-label="UNCOMMEN">
       <!-- 1. Large C + Lower Swash -->
       <g class="uc-group-c uc-monogram-shadow">
         <path class="uc-fill" d="M 298.88 83.19 Q 295.50 83.64 291.88 84.62 Q 288.25 85.61 285.12 86.93 Q 282.00 88.25 277.38 91.17 Q 272.75 94.08 268.90 97.92 Q 265.06 101.75 261.93 106.50 Q 258.81 111.25 257.33 114.51 Q 255.86 117.78 255.19 120.14 Q 254.53 122.50 253.39 129.62 Q 252.25 136.75 252.12 140.50 Q 252.00 144.25 252.25 147.75 Q 252.50 151.25 253.61 157.50 Q 254.72 163.75 255.76 167.21 Q 256.81 170.67 258.15 173.58 Q 259.50 176.50 260.88 178.62 Q 262.25 180.75 266.08 185.17 Q 269.92 189.58 274.46 193.01 Q 279.00 196.44 284.25 198.78 Q 289.50 201.11 293.88 202.25 Q 298.25 203.39 302.00 203.69 Q 305.75 204.00 309.75 203.88 Q 313.75 203.75 318.88 202.97 Q 324.00 202.19 326.25 201.54 Q 328.50 200.89 333.88 198.51 Q 339.25 196.14 340.00 195.44 Q 340.75 194.75 341.07 193.88 Q 341.39 193.00 342.42 184.62 Q 343.44 176.25 343.18 175.71 Q 342.92 175.17 342.53 175.11 L 342.14 175.06 L 340.47 179.15 Q 338.81 183.25 337.06 186.12 Q 335.31 189.00 331.78 192.51 Q 328.25 196.03 325.00 197.71 Q 321.75 199.39 319.75 199.97 Q 317.75 200.56 314.38 200.90 Q 311.00 201.25 307.88 200.94 Q 304.75 200.64 302.62 200.04 Q 300.50 199.44 297.00 197.75 Q 293.50 196.06 291.38 194.57 Q 289.25 193.08 286.40 190.17 Q 283.56 187.25 282.21 185.38 Q 280.86 183.50 278.83 179.88 Q 276.81 176.25 273.92 168.00 Q 271.03 159.75 270.22 155.50 Q 269.42 151.25 269.08 145.38 Q 268.75 139.50 269.19 134.62 Q 269.64 129.75 270.56 125.50 Q 271.47 121.25 273.17 116.12 Q 274.86 111.00 277.11 106.25 Q 279.36 101.50 281.56 98.62 Q 283.75 95.75 287.00 92.88 Q 290.25 90.00 293.12 88.47 Q 296.00 86.94 299.50 86.10 Q 303.00 85.25 306.75 85.26 Q 310.50 85.28 315.00 86.85 Q 319.50 88.42 322.88 90.75 Q 326.25 93.08 327.65 94.43 Q 329.06 95.78 330.94 98.39 Q 332.83 101.00 334.06 103.25 Q 335.28 105.50 336.71 109.61 Q 338.14 113.72 338.57 114.10 L 339.00 114.47 L 339.44 114.11 Q 339.89 113.75 338.99 104.00 Q 338.08 94.25 337.74 92.25 Q 337.39 90.25 336.93 89.62 Q 336.47 89.00 330.24 86.88 Q 324.00 84.75 319.50 83.96 Q 315.00 83.17 308.62 82.96 Q 302.25 82.75 298.88 83.19 Z" />
@@ -1378,14 +2437,14 @@ body::after {
         <path class="uc-fill" d="M 347.94 129.90 Q 347.39 130.06 347.28 130.21 Q 347.17 130.36 347.17 130.56 Q 347.17 130.75 347.81 131.53 Q 348.44 132.31 348.60 132.90 Q 348.75 133.50 348.75 143.38 Q 348.75 153.25 348.58 154.12 Q 348.42 155.00 347.97 155.88 Q 347.53 156.75 347.50 157.08 Q 347.47 157.42 347.57 157.57 Q 347.67 157.72 348.08 157.86 Q 348.50 158.00 349.62 157.99 Q 350.75 157.97 351.04 157.85 Q 351.33 157.72 351.43 157.47 Q 351.53 157.22 351.49 156.99 Q 351.44 156.75 351.01 155.88 Q 350.58 155.00 350.42 154.25 Q 350.25 153.50 350.25 144.88 Q 350.25 136.25 350.33 135.93 Q 350.42 135.61 350.61 135.53 Q 350.81 135.44 351.21 135.72 Q 351.61 136.00 352.75 137.50 Q 353.89 139.00 354.76 140.00 Q 355.64 141.00 356.44 142.11 Q 357.25 143.22 358.10 144.24 Q 358.94 145.25 359.74 146.38 Q 360.53 147.50 362.14 149.50 Q 363.75 151.50 364.50 152.56 Q 365.25 153.61 366.11 154.61 Q 366.97 155.61 367.65 156.56 Q 368.33 157.50 368.79 157.85 Q 369.25 158.19 369.50 158.22 Q 369.75 158.25 369.97 158.17 Q 370.19 158.08 370.44 157.79 Q 370.69 157.50 370.78 157.12 Q 370.86 156.75 370.81 156.00 Q 370.75 155.25 370.75 144.88 Q 370.75 134.50 370.89 133.62 Q 371.03 132.75 371.46 131.76 Q 371.89 130.78 371.85 130.49 Q 371.81 130.19 371.40 130.00 Q 371.00 129.81 370.00 129.78 Q 369.00 129.75 368.58 129.89 Q 368.17 130.03 368.03 130.28 Q 367.89 130.53 367.92 130.76 Q 367.94 131.00 368.32 131.88 Q 368.69 132.75 368.86 133.38 Q 369.03 134.00 369.14 135.38 Q 369.25 136.75 369.21 142.75 Q 369.17 148.75 369.07 149.21 Q 368.97 149.67 368.75 149.79 Q 368.53 149.92 368.32 149.86 Q 368.11 149.81 367.82 149.53 Q 367.53 149.25 363.39 144.00 Q 359.25 138.75 357.18 136.00 Q 355.11 133.25 354.06 132.01 Q 353.00 130.78 352.62 130.49 Q 352.25 130.19 351.88 130.04 Q 351.50 129.89 350.00 129.82 Q 348.50 129.75 347.94 129.90 Z" />
       </g>
     </svg>
-        <div class="preloader-bar" aria-hidden="true"><div class="preloader-progress"></div></div>
-        <div class="site-loader-label">Made with intention</div>
+    <div class="preloader-bar">
+      <div class="preloader-progress"></div>
     </div>
+  </div>
 </div>
-<div class="page-door-transition" id="page-door-transition" aria-hidden="true"><div class="door-panel left"></div><div class="door-panel right"></div><div class="door-center-mark">UNCOMMON · Entering the archive</div></div>
 <header class="site-header">
     <div class="nav">
-        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home"><img src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMON" fetchpriority="high"></a>
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home"></a>
 
         <nav class="nav-links" id="primary-nav" aria-label="Main navigation">
             <a href="#catalogue">The Rooms</a>
@@ -1398,8 +2457,8 @@ body::after {
             <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Wishlist" title="Wishlist">
                 <span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Wishlist</span>
             </a>
-            <a class="bag-link" href="{% url 'bag_view' %}" aria-label="Shopping bag">
-                <span>Bag</span><span class="bag-count" id="home-bag-count">{{ bag_count|default:0 }}</span>
+            <a class="bag-link" href="{{ bag_url|default:'/bag/' }}" aria-label="Shopping bag">
+                <span>Bag</span><span class="bag-count">0</span>
             </a>
             <div class="nav-dropdown account-dropdown">
                 <button type="button" class="account-trigger" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown(this)">
@@ -1409,8 +2468,8 @@ body::after {
                 <div class="nav-dropdown-menu account-menu">
                     {% if customer %}
                         <div class="account-menu-heading">Signed in as {{ customer.name }}</div>
-                        <a href="{% url 'customer_profile' %}">My Profile <span aria-hidden="true">↗</span></a>
-                        <a href="/my-orders/">My Orders <span aria-hidden="true">↗</span></a>
+                         <a href="{% url 'customer_profile' %}">My Profile<span aria-hidden="true">↗</span></a>
+                        <a href="{{ my_orders_url|default:'/my-orders/' }}">My Orders <span aria-hidden="true">↗</span></a>
                         <a href="{% url 'wishlist_view' %}">Wishlist <span aria-hidden="true">↗</span></a>
                         <form action="{% url 'admin_logout' %}" method="POST">
                             {% csrf_token %}
@@ -1435,7 +2494,7 @@ body::after {
             <div class="hero-copy">
                 <div class="eyebrow">Made once · Numbered to one name</div>
                 <h1>Not made for the many.<br><em>Made for one man. You.</em></h1>
-                <p>You have spent enough time owning what everyone else owns. Discover considered objects, uncommen details, and limited pieces chosen to feel distinctly yours.</p>
+                <p>You have spent enough time owning what everyone else owns. Discover considered objects, uncommon details, and limited pieces chosen to feel distinctly yours.</p>
                 <div class="hero-actions">
                     <a href="#catalogue" class="btn btn-dark">Enter the catalogue <span aria-hidden="true">→</span></a>
                     <a href="#process" class="btn btn-outline">How buying works</a>
@@ -1453,9 +2512,9 @@ body::after {
 
     <section class="manifesto">
         <div class="wrap manifesto-inner">
-            <div class="eyebrow">The UNCOMMEN position</div>
+            <div class="eyebrow">The UNCOMMON position</div>
             <h2>You were never the target audience. You are the audience of one.</h2>
-            <p>Mass luxury is a contradiction. Discover pieces selected for him, explore  for her, or enter The Hundred for rare and limited finds. Each collection has its own character. The question is never what is popular. The question is what is yours.</p>
+            <p>Mass luxury is a contradiction. Discover pieces selected for him, explore INSOLO for her, or enter The Hundred for rare and limited finds. Each collection has its own character. The question is never what is popular. The question is what is yours.</p>
             <div class="manifesto-images" aria-label="A glimpse into the collection">
                 <img src="https://picsum.photos/id/838/600/500" alt="Craft and materials" loading="lazy">
                 <img src="https://picsum.photos/id/447/600/500" alt="Details from the collection" loading="lazy">
@@ -1482,7 +2541,7 @@ body::after {
                         <div class="room-count">Room 01 · {{ him_count }} available</div>
                         <h3>Him.</h3>
                         <p>Distinctive objects, considered details, and everyday essentials with a point of view.</p>
-                        <span class="room-link">Enter UNCOMMEN for him →</span>
+                        <span class="room-link">Enter UNCOMMON for him →</span>
                     </div>
                 </a>
                 <a class="room" href="{% url 'section_products' 'HER' %}">
@@ -1521,8 +2580,8 @@ body::after {
             <div class="product-grid">
                 {% for product in featured_products %}
                     <article class="product">
-                        <div class="product-image-wrap">
-                            <a href="{% url 'section_products' product.category.section %}" aria-label="View {{ product.product_name }}">
+                        <a href="{% url 'section_products' product.category.section %}" aria-label="Explore {{ product.product_name }}">
+                            <div class="product-image-wrap">
                                 {% if product.image %}
                                     <img class="product-image" src="{{ product.image.url }}" alt="{{ product.product_name }}" loading="lazy">
                                 {% else %}
@@ -1531,25 +2590,20 @@ body::after {
                                 {% if product.is_rare or product.is_limited %}
                                     <span class="product-flag">Rare / Limited</span>
                                 {% endif %}
-                            </a>
-                            <form method="post" action="{% url 'add_to_wishlist' product.id %}" class="home-wishlist-form">
-                                {% csrf_token %}
-                                <button type="submit" class="home-wishlist-button" title="Add to wishlist" aria-label="Add {{ product.product_name }} to wishlist">♡</button>
-                            </form>
-                        </div>
-                        <div class="product-info">
-                            <div class="product-category">{{ product.category.get_section_display }} · {{ product.category.category_name }}</div>
-                            <h3 class="product-name">{{ product.product_name }}</h3>
-                            <p class="product-description">{{ product.description|default:"A considered addition to the collection."|truncatewords:18 }}</p>
-                            <div class="product-bottom">
-                                <span class="price">₹{{ product.price|floatformat:2 }}</span>
-                                <span class="product-status">{% if product.stock > 0 %}Available{% else %}Out of stock{% endif %}</span>
                             </div>
-                        </div>
-                        
+                            <div class="product-info">
+                                <div class="product-category">{{ product.category.get_section_display }} · {{ product.category.category_name }}</div>
+                                <h3 class="product-name">{{ product.product_name }}</h3>
+                                <p class="product-description">{{ product.description|default:"A considered addition to the collection."|truncatewords:18 }}</p>
+                                <div class="product-bottom">
+                                    <span class="price">₹{{ product.price|floatformat:2 }}</span>
+                                    <span class="product-status">{% if product.stock > 0 %}Available{% else %}Out of stock{% endif %}</span>
+                                </div>
+                            </div>
+                        </a>
                     </article>
                 {% empty %}
-                    <div class="empty">The catalogue is being prepared. Products added by the UNCOMMEN team will appear here.</div>
+                    <div class="empty">The catalogue is being prepared. Products added by the UNCOMMON team will appear here.</div>
                 {% endfor %}
             </div>
             <a href="{% url 'section_products' 'HIM' %}" class="text-link">Browse the full catalogue <span aria-hidden="true">→</span></a>
@@ -1602,7 +2656,7 @@ body::after {
             <div class="hundred-copy">
                 <div class="eyebrow">The Hundred — rare & limited</div>
                 <h2>Not everything is made to stay available.</h2>
-                <p>Discover products marked rare or limited by the UNCOMMEN team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
+                <p>Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
                 <div class="hundred-actions">
                     <a href="{% url 'section_products' 'RARE' %}" class="btn">Explore available pieces <span aria-hidden="true">→</span></a>
                     <button type="button" class="btn reserve-open" data-open-reservation>Reserve an upcoming release <span aria-hidden="true">↗</span></button>
@@ -1620,6 +2674,330 @@ body::after {
         </div>
     </section>
 </main>
+
+<!-- Architectural Double-Door Room Transition Portal -->
+<div class="room-portal-overlay" id="room-portal-overlay" data-portal-room="HIM" aria-hidden="true">
+    <div class="portal-door portal-door-left"></div>
+    <div class="portal-seam-glow"></div>
+    <div class="portal-door portal-door-right"></div>
+    <div class="portal-medallion">
+        <div class="portal-ring"><span class="portal-ring-num" id="portal-ring-num">01</span></div>
+        <div class="portal-kicker" id="portal-kicker">ROOM 01 · UNCOMMON</div>
+        <h2 class="portal-title" id="portal-title">Him.</h2>
+        <p class="portal-subtitle" id="portal-subtitle">Unlocking the room · Numbered to one</p>
+    </div>
+</div>
+
+<!-- Interactive & Animated Room Landing View (100% Django Backend-Driven, Scroll-Synced Room 01 / 02 / 03 Sections) -->
+<section class="room-landing-view" id="room-landing-view" data-active-room="HIM" aria-live="polite">
+    <div class="room-subnav-bar" id="room-subnav-bar">
+        <div class="wrap room-subnav-inner">
+            <button type="button" class="room-back-btn" id="room-back-btn">
+                <span aria-hidden="true">←</span> Return to The House
+            </button>
+            <div class="room-switcher-pills" role="tablist" aria-label="Switch collection room">
+                <button type="button" class="room-switch-pill is-active" data-switch-room="HIM" role="tab" aria-selected="true" aria-controls="room-section-HIM">Room 01 · Him</button>
+                <button type="button" class="room-switch-pill" data-switch-room="HER" role="tab" aria-selected="false" aria-controls="room-section-HER">Room 02 · Her</button>
+                <button type="button" class="room-switch-pill" data-switch-room="RARE" role="tab" aria-selected="false" aria-controls="room-section-RARE">Room 03 · The Hundred</button>
+            </div>
+            <div class="room-subnav-meta">
+                <span class="room-meta-dot" aria-hidden="true"></span>
+                <span id="room-subnav-count">{{ him_count|default:0 }} Available · 1 of 100 Cap</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROOM 01 · HIM SECTION -->
+    <div class="room-section-block" id="room-section-HIM" data-room-section="HIM">
+        <div class="room-hero">
+            <div class="wrap room-hero-grid">
+                <div class="room-hero-copy">
+                    <div class="room-hero-kicker" id="room-hero-kicker">Room 01 · UNCOMMON Archive for Him</div>
+                    <h1 class="room-hero-title" id="room-hero-title">Objects with weight, patina, and a point of view.</h1>
+                    <p class="room-hero-desc" id="room-hero-desc">Distinctive objects, considered details, and everyday essentials with a point of view. Priced plainly on every shelf and numbered to one buyer.</p>
+                    <div class="room-hero-stats">
+                        <div class="room-stat-box">
+                            <strong id="room-stat-1-val">100 Max</strong>
+                            <span id="room-stat-1-lbl">Global Edition Cap</span>
+                        </div>
+                        <div class="room-stat-box">
+                            <strong id="room-stat-2-val" data-room-stat-count="HIM">{{ him_count|default:0 }} Available</strong>
+                            <span id="room-stat-2-lbl">Currently In Room</span>
+                        </div>
+                        <div class="room-stat-box">
+                            <strong id="room-stat-3-val">0 Restocks</strong>
+                            <span id="room-stat-3-lbl">Permanent Vault Rule</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="room-hero-visual">
+                    <div class="room-hero-img-frame">
+                        <img id="room-hero-img" data-room-hero-img="HIM" src="https://picsum.photos/seed/uncommon-him/900/700" alt="Room 01 collection editorial visual">
+                    </div>
+                    <div class="room-hero-seal">
+                        <strong id="room-seal-title">Room 01</strong>
+                        <span id="room-seal-sub">Him · 1 of 100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrap room-catalogue-section">
+            <div class="room-controls-bar">
+                <div class="room-category-pills" id="room-category-pills" data-room-cats="HIM" aria-label="Filter Room 01 by category"></div>
+                <div class="room-search-sort">
+                    <input type="search" id="room-search-input" data-room-search="HIM" class="room-search-input" placeholder="Search piece or category…" aria-label="Search pieces in Room 01">
+                    <select id="room-sort-select" data-room-sort="HIM" class="room-sort-select" aria-label="Sort pieces in Room 01">
+                        <option value="featured">Sort: Default Order</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="stock">Stock: Fewest Remaining</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="room-products-grid" id="room-products-grid" data-room-grid="HIM"></div>
+        </div>
+    </div>
+
+    <!-- ROOM 02 · HER SECTION -->
+    <div class="room-section-block" id="room-section-HER" data-room-section="HER">
+        <div class="room-hero">
+            <div class="wrap room-hero-grid">
+                <div class="room-hero-copy">
+                    <div class="room-hero-kicker">Room 02 · INSOLO Atelier for Her</div>
+                    <h2 class="room-hero-title">A separate point of view. Chosen with quiet confidence.</h2>
+                    <p class="room-hero-desc">Pieces chosen with individuality and quiet confidence in mind. Every edition is created in a limited run of 100 for the audience of one.</p>
+                    <div class="room-hero-stats">
+                        <div class="room-stat-box">
+                            <strong>100 Max</strong>
+                            <span>Global Edition Cap</span>
+                        </div>
+                        <div class="room-stat-box">
+                            <strong data-room-stat-count="HER">{{ her_count|default:0 }} Available</strong>
+                            <span>Currently In Room</span>
+                        </div>
+                        <div class="room-stat-box">
+                            <strong>0 Restocks</strong>
+                            <span>Permanent Vault Rule</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="room-hero-visual">
+                    <div class="room-hero-img-frame">
+                        <img data-room-hero-img="HER" src="https://picsum.photos/seed/insolo-her/900/700" alt="Room 02 collection editorial visual" loading="lazy">
+                    </div>
+                    <div class="room-hero-seal">
+                        <strong>Room 02</strong>
+                        <span>Her · 1 of 100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrap room-catalogue-section">
+            <div class="room-controls-bar">
+                <div class="room-category-pills" data-room-cats="HER" aria-label="Filter Room 02 by category"></div>
+                <div class="room-search-sort">
+                    <input type="search" data-room-search="HER" class="room-search-input" placeholder="Search piece or category…" aria-label="Search pieces in Room 02">
+                    <select data-room-sort="HER" class="room-sort-select" aria-label="Sort pieces in Room 02">
+                        <option value="featured">Sort: Default Order</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="stock">Stock: Fewest Remaining</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="room-products-grid" data-room-grid="HER"></div>
+        </div>
+    </div>
+
+    <!-- ROOM 03 · THE HUNDRED SECTION -->
+    <div class="room-section-block" id="room-section-RARE" data-room-section="RARE">
+        <div class="room-hero">
+            <div class="wrap room-hero-grid">
+                <div class="room-hero-copy">
+                    <div class="room-hero-kicker">Room 03 · The Hundred Permanent Vault</div>
+                    <h2 class="room-hero-title">Not everything is made to stay available.</h2>
+                    <p class="room-hero-desc">Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
+                    <div class="room-hero-stats">
+                        <div class="room-stat-box">
+                            <strong>100 Max</strong>
+                            <span>Global Edition Cap</span>
+                        </div>
+                        <div class="room-stat-box">
+                            <strong data-room-stat-count="RARE">{{ rare_count|default:0 }} Available</strong>
+                            <span>Currently In Room</span>
+                        </div>
+                        <div class="room-stat-box">
+                            <strong>0 Restocks</strong>
+                            <span>Permanent Vault Rule</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="room-hero-visual">
+                    <div class="room-hero-img-frame">
+                        <img data-room-hero-img="RARE" src="https://picsum.photos/seed/uncommon-hundred/900/700" alt="Room 03 collection editorial visual" loading="lazy">
+                    </div>
+                    <div class="room-hero-seal">
+                        <strong>Room 03</strong>
+                        <span>The Hundred</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrap room-catalogue-section">
+            <div class="room-controls-bar">
+                <div class="room-category-pills" data-room-cats="RARE" aria-label="Filter Room 03 by category"></div>
+                <div class="room-search-sort">
+                    <input type="search" data-room-search="RARE" class="room-search-input" placeholder="Search piece or category…" aria-label="Search pieces in Room 03">
+                    <select data-room-sort="RARE" class="room-sort-select" aria-label="Sort pieces in Room 03">
+                        <option value="featured">Sort: Default Order</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="stock">Stock: Fewest Remaining</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="room-products-grid" data-room-grid="RARE"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Server-Rendered Django Backend Data Bridge (Populates Rooms from Backend Context & Section Endpoints) -->
+<div id="django-room-products-data"
+     style="display:none;"
+     aria-hidden="true"
+     data-him-count="{{ him_count|default:0 }}"
+     data-her-count="{{ her_count|default:0 }}"
+     data-rare-count="{{ rare_count|default:0 }}"
+     data-him-url="{% url 'section_products' 'HIM' %}"
+     data-her-url="{% url 'section_products' 'HER' %}"
+     data-rare-url="{% url 'section_products' 'RARE' %}">
+    {% for product in him_products %}
+        <div class="django-backend-product"
+             data-id="{{ product.id }}"
+             data-room="HIM"
+             data-name="{{ product.product_name }}"
+             data-category="{{ product.category.category_name|default:'Collection' }}"
+             data-section-display="{{ product.category.get_section_display|default:'For Him' }}"
+             data-description="{{ product.description|default:'A considered addition to the collection.' }}"
+             data-price="{{ product.price|floatformat:2 }}"
+             data-stock="{{ product.stock|default:0 }}"
+             data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
+             data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+             data-url="{% url 'section_products' product.category.section %}"></div>
+    {% endfor %}
+    {% for product in her_products %}
+        <div class="django-backend-product"
+             data-id="{{ product.id }}"
+             data-room="HER"
+             data-name="{{ product.product_name }}"
+             data-category="{{ product.category.category_name|default:'Collection' }}"
+             data-section-display="{{ product.category.get_section_display|default:'For Her' }}"
+             data-description="{{ product.description|default:'A considered addition to the collection.' }}"
+             data-price="{{ product.price|floatformat:2 }}"
+             data-stock="{{ product.stock|default:0 }}"
+             data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
+             data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+             data-url="{% url 'section_products' product.category.section %}"></div>
+    {% endfor %}
+    {% for product in rare_products %}
+        <div class="django-backend-product"
+             data-id="{{ product.id }}"
+             data-room="RARE"
+             data-name="{{ product.product_name }}"
+             data-category="{{ product.category.category_name|default:'The Hundred' }}"
+             data-section-display="{{ product.category.get_section_display|default:'The Hundred' }}"
+             data-description="{{ product.description|default:'A considered addition to the collection.' }}"
+             data-price="{{ product.price|floatformat:2 }}"
+             data-stock="{{ product.stock|default:0 }}"
+             data-is-rare="true"
+             data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+             data-url="{% url 'section_products' product.category.section %}"></div>
+    {% endfor %}
+    {% for product in all_products %}
+        <div class="django-backend-product"
+             data-id="{{ product.id }}"
+             data-room="{{ product.category.section|upper }}"
+             data-name="{{ product.product_name }}"
+             data-category="{{ product.category.category_name|default:'Collection' }}"
+             data-section-display="{{ product.category.get_section_display|default:'Collection' }}"
+             data-description="{{ product.description|default:'A considered addition to the collection.' }}"
+             data-price="{{ product.price|floatformat:2 }}"
+             data-stock="{{ product.stock|default:0 }}"
+             data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
+             data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+             data-url="{% url 'section_products' product.category.section %}"></div>
+    {% endfor %}
+    {% for product in products %}
+        <div class="django-backend-product"
+             data-id="{{ product.id }}"
+             data-room="{{ product.category.section|upper }}"
+             data-name="{{ product.product_name }}"
+             data-category="{{ product.category.category_name|default:'Collection' }}"
+             data-section-display="{{ product.category.get_section_display|default:'Collection' }}"
+             data-description="{{ product.description|default:'A considered addition to the collection.' }}"
+             data-price="{{ product.price|floatformat:2 }}"
+             data-stock="{{ product.stock|default:0 }}"
+             data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
+             data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+             data-url="{% url 'section_products' product.category.section %}"></div>
+    {% endfor %}
+    {% for product in featured_products %}
+        <div class="django-backend-product"
+             data-id="{{ product.id }}"
+             data-room="{{ product.category.section|upper }}"
+             data-name="{{ product.product_name }}"
+             data-category="{{ product.category.category_name|default:'Collection' }}"
+             data-section-display="{{ product.category.get_section_display|default:'Collection' }}"
+             data-description="{{ product.description|default:'A considered addition to the collection.' }}"
+             data-price="{{ product.price|floatformat:2 }}"
+             data-stock="{{ product.stock|default:0 }}"
+             data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
+             data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+             data-url="{% url 'section_products' product.category.section %}"></div>
+    {% endfor %}
+</div>
+
+<!-- Quick-View Product Dossier Modal (Backend Product Details) -->
+<div class="room-dossier-modal" id="room-dossier-modal" aria-hidden="true">
+    <section class="room-dossier-dialog" role="dialog" aria-modal="true" aria-labelledby="dossier-title">
+        <div class="room-dossier-media">
+            <img id="dossier-img" src="https://picsum.photos/seed/uncommon-him/700/800" alt="">
+        </div>
+        <div class="room-dossier-content">
+            <div class="room-dossier-top">
+                <div>
+                    <div class="legal-kicker" id="dossier-kicker">ROOM 01 · HIM</div>
+                    <h3 class="room-dossier-title" id="dossier-title">Product Name</h3>
+                </div>
+                <button type="button" class="legal-close" id="dossier-close-btn" aria-label="Close product details">×</button>
+            </div>
+            <div class="room-dossier-price" id="dossier-price">₹0.00</div>
+            <p class="muted" id="dossier-desc" style="font-size:13px;line-height:1.8;margin:0;"></p>
+            <div class="room-dossier-specs">
+                <div class="room-dossier-spec-row"><span>Collection</span><strong id="dossier-origin">UNCOMMON</strong></div>
+                <div class="room-dossier-spec-row"><span>Category</span><strong id="dossier-material">Category</strong></div>
+                <div class="room-dossier-spec-row"><span>Status</span><strong id="dossier-allocation">Available</strong></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:auto;padding-top:10px;flex-wrap:wrap;">
+                <a href="#" class="btn btn-dark" id="dossier-view-link" style="flex:1 1 auto;cursor:pointer;">View in Full Catalogue →</a>
+                <button type="button" class="btn btn-outline" id="dossier-reserve-btn" style="cursor:pointer;">Reserve Release ↗</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Toast notification for Held Bag & Wishlist actions -->
+<div class="uncommon-toast" id="uncommon-toast" role="status" aria-live="polite">
+    <span class="uncommon-toast-badge" id="uncommon-toast-badge">Held</span>
+    <span id="uncommon-toast-text">Piece held in your bag.</span>
+</div>
+
 
 <!-- Reservation request modal -->
 <div class="reserve-modal" id="reservation-modal" aria-hidden="true">
@@ -1725,14 +3103,14 @@ body::after {
     <div class="wrap">
         <div class="footer-main">
             <div>
-                <a href="{% url 'customer_home' %}" class="footer-brand">UNCOMMEN<span style="color:var(--forest)">.</span></a>
+                <a href="{% url 'customer_home' %}" class="footer-brand" aria-label="UNCOMMEN home"><img id="footerLogoImg" src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMEN" loading="lazy"></a>
                 <div class="footer-tagline">Made once. Numbered to you.</div>
             </div>
             <div class="footer-columns">
                 <div class="footer-col">
                     <strong>Collections</strong>
                     <a href="{% url 'section_products' 'HIM' %}">For Him</a>
-                    <a href="{% url 'section_products' 'HER' %}">For Her</a>
+                    <a href="{% url 'section_products' 'HER' %}"> For Her</a>
                     <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
                 </div>
                 <div class="footer-col">
@@ -1763,126 +3141,542 @@ body::after {
             </div>
         </div>
         <div class="footer-bottom">
-            <span>© 2026 UNCOMMEN — Made for one.</span>
-            <span>Considered objects. Uncommen details.</span>
+            <span>© 2026 UNCOMMON — Made for one.</span>
+            <span>Considered objects. Uncommon details.</span>
         </div>
     </div>
 </footer>
 
 <script>
-    // Branded loader: show during page navigation and form submissions.
-  (() => {
-    const loader = document.getElementById('site-loader');
-    let hideTimer;
-    let loaderStartTime = 0;
+    // Integrated UNCOMMEN SVG Preloader with top-left corner docking & scroll-transparent navbar
+    (() => {
+        const preloader = document.getElementById('page-preloader');
+        const preloaderLogo = preloader ? preloader.querySelector('.preloader-logo') : null;
+        const siteHeader = document.querySelector('.site-header');
+        const navLogo = document.querySelector('.site-header .logo');
+        const navLogoImg = navLogo ? navLogo.querySelector('img') : null;
+        const footerBrand = document.querySelector('footer .footer-brand');
+        const footerLogoImg = footerBrand ? footerBrand.querySelector('img') : null;
 
-    const MIN_LOADING_TIME = 2500; // 2.5 seconds
-    const MAX_LOADING_TIME = 12000; // Safety timeout: 12 seconds
+        let hideTimer = null;
+        let dockTimer = null;
+        let removeTimer = null;
+        let isDismissing = false;
+        let hasPlayedWhileVisible = false;
+        let wasViewportHidden = false;
 
-    function hideLoader() {
-        if (!loader) return;
+        const ASSEMBLY_DURATION = 2450; // Time for U + C monogram & wordmark assembly (ms)
+        const DOCK_DURATION = 920;      // Duration of smooth flight to top-left corner (ms)
 
-        const elapsed = Date.now() - loaderStartTime;
-        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+        function buildStaticLogoClone(svgClassName, maskId) {
+            if (!preloaderLogo) return null;
+            const svgClone = preloaderLogo.cloneNode(true);
+            svgClone.classList.remove('preloader-logo');
+            svgClone.classList.add(svgClassName);
+            svgClone.style.transform = '';
+            svgClone.querySelectorAll('*').forEach(el => {
+                el.style.animation = 'none';
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+            });
 
-        window.clearTimeout(hideTimer);
+            // Apply userSpaceOnUse SVG mask around .uc-group-c and .uc-group-u so the center split band
+            // is a true transparent knockout over any background
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const defs = document.createElementNS(svgNS, 'defs');
+            const mask = document.createElementNS(svgNS, 'mask');
+            mask.setAttribute('id', maskId);
+            mask.setAttribute('maskUnits', 'userSpaceOnUse');
+            mask.setAttribute('maskContentUnits', 'userSpaceOnUse');
+            mask.setAttribute('x', '0');
+            mask.setAttribute('y', '0');
+            mask.setAttribute('width', '512');
+            mask.setAttribute('height', '300');
 
-        hideTimer = window.setTimeout(() => {
-            loader.classList.add('is-exiting');
-            window.setTimeout(() => { loader.classList.add('is-hidden'); document.body.classList.remove('is-loading'); }, 720);
-        }, remaining);
-    }
+            const bgRect = document.createElementNS(svgNS, 'rect');
+            bgRect.setAttribute('x', '0');
+            bgRect.setAttribute('y', '0');
+            bgRect.setAttribute('width', '512');
+            bgRect.setAttribute('height', '300');
+            bgRect.setAttribute('fill', 'white');
 
-    function showLoader() {
-        if (!loader) return;
+            const holeRect = document.createElementNS(svgNS, 'rect');
+            holeRect.setAttribute('x', '122');
+            holeRect.setAttribute('y', '120.2');
+            holeRect.setAttribute('width', '268');
+            holeRect.setAttribute('height', '47.3');
+            holeRect.setAttribute('rx', '2');
+            holeRect.setAttribute('fill', 'black');
 
-        loaderStartTime = Date.now();
+            mask.appendChild(bgRect);
+            mask.appendChild(holeRect);
+            defs.appendChild(mask);
+            svgClone.insertBefore(defs, svgClone.firstChild);
 
-        loader.classList.remove('is-hidden');
-        loader.classList.remove('is-exiting');
-        document.body.classList.add('is-loading');
+            const groupC = svgClone.querySelector('.uc-group-c');
+            const groupU = svgClone.querySelector('.uc-group-u');
+            const monogramWrap = document.createElementNS(svgNS, 'g');
+            monogramWrap.setAttribute('mask', 'url(#' + maskId + ')');
+            svgClone.insertBefore(monogramWrap, groupC || svgClone.firstChild);
+            if (groupC) monogramWrap.appendChild(groupC);
+            if (groupU) monogramWrap.appendChild(groupU);
 
-        window.clearTimeout(hideTimer);
-
-        hideTimer = window.setTimeout(() => {
-            loader.classList.add('is-hidden');
-            document.body.classList.remove('is-loading');
-        }, MAX_LOADING_TIME);
-    }
-
-    // Initial page load
-    window.addEventListener('load', () => {
-        if (!loaderStartTime) {
-            loaderStartTime = Date.now();
+            const cutout = svgClone.querySelector('.uc-cutout-band');
+            if (cutout) {
+                cutout.style.fill = 'transparent';
+                cutout.style.opacity = '0';
+            }
+            return svgClone;
         }
-        hideLoader();
-    });
 
-    // Handle browser back/forward navigation
-    window.addEventListener('pageshow', event => {
-        if (event.persisted) {
+        function ensureContainerLogoFallback(containerEl, imgEl, svgClassName, maskId) {
+            if (!containerEl || !preloaderLogo) return;
+            const existingFallbacks = containerEl.querySelectorAll('.' + svgClassName);
+            if (existingFallbacks.length > 0) {
+                existingFallbacks.forEach((el, idx) => { if (idx > 0) el.remove(); });
+                if (imgEl) imgEl.style.display = 'none';
+                return;
+            }
+
+            const srcAttr = imgEl ? (imgEl.getAttribute('src') || '') : '';
+            const needsFallback = !imgEl || srcAttr.includes('{%') || (imgEl.complete && imgEl.naturalWidth === 0);
+            if (!needsFallback) return;
+
+            const svgClone = buildStaticLogoClone(svgClassName, maskId);
+            if (!svgClone) return;
+
+            if (imgEl) {
+                imgEl.style.display = 'none';
+            }
+            containerEl.appendChild(svgClone);
+        }
+
+        function ensureNavLogoFallback() {
+            ensureContainerLogoFallback(navLogo, navLogoImg, 'nav-logo-svg-fallback', 'uc-home-nav-knockout-mask');
+            ensureContainerLogoFallback(footerBrand, footerLogoImg, 'footer-logo-svg-fallback', 'uc-home-footer-knockout-mask');
+        }
+
+        if (navLogoImg) {
+            navLogoImg.addEventListener('error', ensureNavLogoFallback, { once: true });
+            if (navLogoImg.complete && navLogoImg.naturalWidth === 0) {
+                ensureNavLogoFallback();
+            }
+        }
+        if (footerLogoImg) {
+            footerLogoImg.addEventListener('error', ensureNavLogoFallback, { once: true });
+            if (footerLogoImg.complete && footerLogoImg.naturalWidth === 0) {
+                ensureNavLogoFallback();
+            }
+        }
+        ensureNavLogoFallback();
+
+        function isViewportVisible() {
+            if (document.visibilityState === 'hidden') return false;
+            const w = window.innerWidth || document.documentElement.clientWidth || 0;
+            const h = window.innerHeight || document.documentElement.clientHeight || 0;
+            if (w < 20 || h < 20) return false;
+            if (preloaderLogo) {
+                const r = preloaderLogo.getBoundingClientRect();
+                if (r.width < 10 || r.height < 10) return false;
+            }
+            return true;
+        }
+
+        function computeCornerTransform() {
+            if (!preloaderLogo) return '';
+            const logoRect = preloaderLogo.getBoundingClientRect();
+            if (!logoRect.width || !logoRect.height) return '';
+
+            const targetEl = (navLogo && navLogo.querySelector('.nav-logo-svg-fallback')) || navLogo;
+            const targetRect = targetEl
+                ? targetEl.getBoundingClientRect()
+                : { left: 32, top: 14, width: 200, height: 68 };
+
+            const targetWidth = targetRect.width || 200;
+            const targetHeight = targetRect.height || 68;
+
+            const scale = Math.min(targetWidth / logoRect.width, targetHeight / logoRect.height);
+            const startCenterX = logoRect.left + logoRect.width / 2;
+            const startCenterY = logoRect.top + logoRect.height / 2;
+            const endCenterX = targetRect.left + targetWidth / 2;
+            const endCenterY = targetRect.top + targetHeight / 2;
+
+            const deltaX = endCenterX - startCenterX;
+            const deltaY = endCenterY - startCenterY;
+
+            return `translate3d(${deltaX.toFixed(2)}px, ${deltaY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+        }
+
+        function restartSvgAnimations() {
+            if (!preloader) return;
+            const animatedNodes = preloader.querySelectorAll(
+                '.uc-group-c, .uc-group-u, .uc-cutout-band, .uc-bars, .uc-wordmark, .preloader-progress'
+            );
+            animatedNodes.forEach(node => {
+                node.style.animation = 'none';
+                void node.getBoundingClientRect();
+                node.style.animation = '';
+            });
+        }
+
+        function dockAndDismissPreloader() {
+            if (!preloader || isDismissing) return;
+            if (!isViewportVisible()) {
+                // Wait until the preview tab is actually visible on screen before docking
+                hasPlayedWhileVisible = false;
+                return;
+            }
+            isDismissing = true;
+            ensureNavLogoFallback();
+
+            if (!preloaderLogo) {
+                document.body.classList.remove('is-loading');
+                preloader.classList.add('fade-out');
+                return;
+            }
+
+            // Lock internal SVG keyframe loops into assembled state & fade progress bar
+            preloader.classList.add('is-docking');
+
+            // Animate logo from center into top-left navbar logo slot
+            requestAnimationFrame(() => {
+                const transformValue = computeCornerTransform();
+                if (transformValue) {
+                    preloaderLogo.style.transform = transformValue;
+                }
+            });
+
+            window.clearTimeout(dockTimer);
+            dockTimer = window.setTimeout(() => {
+                document.body.classList.remove('is-loading');
+                preloader.classList.add('fade-out');
+                window.clearTimeout(removeTimer);
+                removeTimer = window.setTimeout(() => {
+                    if (preloaderLogo) {
+                        preloaderLogo.style.transform = '';
+                    }
+                    preloader.classList.remove('is-docking');
+                }, 520);
+            }, DOCK_DURATION);
+        }
+
+        function showPreloader() {
+            if (!preloader) return;
             window.clearTimeout(hideTimer);
-            loader.classList.add('is-hidden');
-            document.body.classList.remove('is-loading');
+            window.clearTimeout(dockTimer);
+            window.clearTimeout(removeTimer);
+            isDismissing = false;
+
+            if (preloaderLogo) {
+                preloaderLogo.style.transform = '';
+            }
+            preloader.classList.remove('is-docking', 'fade-out');
+            document.body.classList.add('is-loading');
+
+            if (isViewportVisible()) {
+                hasPlayedWhileVisible = true;
+                restartSvgAnimations();
+                hideTimer = window.setTimeout(dockAndDismissPreloader, ASSEMBLY_DURATION);
+            } else {
+                hasPlayedWhileVisible = false;
+            }
         }
-    });
 
-    // Show loader during normal link navigation
-    document.addEventListener('click', event => {
-        const link = event.target.closest('a[href]');
+        // Start or replay whenever the Preview viewport becomes visible
+        function checkVisibilityAndStart() {
+            const visible = isViewportVisible();
+            if (!visible) {
+                wasViewportHidden = true;
+                return;
+            }
+            if (!hasPlayedWhileVisible || wasViewportHidden) {
+                wasViewportHidden = false;
+                showPreloader();
+            }
+        }
 
-        if (
-            !link ||
-            event.defaultPrevented ||
-            event.button !== 0 ||
-            event.metaKey ||
-            event.ctrlKey ||
-            event.shiftKey ||
-            event.altKey
-        ) return;
+        if (typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(() => {
+                checkVisibilityAndStart();
+            });
+            ro.observe(document.documentElement);
+        }
 
-        if (
-            link.target === '_blank' ||
-            link.hasAttribute('download') ||
-            link.hasAttribute('data-open-legal')
-        ) return;
+        document.addEventListener('visibilitychange', checkVisibilityAndStart);
+        window.addEventListener('focus', () => {
+            if (!hasPlayedWhileVisible) checkVisibilityAndStart();
+        });
 
-        const href = link.getAttribute('href');
+        // Initial start check
+        requestAnimationFrame(checkVisibilityAndStart);
 
-        if (!href || href.startsWith('javascript:') || href === '#') return;
+        // Handle browser back/forward cache restore
+        window.addEventListener('pageshow', event => {
+            if (event.persisted && preloader) {
+                window.clearTimeout(hideTimer);
+                window.clearTimeout(dockTimer);
+                window.clearTimeout(removeTimer);
+                isDismissing = true;
+                preloader.classList.remove('is-docking');
+                preloader.classList.add('fade-out');
+                document.body.classList.remove('is-loading');
+            }
+        });
 
-        // Don't show the loader for same-page section links
-        if (
-            link.hash &&
-            link.pathname === window.location.pathname &&
-            link.origin === window.location.origin
-        ) return;
+        // Show loader during normal link navigation (and replay in preview when clicking template links such as the navbar logo)
+        document.addEventListener('click', event => {
+            const link = event.target.closest('a[href]');
+            if (
+                !link ||
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+            ) return;
 
-        showLoader();
-    });
+            if (
+                link.target === '_blank' ||
+                link.hasAttribute('download') ||
+                link.hasAttribute('data-open-legal')
+            ) return;
 
-    // Show loader when submitting forms
-    document.addEventListener('submit', event => {
-        const form = event.target;
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('javascript:') || href === '#') return;
 
-        if (
-            !(form instanceof HTMLFormElement) ||
-            form.hasAttribute('data-no-page-loader')
-        ) return;
+            if (href.includes('{%') || href.includes('{{')) {
+                event.preventDefault();
+                showPreloader();
+                return;
+            }
 
-        showLoader();
-    }, true);
+            if (
+                link.hash &&
+                link.pathname === window.location.pathname &&
+                link.origin === window.location.origin
+            ) return;
 
-    // Helpers for AJAX/fetch actions
-    window.uncommonLoader = {
-        show: showLoader,
-        hide: hideLoader
-    };
-})();
+            showPreloader();
+        });
+
+        // Show loader when submitting forms
+        document.addEventListener('submit', event => {
+            const form = event.target;
+            if (
+                !(form instanceof HTMLFormElement) ||
+                form.hasAttribute('data-no-page-loader')
+            ) return;
+            showPreloader();
+        }, true);
+
+        window.uncommonLoader = {
+            show: showPreloader,
+            hide: dockAndDismissPreloader
+        };
+
+        // Scroll-triggered animation: smoothly transition navbar background to transparent on scroll
+        // and hide section links while scrolling, revealing them on cursor hover over the navbar.
+        if (siteHeader) {
+            let scrollTicking = false;
+            let lastNavScrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+            let isActivelyScrolling = false;
+            let scrollStopTimer = null;
+            const SCROLL_RANGE = 72; // px over which background smoothly interpolates to transparent
+
+            function updateNavbarOnScroll() {
+                const scrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+                const progress = Math.min(1, scrollY / SCROLL_RANGE);
+                const bgAlpha = (0.96 * (1 - progress)).toFixed(3);
+                const borderAlpha = (1 - progress).toFixed(3);
+                const blurPx = (16 * (1 - progress)).toFixed(1);
+
+                siteHeader.style.setProperty('--nav-bg-alpha', bgAlpha);
+                siteHeader.style.setProperty('--nav-border-alpha', borderAlpha);
+                siteHeader.style.setProperty('--nav-blur', `${blurPx}px`);
+
+                if (scrollY > 12) {
+                    siteHeader.classList.add('is-scrolled');
+                } else {
+                    siteHeader.classList.remove('is-scrolled');
+                    siteHeader.classList.remove('is-nav-hovered');
+                }
+                lastNavScrollY = scrollY;
+                scrollTicking = false;
+            }
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+                if (Math.abs(currentScrollY - lastNavScrollY) > 0.5) {
+                    isActivelyScrolling = true;
+                    siteHeader.classList.remove('is-nav-hovered');
+                    if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
+                    scrollStopTimer = window.setTimeout(() => {
+                        isActivelyScrolling = false;
+                    }, 110);
+                }
+                if (!scrollTicking) {
+                    window.requestAnimationFrame(updateNavbarOnScroll);
+                    scrollTicking = true;
+                }
+            }, { passive: true });
+
+            const revealNavLinksOnCursor = () => {
+                if (siteHeader.classList.contains('is-scrolled') && !isActivelyScrolling) {
+                    siteHeader.classList.add('is-nav-hovered');
+                }
+            };
+
+            siteHeader.addEventListener('mouseenter', revealNavLinksOnCursor);
+            siteHeader.addEventListener('mousemove', revealNavLinksOnCursor, { passive: true });
+            siteHeader.addEventListener('mouseleave', () => {
+                siteHeader.classList.remove('is-nav-hovered');
+            });
+
+            updateNavbarOnScroll();
+        }
+
+        // Comprehensive Scroll Animation Engine:
+        // 1) Top progress bar  2) Parallax depth scrubbing  3) Active nav scroll-spy  4) Staggered section reveals
+        const numberSeal = document.querySelector('.number-seal');
+        const heroSection = document.querySelector('.hero');
+        const heroImage = document.querySelector('.hero-image');
+        const heroInset = document.querySelector('.hero-inset');
+        const heroCopy = document.querySelector('.hero-copy');
+        const roomCards = Array.from(document.querySelectorAll('.room'));
+        const navSectionLinks = Array.from(document.querySelectorAll('.nav-links > a[href^="#"]'));
+        const trackedSections = navSectionLinks
+            .map(link => {
+                const id = link.getAttribute('href').slice(1);
+                const section = document.getElementById(id);
+                return section ? { link, section } : null;
+            })
+            .filter(Boolean);
+
+        let parallaxTicking = false;
+
+        function updateScrollAnimations() {
+            const scrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+            const winH = window.innerHeight || document.documentElement.clientHeight || 800;
+            const docH = Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight
+            ) - winH;
+
+            // 1. Page scroll progress bar along top of navbar
+            if (siteHeader) {
+                const pageProgress = docH > 0 ? Math.min(1, Math.max(0, scrollY / docH)) : 0;
+                siteHeader.style.setProperty('--page-scroll-progress', pageProgress.toFixed(4));
+            }
+
+            // 2. Hero parallax scrubbing & brass seal rotation
+            if (numberSeal) {
+                const rot = Math.min(28, scrollY * 0.045);
+                numberSeal.style.setProperty('--seal-rotate', `${rot.toFixed(2)}deg`);
+            }
+
+            if (heroSection && scrollY < winH * 1.4) {
+                const heroProgress = Math.min(1, scrollY / Math.max(1, winH));
+                if (heroImage) {
+                    heroImage.style.setProperty('--hero-img-y', `${(heroProgress * 36).toFixed(1)}px`);
+                    heroImage.style.setProperty('--hero-img-scale', (1 + heroProgress * 0.035).toFixed(4));
+                }
+                if (heroInset) {
+                    heroInset.style.setProperty('--hero-inset-y', `${(heroProgress * -28).toFixed(1)}px`);
+                }
+                if (heroCopy) {
+                    heroCopy.style.setProperty('--hero-copy-y', `${(heroProgress * -16).toFixed(1)}px`);
+                }
+            }
+
+            // 3. Internal image parallax on The Rooms cards
+            roomCards.forEach(room => {
+                const rect = room.getBoundingClientRect();
+                if (rect.bottom > -50 && rect.top < winH + 50) {
+                    const centerOffset = (rect.top + rect.height / 2 - winH / 2) / (winH / 2);
+                    const shiftY = Math.max(-22, Math.min(22, -centerOffset * 18));
+                    room.style.setProperty('--room-img-y', `${shiftY.toFixed(1)}px`);
+                }
+            });
+
+            // 4. Scroll-spy active state for navbar section links
+            if (trackedSections.length) {
+                const triggerLine = winH * 0.34;
+                let activeEntry = null;
+                trackedSections.forEach(entry => {
+                    const rect = entry.section.getBoundingClientRect();
+                    if (rect.top <= triggerLine && rect.bottom >= 120) {
+                        activeEntry = entry;
+                    }
+                });
+                trackedSections.forEach(entry => {
+                    entry.link.classList.toggle('is-active-section', entry === activeEntry);
+                });
+            }
+
+            parallaxTicking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!parallaxTicking) {
+                window.requestAnimationFrame(updateScrollAnimations);
+                parallaxTicking = true;
+            }
+        }, { passive: true });
+
+        updateScrollAnimations();
+
+        // 5. Bi-directional editorial scroll-reveal choreography across all sections
+        const revealConfig = [
+            { selector: '.manifesto-inner > .eyebrow, .manifesto-inner > h2, .manifesto-inner > p, .manifesto-note', variant: '', stagger: 90 },
+            { selector: '.manifesto-images img', variant: 'reveal-scale', stagger: 110 },
+            { selector: '.section-heading > div, .section-heading > p', variant: '', stagger: 100 },
+            { selector: '.rooms .room', variant: 'reveal-scale', stagger: 120 },
+            { selector: '.product-grid .product, .product-grid .empty, #beginnings .text-link', variant: 'reveal-scale', stagger: 95 },
+            { selector: '.services-copy > *', variant: 'reveal-left', stagger: 90 },
+            { selector: '.service-list .service-item', variant: 'reveal-row', stagger: 75 },
+            { selector: '#process .eyebrow, #process h2', variant: '', stagger: 90 },
+            { selector: '.process-grid .process-card', variant: 'reveal-scale', stagger: 120 },
+            { selector: '.hundred-copy', variant: 'reveal-left', stagger: 0 },
+            { selector: '.hundred-card', variant: 'reveal-right', stagger: 110 },
+            { selector: '.hundred-stat', variant: 'reveal-row', stagger: 80 },
+            { selector: 'footer .footer-main > div, footer .footer-col, footer .footer-bottom', variant: '', stagger: 80 }
+        ];
+
+        const allRevealElements = [];
+        revealConfig.forEach(group => {
+            const nodes = document.querySelectorAll(group.selector);
+            nodes.forEach((el, idx) => {
+                el.classList.add('reveal-on-scroll');
+                if (group.variant) el.classList.add(group.variant);
+                el.style.transitionDelay = `${idx * group.stagger}ms`;
+                allRevealElements.push(el);
+            });
+        });
+
+        if ('IntersectionObserver' in window && allRevealElements.length) {
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-revealed');
+                    } else if (entry.boundingClientRect.top > (window.innerHeight || 800) * 0.92) {
+                        // Reset when scrolled back above the element so scrolling down replays the reveal smoothly
+                        entry.target.classList.remove('is-revealed');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
+
+            allRevealElements.forEach(el => revealObserver.observe(el));
+        } else {
+            allRevealElements.forEach(el => el.classList.add('is-revealed'));
+        }
+    })();
 
     function toggleNav(button) {
         const nav = document.getElementById('primary-nav');
+        if (!nav) return;
         const isOpen = nav.classList.toggle('open');
+        nav.classList.toggle('is-open', isOpen);
         button.setAttribute('aria-expanded', String(isOpen));
         const icon = button.querySelector('.menu-icon');
         if (icon) icon.textContent = isOpen ? '×' : '☰';
@@ -1922,8 +3716,8 @@ body::after {
             });
             const nav = document.getElementById('primary-nav');
             const toggle = document.querySelector('.nav-toggle');
-            if (nav && toggle && nav.classList.contains('open')) {
-                nav.classList.remove('open');
+            if (nav && toggle && (nav.classList.contains('open') || nav.classList.contains('is-open'))) {
+                nav.classList.remove('open', 'is-open');
                 toggle.setAttribute('aria-expanded', 'false');
                 const icon = toggle.querySelector('.menu-icon');
                 if (icon) icon.textContent = '☰';
@@ -1972,7 +3766,7 @@ body::after {
 
         const flash = document.getElementById('django-flash');
         const message = flash?.querySelector('[data-level]');
-        if (message) {
+        if (message && !message.textContent.includes('{{')) {
             const level = (message.dataset.level || 'info').toLowerCase();
             const text = message.textContent.trim();
             const success = level.includes('success');
@@ -2107,52 +3901,904 @@ body::after {
 })();
 
 
-/* Door-close transition for collection navigation; works with normal Django links. */
+// ===== Interactive Room Portal Animation & 100% Backend-Driven Products Catalogue (Him / Her / The Hundred) =====
 (() => {
-  const transition = document.getElementById('page-door-transition');
-  if (!transition) return;
-  let navigating = false;
-  document.addEventListener('click', event => {
-    const link = event.target.closest('a[href]');
-    if (!link || navigating || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    if (link.target === '_blank' || link.hasAttribute('download') || link.hasAttribute('data-open-legal')) return;
-    const href = link.getAttribute('href') || '';
-    let isCollection = false;
-    try {
-      const target = new URL(href, window.location.href);
-      isCollection = target.origin === window.location.origin && /\/section\/(HIM|HER|RARE)\/?$/i.test(target.pathname);
-      // Also support Django paths whose prefix differs, as long as URL ends with a section slug.
-      if (!isCollection && target.origin === window.location.origin && /\/(HIM|HER|RARE)\/?$/i.test(target.pathname) && link.hasAttribute('href')) {
-        isCollection = link.href.includes('section_products') || link.closest('.rooms, .section-nav, footer, .product-grid, .room') !== null;
-      }
-      // Template URLs are rendered before this runs, so recognise the actual collection route by its link context.
-      if (target.origin === window.location.origin && /\/(HIM|HER|RARE)\/?$/i.test(target.pathname)) isCollection = true;
-    } catch (_) {}
-    if (!isCollection) return;
-    event.preventDefault();
-    navigating = true;
-    const destination = (link.textContent + ' ' + link.href).toUpperCase();
-    transition.dataset.room = destination.includes('RARE') || destination.includes('HUNDRED') ? 'RARE'
-      : destination.includes('HER') || destination.includes('INSOLO') ? 'HER' : 'HIM';
-    const plaque = transition.querySelector('.door-center-mark');
-    if (plaque) plaque.textContent = transition.dataset.room === 'RARE' ? 'The Hundred.' : transition.dataset.room === 'HER' ? 'Insolo Her.' : 'Him.';
-    transition.classList.add('is-closing');
-    document.body.classList.add('is-transitioning');
-    window.setTimeout(() => { window.location.href = link.href; }, 740);
-  }, true);
+    const siteHeader = document.querySelector('.site-header');
+    const portalOverlay = document.getElementById('room-portal-overlay');
+    const portalRingNum = document.getElementById('portal-ring-num');
+    const portalKicker = document.getElementById('portal-kicker');
+    const portalTitle = document.getElementById('portal-title');
+    const portalSubtitle = document.getElementById('portal-subtitle');
+
+    const roomView = document.getElementById('room-landing-view');
+    const roomSubnavBar = document.getElementById('room-subnav-bar');
+    const roomBackBtn = document.getElementById('room-back-btn');
+    const roomSwitchPills = Array.from(document.querySelectorAll('[data-switch-room]'));
+    const roomSubnavCount = document.getElementById('room-subnav-count');
+    const roomSectionBlocks = Array.from(document.querySelectorAll('.room-section-block[data-room-section]'));
+
+    const dossierModal = document.getElementById('room-dossier-modal');
+    const dossierCloseBtn = document.getElementById('dossier-close-btn');
+    const dossierImg = document.getElementById('dossier-img');
+    const dossierKicker = document.getElementById('dossier-kicker');
+    const dossierTitle = document.getElementById('dossier-title');
+    const dossierPrice = document.getElementById('dossier-price');
+    const dossierDesc = document.getElementById('dossier-desc');
+    const dossierOrigin = document.getElementById('dossier-origin');
+    const dossierMaterial = document.getElementById('dossier-material');
+    const dossierAllocation = document.getElementById('dossier-allocation');
+    const dossierViewLink = document.getElementById('dossier-view-link');
+    const dossierReserveBtn = document.getElementById('dossier-reserve-btn');
+
+    const dataBridge = document.getElementById('django-room-products-data');
+
+    function syncHeaderHeightVar() {
+        if (!siteHeader) return;
+        const h = siteHeader.offsetHeight || 105;
+        document.documentElement.style.setProperty('--site-header-height', `${h}px`);
+    }
+    syncHeaderHeightVar();
+    window.addEventListener('resize', syncHeaderHeightVar, { passive: true });
+
+    function parseBackendCount(attrName) {
+        if (!dataBridge) return 0;
+        const raw = (dataBridge.getAttribute(attrName) || '').trim();
+        if (!raw || raw.includes('{{')) return 0;
+        const parsed = parseInt(raw, 10);
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    }
+
+    function getBackendRoomUrl(attrName, fallbackSection) {
+        if (dataBridge) {
+            const raw = (dataBridge.getAttribute(attrName) || '').trim();
+            if (raw && !raw.includes('{%')) return raw;
+        }
+        return `{% url 'section_products' '${fallbackSection}' %}`;
+    }
+
+    // Purely backend-driven Room configuration (zero static/hardcoded products)
+    const ROOM_CONFIG = {
+        HIM: {
+            num: '01',
+            portalKicker: 'ROOM 01 · UNCOMMON FOR HIM',
+            portalTitle: 'Him.',
+            portalSubtitle: 'Stepping into Room 01 · Considered objects for one man',
+            heroKicker: 'Room 01 · UNCOMMON Archive for Him',
+            heroTitle: 'Objects with weight, patina, and a point of view.',
+            heroDesc: 'Distinctive objects, considered details, and everyday essentials with a point of view. Priced plainly on every shelf and numbered to one name.',
+            heroImg: 'https://picsum.photos/seed/uncommon-him/900/700',
+            sealTitle: 'Room 01',
+            sealSub: 'Him · 1 of 100',
+            sectionUrl: getBackendRoomUrl('data-him-url', 'HIM'),
+            backendCount: parseBackendCount('data-him-count'),
+            fetchedFromEndpoint: false,
+            isLoadingEndpoint: false,
+            activeCategory: 'ALL',
+            searchQuery: '',
+            sortMode: 'featured',
+            products: []
+        },
+        HER: {
+            num: '02',
+            portalKicker: 'ROOM 02 · FOR HER',
+            portalTitle: 'Her.',
+            portalSubtitle: 'Stepping into Room 02 · Quiet confidence, distinctly hers',
+            heroKicker: 'Room 02 · INSOLO Atelier for Her',
+            heroTitle: 'A separate point of view. Chosen with quiet confidence.',
+            heroDesc: 'Pieces chosen with individuality and quiet confidence in mind. Every edition is created in a limited run of 100 for the audience of one.',
+            heroImg: 'https://picsum.photos/seed/insolo-her/900/700',
+            sealTitle: 'Room 02',
+            sealSub: 'Her · 1 of 100',
+            sectionUrl: getBackendRoomUrl('data-her-url', 'HER'),
+            backendCount: parseBackendCount('data-her-count'),
+            fetchedFromEndpoint: false,
+            isLoadingEndpoint: false,
+            activeCategory: 'ALL',
+            searchQuery: '',
+            sortMode: 'featured',
+            products: []
+        },
+        RARE: {
+            num: '03',
+            portalKicker: 'ROOM 03 · THE HUNDRED VAULT',
+            portalTitle: 'The Hundred.',
+            portalSubtitle: 'Unlocking the permanent vault · Rare & limited pieces',
+            heroKicker: 'Room 03 · The Hundred Permanent Vault',
+            heroTitle: 'Not everything is made to stay available.',
+            heroDesc: 'Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.',
+            heroImg: 'https://picsum.photos/seed/uncommon-hundred/900/700',
+            sealTitle: 'Room 03',
+            sealSub: 'The Hundred',
+            sectionUrl: getBackendRoomUrl('data-rare-url', 'RARE'),
+            backendCount: parseBackendCount('data-rare-count'),
+            fetchedFromEndpoint: false,
+            isLoadingEndpoint: false,
+            activeCategory: 'ALL',
+            searchQuery: '',
+            sortMode: 'featured',
+            products: []
+        }
+    };
+
+    const ROOM_KEYS = ['HIM', 'HER', 'RARE'];
+    let currentRoom = 'HIM';
+    let isPortalAnimating = false;
+    let lockedRoomDuringScroll = null;
+    let lockScrollTimer = null;
+
+    function formatINR(num) {
+        return '₹' + Number(num || 0).toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function createFallbackSvgDataUri(title, roomKey, badge) {
+        const palettes = {
+            HIM: ['#231C14', '#A0763A', '#F5F1E6'],
+            HER: ['#32201D', '#C89678', '#FAF4EE'],
+            RARE: ['#172116', '#E3BA7C', '#F5F1E6']
+        };
+        const [bg, accent, fg] = palettes[roomKey] || palettes.HIM;
+        const safeTitle = (title || 'UNCOMMON').replace(/[<>&"']/g, '');
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700">
+            <rect width="600" height="700" fill="${bg}"/>
+            <rect x="28" y="28" width="544" height="644" rx="18" fill="none" stroke="${accent}" stroke-opacity="0.38" stroke-width="1.5"/>
+            <circle cx="300" cy="295" r="115" fill="none" stroke="${accent}" stroke-opacity="0.45" stroke-width="1.2" stroke-dasharray="6 6"/>
+            <circle cx="300" cy="295" r="78" fill="${accent}" fill-opacity="0.12" stroke="${accent}" stroke-width="1.5"/>
+            <text x="300" y="302" text-anchor="middle" fill="${accent}" font-family="Georgia, serif" font-size="22" letter-spacing="3">${badge || '1 OF 100'}</text>
+            <text x="300" y="510" text-anchor="middle" fill="${fg}" font-family="Georgia, serif" font-size="21">${safeTitle.slice(0, 32)}</text>
+            <text x="300" y="548" text-anchor="middle" fill="${accent}" font-family="monospace" font-size="12" letter-spacing="4">UNCOMMON ARCHIVE</text>
+        </svg>`;
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    // Attach SVG fallback to room hero images if offline or blocked
+    document.querySelectorAll('[data-room-hero-img]').forEach(img => {
+        const rk = img.getAttribute('data-room-hero-img') || 'HIM';
+        const room = ROOM_CONFIG[rk] || ROOM_CONFIG.HIM;
+        img.addEventListener('error', () => {
+            img.src = createFallbackSvgDataUri(room.portalTitle, rk, `ROOM ${room.num}`);
+        }, { once: true });
+    });
+
+    function normalizeRoomKey(rawSection, isRare) {
+        const upper = String(rawSection || '').toUpperCase();
+        if (upper.includes('HER') || upper.includes('INSOLO')) return 'HER';
+        if (upper.includes('RARE') || upper.includes('HUNDRED')) return 'RARE';
+        if (upper.includes('HIM')) return 'HIM';
+        if (isRare) return 'RARE';
+        return 'HIM';
+    }
+
+    function addBackendProductToRoom(roomKey, prodObj) {
+        const room = ROOM_CONFIG[roomKey];
+        if (!room || !prodObj || !prodObj.name) return;
+        if (prodObj.name.includes('{{') || prodObj.name.includes('{%')) return;
+
+        const exists = room.products.some(
+            existing => String(existing.id) === String(prodObj.id) ||
+                (existing.name.toLowerCase() === prodObj.name.toLowerCase() && existing.price === prodObj.price)
+        );
+        if (!exists) {
+            room.products.push(prodObj);
+        }
+    }
+
+    // 1. Ingest products rendered by Django inside #django-room-products-data
+    function ingestServerRenderedProducts() {
+        if (dataBridge) {
+            dataBridge.querySelectorAll('.django-backend-product').forEach((node, idx) => {
+                const rawName = (node.getAttribute('data-name') || '').trim();
+                if (!rawName || rawName.includes('{{')) return;
+
+                const rawId = (node.getAttribute('data-id') || `db-${idx + 1}`).trim();
+                const rawRoom = (node.getAttribute('data-room') || '').trim();
+                const isRare = (node.getAttribute('data-is-rare') || '').trim() === 'true';
+                const roomKey = normalizeRoomKey(rawRoom, isRare);
+                const category = (node.getAttribute('data-category') || 'Collection').trim();
+                const sectionDisplay = (node.getAttribute('data-section-display') || roomKey).trim();
+                const description = (node.getAttribute('data-description') || 'A considered addition to the collection.').trim();
+                const price = parseFloat((node.getAttribute('data-price') || '0').replace(/[^\d.]/g, '')) || 0;
+                const stock = parseInt(node.getAttribute('data-stock') || '0', 10);
+                const image = (node.getAttribute('data-image') || '').trim();
+                const url = (node.getAttribute('data-url') || ROOM_CONFIG[roomKey].sectionUrl).trim();
+
+                const prodObj = {
+                    id: rawId,
+                    name: rawName,
+                    category: category,
+                    sectionDisplay: sectionDisplay,
+                    description: description,
+                    price: price,
+                    stock: Number.isFinite(stock) ? stock : 0,
+                    isRare: isRare,
+                    image: image,
+                    url: url
+                };
+
+                addBackendProductToRoom(roomKey, prodObj);
+                if (isRare && roomKey !== 'RARE') {
+                    addBackendProductToRoom('RARE', prodObj);
+                }
+            });
+        }
+
+        // 2. Also ingest any server-rendered products from #beginnings .product-grid
+        document.querySelectorAll('#beginnings .product-grid .product').forEach((article, idx) => {
+            const nameEl = article.querySelector('.product-name');
+            if (!nameEl || nameEl.textContent.includes('{{')) return;
+
+            const catText = (article.querySelector('.product-category')?.textContent || '').trim();
+            const descText = (article.querySelector('.product-description')?.textContent || '').trim();
+            const priceText = (article.querySelector('.price')?.textContent || '0').replace(/[^\d.]/g, '');
+            const statusText = (article.querySelector('.product-status')?.textContent || '').trim();
+            const imgEl = article.querySelector('.product-image');
+            const linkEl = article.querySelector('a[href]');
+            const isRareFlag = Boolean(article.querySelector('.product-flag'));
+
+            const parts = catText.split('·').map(p => p.trim());
+            const sectionDisplay = parts[0] || 'Collection';
+            const categoryName = parts[1] || parts[0] || 'Collection';
+            const href = linkEl ? (linkEl.getAttribute('href') || '') : '';
+            const roomKey = extractRoomFromHref(href, linkEl) || normalizeRoomKey(catText, isRareFlag);
+            const inStock = !statusText.toLowerCase().includes('out');
+
+            const prodObj = {
+                id: `featured-${idx + 1}`,
+                name: nameEl.textContent.trim(),
+                category: categoryName,
+                sectionDisplay: sectionDisplay,
+                description: descText || 'A considered addition to the collection.',
+                price: parseFloat(priceText) || 0,
+                stock: inStock ? 1 : 0,
+                statusLabel: statusText || (inStock ? 'Available' : 'Out of stock'),
+                isRare: isRareFlag,
+                image: imgEl ? imgEl.getAttribute('src') : '',
+                url: href || ROOM_CONFIG[roomKey].sectionUrl
+            };
+
+            addBackendProductToRoom(roomKey, prodObj);
+            if (isRareFlag && roomKey !== 'RARE') {
+                addBackendProductToRoom('RARE', prodObj);
+            }
+        });
+    }
+
+    // 3. Dynamically fetch backend products from the Django section-products URLs when running on the Django server
+    async function fetchRoomProductsFromBackend(roomKey) {
+        const room = ROOM_CONFIG[roomKey];
+        if (!room || room.fetchedFromEndpoint || room.isLoadingEndpoint) return;
+        const url = room.sectionUrl;
+        if (!url || url.includes('{%') || url.startsWith('#')) {
+            room.fetchedFromEndpoint = true;
+            return;
+        }
+
+        const gridEl = document.querySelector(`[data-room-grid="${roomKey}"]`);
+        room.isLoadingEndpoint = true;
+        if (room.products.length === 0 && gridEl) {
+            gridEl.innerHTML = `<div class="empty">Loading products from the UNCOMMON catalogue…</div>`;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                const data = await response.json();
+                const items = Array.isArray(data) ? data : (data.products || data.results || []);
+                items.forEach((item, idx) => {
+                    addBackendProductToRoom(roomKey, {
+                        id: item.id || `${roomKey.toLowerCase()}-json-${idx + 1}`,
+                        name: item.product_name || item.name || 'Unnamed Piece',
+                        category: item.category_name || item.category || 'Collection',
+                        sectionDisplay: item.section_display || room.portalTitle,
+                        description: item.description || 'A considered addition to the collection.',
+                        price: parseFloat(item.price) || 0,
+                        stock: typeof item.stock === 'number' ? item.stock : 1,
+                        isRare: Boolean(item.is_rare || item.is_limited),
+                        image: item.image_url || item.image || '',
+                        url: item.url || url
+                    });
+                });
+            } else {
+                const htmlText = await response.text();
+                const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+                const cards = doc.querySelectorAll('.product, .product-card, [data-product-id], article');
+                cards.forEach((cardEl, idx) => {
+                    const titleEl = cardEl.querySelector('.product-name, .room-card-title, h3, h2');
+                    const priceEl = cardEl.querySelector('.price, .product-price, .room-card-price');
+                    if (!titleEl || !priceEl) return;
+                    const name = titleEl.textContent.trim();
+                    if (!name || name.includes('{{')) return;
+
+                    const catEl = cardEl.querySelector('.product-category, .room-card-meta, .category');
+                    const descEl = cardEl.querySelector('.product-description, .room-card-desc, p');
+                    const statusEl = cardEl.querySelector('.product-status, .stock-status');
+                    const imgEl = cardEl.querySelector('img');
+                    const linkEl = cardEl.querySelector('a[href]') || (cardEl.tagName === 'A' ? cardEl : null);
+                    const isRare = Boolean(cardEl.querySelector('.product-flag')) || roomKey === 'RARE';
+
+                    const catRaw = (catEl ? catEl.textContent : 'Collection').trim();
+                    const catParts = catRaw.split('·').map(s => s.trim());
+                    const category = catParts[1] || catParts[0] || 'Collection';
+                    const sectionDisplay = catParts[0] || room.portalTitle;
+                    const price = parseFloat((priceEl.textContent || '0').replace(/[^\d.]/g, '')) || 0;
+                    const statusStr = (statusEl ? statusEl.textContent : 'Available').trim();
+                    const inStock = !statusStr.toLowerCase().includes('out');
+
+                    addBackendProductToRoom(roomKey, {
+                        id: cardEl.getAttribute('data-product-id') || `${roomKey.toLowerCase()}-dom-${idx + 1}`,
+                        name: name,
+                        category: category,
+                        sectionDisplay: sectionDisplay,
+                        description: (descEl ? descEl.textContent : 'A considered addition to the collection.').trim(),
+                        price: price,
+                        stock: inStock ? 1 : 0,
+                        statusLabel: statusStr,
+                        isRare: isRare,
+                        image: imgEl ? (imgEl.getAttribute('src') || '') : '',
+                        url: linkEl ? (linkEl.getAttribute('href') || url) : url
+                    });
+                });
+            }
+        } catch (err) {
+            // Silently fall back to server-rendered context products if endpoint fetch fails
+        } finally {
+            room.isLoadingEndpoint = false;
+            room.fetchedFromEndpoint = true;
+            updateRoomCountsUI(roomKey);
+            renderCategoryPills(roomKey);
+            renderRoomProducts(roomKey);
+        }
+    }
+
+    function getEffectiveRoomCount(roomKey) {
+        const room = ROOM_CONFIG[roomKey];
+        if (!room) return 0;
+        return Math.max(room.products.length, room.backendCount || 0);
+    }
+
+    function updateRoomCountsUI(roomKey) {
+        const count = getEffectiveRoomCount(roomKey);
+        const statEl = document.querySelector(`[data-room-stat-count="${roomKey}"]`);
+        if (statEl) {
+            statEl.textContent = `${count} Available`;
+        }
+        if (currentRoom === roomKey && roomSubnavCount) {
+            roomSubnavCount.textContent = `${count} Available · 1 of 100 Cap`;
+        }
+    }
+
+    function renderCategoryPills(roomKey) {
+        const room = ROOM_CONFIG[roomKey];
+        const catsWrap = document.querySelector(`[data-room-cats="${roomKey}"]`);
+        if (!room || !catsWrap) return;
+        const cats = ['ALL', ...new Set(room.products.map(p => p.category).filter(Boolean))];
+        catsWrap.innerHTML = '';
+        cats.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'room-cat-pill' + (cat === room.activeCategory ? ' is-active' : '');
+            const count = cat === 'ALL'
+                ? room.products.length
+                : room.products.filter(p => p.category === cat).length;
+            btn.textContent = cat === 'ALL' ? `All Pieces (${count})` : `${cat} (${count})`;
+            btn.addEventListener('click', () => {
+                room.activeCategory = cat;
+                renderCategoryPills(roomKey);
+                renderRoomProducts(roomKey);
+            });
+            catsWrap.appendChild(btn);
+        });
+    }
+
+    function renderRoomProducts(roomKey) {
+        const room = ROOM_CONFIG[roomKey];
+        const gridEl = document.querySelector(`[data-room-grid="${roomKey}"]`);
+        if (!room || !gridEl) return;
+
+        let list = room.products.filter(item => {
+            const matchCat = room.activeCategory === 'ALL' || item.category === room.activeCategory;
+            const q = (room.searchQuery || '').trim().toLowerCase();
+            const matchQuery = !q ||
+                item.name.toLowerCase().includes(q) ||
+                item.category.toLowerCase().includes(q) ||
+                (item.sectionDisplay || '').toLowerCase().includes(q) ||
+                item.description.toLowerCase().includes(q);
+            return matchCat && matchQuery;
+        });
+
+        if (room.sortMode === 'price-asc') {
+            list = [...list].sort((a, b) => a.price - b.price);
+        } else if (room.sortMode === 'price-desc') {
+            list = [...list].sort((a, b) => b.price - a.price);
+        } else if (room.sortMode === 'stock') {
+            list = [...list].sort((a, b) => a.stock - b.stock);
+        }
+
+        gridEl.innerHTML = '';
+
+        if (!list.length) {
+            const empty = document.createElement('div');
+            empty.className = 'empty';
+            if (room.products.length === 0) {
+                empty.textContent = 'The catalogue for this room is being prepared. Products added by the UNCOMMON team in the backend will appear here.';
+            } else {
+                empty.textContent = 'No products match that filter in this room. Reset your search or explore another category.';
+            }
+            gridEl.appendChild(empty);
+            return;
+        }
+
+        list.forEach((product, idx) => {
+            const card = document.createElement('article');
+            card.className = 'room-product-card';
+            card.style.animationDelay = `${idx * 75}ms`;
+
+            const inStock = product.stock > 0;
+            const statusText = product.statusLabel || (inStock ? 'Available' : 'Out of stock');
+            const fallbackUri = createFallbackSvgDataUri(product.name, roomKey, product.isRare ? 'RARE / LIMITED' : '1 OF 100');
+            const targetUrl = product.url || room.sectionUrl || '#';
+
+            card.innerHTML = `
+                <div class="room-card-media" data-inspect-id="${product.id}">
+                    <img src="${product.image || fallbackUri}" alt="${product.name}" loading="lazy">
+                    <div class="room-card-badges">
+                        ${product.isRare ? '<span class="room-serial-pill">Rare / Limited</span>' : `<span class="room-serial-pill">${product.sectionDisplay || room.portalTitle}</span>`}
+                    </div>
+                </div>
+                <div class="room-card-body">
+                    <div class="room-card-meta">
+                        <span>${product.category}</span>
+                        <span>${statusText}</span>
+                    </div>
+                    <h3 class="room-card-title" data-inspect-id="${product.id}">${product.name}</h3>
+                    <p class="room-card-desc">${product.description}</p>
+                    <div class="room-card-footer">
+                        <span class="room-card-price">${formatINR(product.price)}</span>
+                        <div class="room-card-actions">
+                            <button type="button" class="room-btn-inspect" data-inspect-id="${product.id}">Details ↗</button>
+                            <a class="room-btn-bag" href="${targetUrl}" data-backend-product-link>Explore →</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const imgEl = card.querySelector('img');
+            if (imgEl) {
+                imgEl.addEventListener('error', () => {
+                    imgEl.src = fallbackUri;
+                }, { once: true });
+            }
+
+            gridEl.appendChild(card);
+        });
+    }
+
+    function setActiveRoomTab(roomKey, updateHash = false) {
+        const normalized = ROOM_CONFIG[roomKey] ? roomKey : 'HIM';
+        currentRoom = normalized;
+        if (roomView) {
+            roomView.setAttribute('data-active-room', normalized);
+        }
+        roomSwitchPills.forEach(pill => {
+            const active = pill.getAttribute('data-switch-room') === normalized;
+            pill.classList.toggle('is-active', active);
+            pill.setAttribute('aria-selected', String(active));
+        });
+        const count = getEffectiveRoomCount(normalized);
+        if (roomSubnavCount) {
+            roomSubnavCount.textContent = `${count} Available · 1 of 100 Cap`;
+        }
+        if (updateHash && document.body.classList.contains('in-room-view')) {
+            try {
+                history.replaceState({ uncommonRoom: normalized }, '', `#room-${normalized.toLowerCase()}`);
+            } catch (e) {}
+        }
+    }
+
+    function renderAllRoomSections() {
+        ROOM_KEYS.forEach(rk => {
+            updateRoomCountsUI(rk);
+            renderCategoryPills(rk);
+            renderRoomProducts(rk);
+            fetchRoomProductsFromBackend(rk);
+        });
+    }
+
+    function getRoomSectionScrollTop(roomKey) {
+        const sectionEl = document.getElementById(`room-section-${roomKey}`);
+        if (!sectionEl) return 0;
+        if (roomKey === 'HIM') return 0;
+        const headerH = siteHeader ? siteHeader.offsetHeight : 105;
+        const subnavH = roomSubnavBar ? roomSubnavBar.offsetHeight : 64;
+        const rect = sectionEl.getBoundingClientRect();
+        const absoluteTop = rect.top + (window.scrollY || window.pageYOffset || 0);
+        return Math.max(0, Math.round(absoluteTop - headerH - subnavH + 2));
+    }
+
+    function scrollToRoomSection(roomKey, behavior = 'smooth') {
+        const normalized = ROOM_CONFIG[roomKey] ? roomKey : 'HIM';
+        setActiveRoomTab(normalized, true);
+
+        lockedRoomDuringScroll = normalized;
+        if (lockScrollTimer) window.clearTimeout(lockScrollTimer);
+        lockScrollTimer = window.setTimeout(() => {
+            lockedRoomDuringScroll = null;
+        }, behavior === 'smooth' ? 720 : 120);
+
+        const targetTop = getRoomSectionScrollTop(normalized);
+        window.scrollTo({ top: targetTop, behavior: behavior });
+    }
+
+    function syncActiveRoomOnScroll() {
+        const scrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+        if (roomSubnavBar) {
+            roomSubnavBar.classList.toggle('is-scrolled', scrollY > 12);
+        }
+        if (!document.body.classList.contains('in-room-view')) return;
+        if (lockedRoomDuringScroll) return;
+
+        const winH = window.innerHeight || document.documentElement.clientHeight || 800;
+        const triggerLine = Math.max(190, winH * 0.38);
+
+        let detectedRoom = ROOM_KEYS[0];
+        roomSectionBlocks.forEach(block => {
+            const rk = block.getAttribute('data-room-section');
+            const rect = block.getBoundingClientRect();
+            if (rect.top <= triggerLine) {
+                detectedRoom = rk;
+            }
+        });
+
+        if (detectedRoom && detectedRoom !== currentRoom) {
+            setActiveRoomTab(detectedRoom, true);
+        }
+    }
+
+    let roomScrollTicking = false;
+    window.addEventListener('scroll', () => {
+        if (!roomScrollTicking) {
+            window.requestAnimationFrame(() => {
+                syncActiveRoomOnScroll();
+                roomScrollTicking = false;
+            });
+            roomScrollTicking = true;
+        }
+    }, { passive: true });
+
+    function playPortalTransition(roomKey, onMidpoint) {
+        if (!portalOverlay || isPortalAnimating) {
+            if (onMidpoint) onMidpoint();
+            return;
+        }
+        isPortalAnimating = true;
+        const room = ROOM_CONFIG[roomKey] || ROOM_CONFIG.HIM;
+
+        portalOverlay.setAttribute('data-portal-room', roomKey);
+        portalOverlay.setAttribute('aria-hidden', 'false');
+        if (portalRingNum) portalRingNum.textContent = room.num;
+        if (portalKicker) portalKicker.textContent = room.portalKicker;
+        if (portalTitle) portalTitle.textContent = room.portalTitle;
+        if (portalSubtitle) portalSubtitle.textContent = room.portalSubtitle;
+
+        portalOverlay.classList.remove('is-opening', 'is-unlocking');
+        portalOverlay.classList.add('is-active', 'is-closing');
+
+        window.setTimeout(() => {
+            portalOverlay.classList.add('is-unlocking');
+            if (onMidpoint) onMidpoint();
+        }, 420);
+
+        window.setTimeout(() => {
+            portalOverlay.classList.remove('is-closing', 'is-unlocking');
+            portalOverlay.classList.add('is-opening');
+        }, 820);
+
+        window.setTimeout(() => {
+            portalOverlay.classList.remove('is-active', 'is-opening');
+            portalOverlay.setAttribute('aria-hidden', 'true');
+            isPortalAnimating = false;
+        }, 1420);
+    }
+
+    function enterRoom(roomKey, pushHistory = true) {
+        const normalized = (roomKey || 'HIM').toUpperCase();
+        const targetRoom = ROOM_CONFIG[normalized] ? normalized : 'HIM';
+
+        // If already inside the Room view, smoothly scroll directly to the corresponding Room section
+        if (document.body.classList.contains('in-room-view')) {
+            scrollToRoomSection(targetRoom, 'smooth');
+            if (pushHistory) {
+                try {
+                    history.pushState({ uncommonRoom: targetRoom }, '', `#room-${targetRoom.toLowerCase()}`);
+                } catch (e) {}
+            }
+            return;
+        }
+
+        playPortalTransition(targetRoom, () => {
+            renderAllRoomSections();
+            document.body.classList.add('in-room-view');
+            syncHeaderHeightVar();
+            setActiveRoomTab(targetRoom, false);
+            requestAnimationFrame(() => {
+                scrollToRoomSection(targetRoom, 'auto');
+            });
+            if (pushHistory) {
+                try {
+                    history.pushState({ uncommonRoom: targetRoom }, '', `#room-${targetRoom.toLowerCase()}`);
+                } catch (e) {}
+            }
+        });
+    }
+
+    function exitRoomToHouse(targetHash = '#catalogue') {
+        if (!document.body.classList.contains('in-room-view')) return;
+        if (portalKicker) portalKicker.textContent = 'UNCOMMON · THE HOUSE';
+        if (portalTitle) portalTitle.textContent = 'The Three Doors.';
+        if (portalSubtitle) portalSubtitle.textContent = 'Returning to the main house';
+
+        playPortalTransition(currentRoom, () => {
+            document.body.classList.remove('in-room-view');
+            if (targetHash) {
+                const targetEl = document.querySelector(targetHash);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                    return;
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // Set to false only if you want the door animation to play and then navigate the browser directly to the separate Django section_products URL
+    const USE_INPAGE_ROOM_VIEW = true;
+
+    function extractRoomFromHref(href, linkEl) {
+        if (!href) return null;
+        if (
+            href.includes("'HIM'") ||
+            href.includes('"HIM"') ||
+            /(?:^|[\/=_-])HIM(?:[\/?#]|$)/i.test(href) ||
+            /#room-him/i.test(href)
+        ) {
+            return 'HIM';
+        }
+        if (
+            href.includes("'HER'") ||
+            href.includes('"HER"') ||
+            /(?:^|[\/=_-])HER(?:[\/?#]|$)/i.test(href) ||
+            /#room-her/i.test(href)
+        ) {
+            return 'HER';
+        }
+        if (
+            href.includes("'RARE'") ||
+            href.includes('"RARE"') ||
+            /(?:^|[\/=_-])RARE(?:[\/?#]|$)/i.test(href) ||
+            /#room-rare/i.test(href)
+        ) {
+            return 'RARE';
+        }
+        if (href.includes('section_products') && linkEl) {
+            const text = (linkEl.textContent || '').toUpperCase();
+            if (text.includes('HER') || text.includes('INSOLO')) return 'HER';
+            if (text.includes('HUNDRED') || text.includes('RARE')) return 'RARE';
+            return 'HIM';
+        }
+        return null;
+    }
+
+    // Ingest server-rendered Django products & initialize all 3 room sections on load
+    ingestServerRenderedProducts();
+    renderAllRoomSections();
+
+    document.addEventListener('click', event => {
+        const switchBtn = event.target.closest('[data-switch-room]');
+        if (switchBtn) {
+            event.preventDefault();
+            const targetRoom = switchBtn.getAttribute('data-switch-room');
+            if (targetRoom) {
+                if (document.body.classList.contains('in-room-view')) {
+                    scrollToRoomSection(targetRoom, 'smooth');
+                    try {
+                        history.pushState({ uncommonRoom: targetRoom }, '', `#room-${targetRoom.toLowerCase()}`);
+                    } catch (e) {}
+                } else {
+                    enterRoom(targetRoom, true);
+                }
+            }
+            return;
+        }
+
+        const link = event.target.closest('a[href]');
+        if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+        // Allow direct backend product links inside the room grid/dossier when resolved in Django
+        if (link.hasAttribute('data-backend-product-link') || link.id === 'dossier-view-link') {
+            const linkHref = link.getAttribute('href') || '';
+            if (linkHref && !linkHref.includes('{%') && linkHref !== '#') {
+                return;
+            }
+        }
+
+        const href = link.getAttribute('href') || '';
+        const roomTarget = extractRoomFromHref(href, link);
+        if (roomTarget) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!USE_INPAGE_ROOM_VIEW && !href.includes('{%')) {
+                playPortalTransition(roomTarget, () => {
+                    window.location.href = href;
+                });
+                return;
+            }
+            enterRoom(roomTarget, true);
+            return;
+        }
+
+        if (document.body.classList.contains('in-room-view')) {
+            if (link.classList.contains('logo') || link.classList.contains('footer-brand')) {
+                event.preventDefault();
+                event.stopPropagation();
+                exitRoomToHouse('#top');
+                return;
+            }
+            if (href.startsWith('#') && href.length > 1 && !href.startsWith('#room-')) {
+                event.preventDefault();
+                event.stopPropagation();
+                exitRoomToHouse(href);
+            }
+        }
+    }, true);
+
+    if (roomBackBtn) {
+        roomBackBtn.addEventListener('click', () => {
+            exitRoomToHouse('#catalogue');
+        });
+    }
+
+    // Wire search and sort inputs for each of the 3 room sections
+    document.querySelectorAll('[data-room-search]').forEach(input => {
+        const rk = input.getAttribute('data-room-search');
+        input.addEventListener('input', () => {
+            if (ROOM_CONFIG[rk]) {
+                ROOM_CONFIG[rk].searchQuery = input.value || '';
+                renderRoomProducts(rk);
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-room-sort]').forEach(select => {
+        const rk = select.getAttribute('data-room-sort');
+        select.addEventListener('change', () => {
+            if (ROOM_CONFIG[rk]) {
+                ROOM_CONFIG[rk].sortMode = select.value || 'featured';
+                renderRoomProducts(rk);
+            }
+        });
+    });
+
+    function findProductById(productId) {
+        for (const key of Object.keys(ROOM_CONFIG)) {
+            const found = ROOM_CONFIG[key].products.find(p => String(p.id) === String(productId));
+            if (found) return { product: found, roomKey: key };
+        }
+        return null;
+    }
+
+    function openDossierModal(productId) {
+        const match = findProductById(productId);
+        if (!match || !dossierModal) return;
+        const { product, roomKey } = match;
+
+        const inStock = product.stock > 0;
+        const statusStr = product.statusLabel || (inStock ? `${product.stock} Available` : 'Out of stock');
+
+        dossierKicker.textContent = `${ROOM_CONFIG[roomKey].portalKicker} · ${product.category}`;
+        dossierTitle.textContent = product.name;
+        dossierPrice.textContent = formatINR(product.price);
+        dossierDesc.textContent = product.description;
+        dossierOrigin.textContent = product.sectionDisplay || ROOM_CONFIG[roomKey].portalTitle;
+        dossierMaterial.textContent = product.category;
+        dossierAllocation.textContent = statusStr;
+
+        if (dossierImg) {
+            dossierImg.onerror = () => {
+                dossierImg.src = createFallbackSvgDataUri(product.name, roomKey, product.isRare ? 'RARE' : '1 OF 100');
+            };
+            dossierImg.src = product.image || createFallbackSvgDataUri(product.name, roomKey, '1 OF 100');
+            dossierImg.alt = product.name;
+        }
+
+        if (dossierViewLink) {
+            dossierViewLink.setAttribute('href', product.url || ROOM_CONFIG[roomKey].sectionUrl || '#');
+        }
+
+        dossierModal.classList.add('is-open');
+        dossierModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDossierModal() {
+        if (!dossierModal) return;
+        dossierModal.classList.remove('is-open');
+        dossierModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    if (roomView) {
+        roomView.addEventListener('click', event => {
+            const inspectEl = event.target.closest('[data-inspect-id]');
+            if (inspectEl) {
+                const id = inspectEl.getAttribute('data-inspect-id');
+                openDossierModal(id);
+            }
+        });
+    }
+
+    if (dossierCloseBtn) {
+        dossierCloseBtn.addEventListener('click', closeDossierModal);
+    }
+    if (dossierModal) {
+        dossierModal.addEventListener('click', event => {
+            if (event.target === dossierModal) closeDossierModal();
+        });
+    }
+    if (dossierViewLink) {
+        dossierViewLink.addEventListener('click', event => {
+            const href = dossierViewLink.getAttribute('href') || '';
+            if (!href || href === '#' || href.includes('{%')) {
+                event.preventDefault();
+                closeDossierModal();
+            }
+        });
+    }
+    if (dossierReserveBtn) {
+        dossierReserveBtn.addEventListener('click', () => {
+            closeDossierModal();
+            const reserveTrigger = document.querySelector('[data-open-reservation]');
+            if (reserveTrigger) reserveTrigger.click();
+        });
+    }
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && dossierModal && dossierModal.classList.contains('is-open')) {
+            closeDossierModal();
+        }
+    });
+
+    window.addEventListener('popstate', event => {
+        if (event.state && event.state.uncommonRoom) {
+            if (document.body.classList.contains('in-room-view')) {
+                scrollToRoomSection(event.state.uncommonRoom, 'smooth');
+            } else {
+                enterRoom(event.state.uncommonRoom, false);
+            }
+        } else if (document.body.classList.contains('in-room-view')) {
+            document.body.classList.remove('in-room-view');
+        }
+    });
+
+    window.uncommonRooms = {
+        enter: enterRoom,
+        exit: exitRoomToHouse,
+        scrollToSection: scrollToRoomSection,
+        reloadBackend: () => {
+            ingestServerRenderedProducts();
+            renderAllRoomSections();
+        }
+    };
 })();
 
-</script>
-
-<script>
-/* Screenshot-matched navbar: compact glass state while scrolling. */
-(() => {
-  const header = document.querySelector('.site-header');
-  if (!header) return;
-  const updateHeader = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
-  updateHeader();
-  window.addEventListener('scroll', updateHeader, { passive: true });
-})();
 </script>
 </body>
 </html>

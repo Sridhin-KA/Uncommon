@@ -84,47 +84,78 @@ def login(request):
     return render(request, 'admin_panel/auth_page.html')
 
 def admin_index(request):
-    if 'admin' not in request.session:
-        return redirect('home')
+    # Check admin session
+    admin_id = request.session.get("admin")
+
+    if not admin_id:
+        return redirect("home")
 
     try:
-        admin = Admin.objects.get(id=request.session['admin'])
+        admin = Admin.objects.get(id=admin_id)
     except Admin.DoesNotExist:
         request.session.flush()
-        return redirect('home')
+        return redirect("home")
+
+    # Dashboard counts
+    total_products = Product.objects.count()
+    total_categories = Category.objects.count()
+    total_customers = Customer.objects.count()
+    total_orders = Order.objects.count()
+
+    # Orders that are not completed or cancelled
+    active_orders = Order.objects.exclude(
+        status__in=["DELIVERED", "CANCELLED"]
+    ).count()
+
+    # Latest products
+    recent_products = (
+        Product.objects
+        .select_related("category")
+        .order_by("-id")[:5]
+    )
+
+    # Latest orders
+    recent_orders = (
+        Order.objects
+        .select_related("customer")
+        .order_by("-created_at")[:5]
+    )
+
+    # Latest order items, including related product and customer
+    recent_order_items = (
+        OrderItem.objects
+        .select_related(
+            "product",
+            "product__category",
+            "order",
+            "order__customer",
+        )
+        .order_by("-id")[:10]
+    )
 
     context = {
-        # Dashboard counts
-        'admin': admin,
-        'total_products': Product.objects.count(),
-        'total_categories': Category.objects.count(),
-        'total_customers': Customer.objects.count(),
-        'total_orders': Order.objects.count(),
-        # 'total_feedback': Feedback.objects.count(),
+        "admin": admin,
 
-        # Latest database records
-        'recent_products': (
-            Product.objects.select_related('category')
-            .order_by('-id')[:5]
-        ),
-        'recent_orders': (
-            Order.objects.select_related('customer')
-            .order_by('-id')[:5]
-        ),
-        'recent_order_items': (
-            OrderItem.objects.select_related(
-                'product',
-                'order',
-                'order__customer',
-            )
-            .order_by('-id')[:5]
-        ),
-        # 'recent_feedback': (
-        #     Feedback.objects.order_by('-id')[:5]
-        # ),
+        "total_products": total_products,
+        "total_categories": total_categories,
+        "total_customers": total_customers,
+        "total_orders": total_orders,
+        "active_orders": active_orders,
+
+        # Your template uses this value.
+        # Replace with Feedback.objects.count() if Feedback is available.
+        "total_feedback": 0,
+
+        "recent_products": recent_products,
+        "recent_orders": recent_orders,
+        "recent_order_items": recent_order_items,
     }
 
-    return render(request, 'admin_panel/index.html', context)
+    return render(
+        request,
+        "admin_panel/index.html",
+        context,
+    )
 
 
 def admin_logout(request):
@@ -1246,3 +1277,215 @@ def delete_feedback(request, feedback_id):
 
     messages.success(request, "Your feedback has been deleted.")
     return redirect('my_orders')
+
+from decimal import Decimal, InvalidOperation
+from datetime import date
+
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
+
+from .models import (
+    Supplier,
+    PurchaseOrder,
+    PurchaseOrderLine,
+    Product,
+    Category,
+)
+
+
+@require_POST
+def create_purchase_order(request):
+    if not request.session.get("admin"):
+        messages.error(request, "Please log in as admin.")
+        return redirect("login")
+
+    try:
+        with transaction.atomic():
+            # Vendor details entered manually in the form
+            supplier_name = request.POST.get("supplier_name", "").strip()
+
+            if not supplier_name:
+                raise ValueError("Vendor name is required.")
+
+            supplier = Supplier.objects.create(
+                supplier_code=f"MAN-{date.today():%y%m%d}-{Supplier.objects.count() + 1:04d}",
+                company_name=supplier_name,
+                contact_person=request.POST.get("contact_person", "").strip(),
+                email=request.POST.get("supplier_email", "").strip(),
+                phone=request.POST.get("supplier_phone", "").strip(),
+                gstin=request.POST.get("supplier_gstin", "").strip(),
+                billing_address=request.POST.get("billing_address", "").strip(),
+                billing_city=request.POST.get("billing_city", "").strip(),
+                billing_state=request.POST.get("billing_state", "").strip(),
+                notes=request.POST.get("supplier_notes", "").strip(),
+            )
+
+            # The current Product model requires a category.
+            category, _ = Category.objects.get_or_create(
+                section="RARE",
+                category_name="Purchase Entries",
+                defaults={"description": "Products entered through purchasing"},
+            )
+
+            # Purchase order header
+            po_number = request.POST.get("po_number", "").strip()
+
+            if not po_number:
+                raise ValueError("Purchase order number is required.")
+
+            order_date = request.POST.get("order_date") or date.today().isoformat()
+            delivery_date = request.POST.get("expected_delivery_date") or None
+
+            status = request.POST.get("status", "draft")
+            if status not in ("draft", "submitted"):
+                status = "draft"
+
+            order = PurchaseOrder.objects.create(
+                po_number=po_number,
+                supplier=supplier,
+                order_date=order_date,
+                expected_delivery_date=delivery_date,
+                status=status,
+                reference_number=request.POST.get("reference_number", "").strip(),
+                destination_warehouse=request.POST.get("destination_warehouse", "").strip(),
+                place_of_supply=request.POST.get("place_of_supply", "").strip(),
+                is_interstate=request.POST.get("is_interstate") == "true",
+                shipping_address=request.POST.get("shipping_address", "").strip(),
+                delivery_method=request.POST.get("delivery_method", "").strip(),
+                terms_and_conditions=request.POST.get("terms_and_conditions", "").strip(),
+                internal_notes=request.POST.get("internal_notes", "").strip(),
+                discount_type=request.POST.get("discount_type", "fixed"),
+                discount_value=Decimal(request.POST.get("discount_value") or "0"),
+                shipping_cost=Decimal(request.POST.get("shipping_cost") or "0"),
+                other_charges=Decimal(request.POST.get("other_charges") or "0"),
+                adjustment_amount=Decimal(request.POST.get("adjustment_amount") or "0"),
+                created_by=str(request.session.get("admin")),
+            )
+
+            # These names must match the manually entered HTML fields.
+            product_names = request.POST.getlist("product_name[]")
+            quantities = request.POST.getlist("quantity[]")
+            prices = request.POST.getlist("unit_price[]")
+            discounts = request.POST.getlist("discount_percent[]")
+            gst_rates = request.POST.getlist("gst_rate[]")
+
+            if not product_names or not any(name.strip() for name in product_names):
+                raise ValueError("Add at least one product.")
+
+            if not (
+                len(product_names)
+                == len(quantities)
+                == len(prices)
+                == len(discounts)
+                == len(gst_rates)
+            ):
+                raise ValueError("Product line data is incomplete. Please try again.")
+
+            subtotal = Decimal("0")
+            total_discount = Decimal("0")
+            taxable_total = Decimal("0")
+            cgst_total = Decimal("0")
+            sgst_total = Decimal("0")
+            igst_total = Decimal("0")
+
+            for name, qty_raw, price_raw, discount_raw, gst_raw in zip(
+                product_names, quantities, prices, discounts, gst_rates
+            ):
+                name = name.strip()
+                if not name:
+                    continue
+
+                try:
+                    qty = Decimal(qty_raw)
+                    price = Decimal(price_raw)
+                    discount = Decimal(discount_raw or "0")
+                    gst = Decimal(gst_raw or "0")
+                except InvalidOperation:
+                    raise ValueError(f"Invalid numeric values for {name}.")
+
+                if qty <= 0 or price < 0 or not (0 <= discount <= 100) or not (0 <= gst <= 100):
+                    raise ValueError(f"Check quantity, price, discount, or GST for {name}.")
+
+                # Create the manually entered product in the current Product table.
+                product = Product.objects.create(
+                    category=category,
+                    product_name=name,
+                    price=price,
+                    stock=0,
+                    description="Created from a manual purchase order.",
+                )
+
+                line_subtotal = qty * price
+                line_discount = line_subtotal * discount / Decimal("100")
+                taxable = line_subtotal - line_discount
+                tax = taxable * gst / Decimal("100")
+
+                cgst = Decimal("0") if order.is_interstate else tax / 2
+                sgst = Decimal("0") if order.is_interstate else tax / 2
+                igst = tax if order.is_interstate else Decimal("0")
+
+                PurchaseOrderLine.objects.create(
+                    purchase_order=order,
+                    product=product,
+                    description=name,
+                    quantity=qty,
+                    unit_price=price,
+                    discount_percent=discount,
+                    gst_rate=gst,
+                    cgst_rate=Decimal("0") if order.is_interstate else gst / 2,
+                    sgst_rate=Decimal("0") if order.is_interstate else gst / 2,
+                    igst_rate=gst if order.is_interstate else Decimal("0"),
+                )
+
+                subtotal += line_subtotal
+                total_discount += line_discount
+                taxable_total += taxable
+                cgst_total += cgst
+                sgst_total += sgst
+                igst_total += igst
+
+            order_discount_value = order.discount_value
+            if order.discount_type == "percent":
+                if not (0 <= order_discount_value <= 100):
+                    raise ValueError("Order discount percentage must be between 0 and 100.")
+                order_discount = taxable_total * order_discount_value / Decimal("100")
+            else:
+                order_discount = min(taxable_total, max(Decimal("0"), order_discount_value))
+
+            discount_ratio = (
+                (taxable_total - order_discount) / taxable_total
+                if taxable_total else Decimal("0")
+            )
+
+            order.subtotal = subtotal
+            order.discount_amount = total_discount + order_discount
+            order.taxable_amount = taxable_total - order_discount
+            order.cgst_amount = cgst_total * discount_ratio
+            order.sgst_amount = sgst_total * discount_ratio
+            order.igst_amount = igst_total * discount_ratio
+            order.total_tax = (
+                order.cgst_amount + order.sgst_amount + order.igst_amount
+            )
+            order.grand_total = (
+                order.taxable_amount
+                + order.total_tax
+                + order.shipping_cost
+                + order.other_charges
+                + order.adjustment_amount
+            )
+            order.save()
+
+        messages.success(request, f"Purchase order {order.po_number} saved successfully.")
+        return redirect("admin_index")
+
+    except (ValueError, InvalidOperation) as exc:
+        messages.error(request, str(exc))
+        return redirect("admin_index")
+    except Exception:
+        messages.error(
+            request,
+            "Could not save the purchase order. Check your model fields and server logs.",
+        )
+        return redirect("admin_index")

@@ -861,6 +861,80 @@ body.is-loading { overflow: hidden; }
             .footer-inline-logo { width: 82px; }
         }
 
+
+        /* Scroll behaviour: after scrolling, reveal ONLY the navigation buttons
+           when the pointer reaches the top edge. The logo/full navbar stays hidden. */
+        .navbar-spacer.is-active { display:block; height:86px; }
+        .navbar.is-floating {
+            position:fixed;
+            top:14px;
+            left:50%;
+            transform:translate(-50%,-12px);
+            width:max-content;
+            max-width:calc(100vw - 24px);
+            min-height:0;
+            padding:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:0;
+            border:0;
+            background:transparent;
+            box-shadow:none;
+            opacity:0;
+            visibility:hidden;
+            pointer-events:none;
+            z-index:9999;
+            transition:opacity .22s ease, transform .22s ease, visibility .22s ease;
+        }
+        .navbar.is-floating .brand { display:none !important; }
+        .navbar.is-floating .nav-links {
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:5px;
+            padding:6px;
+            border:1px solid rgba(255,255,255,.72);
+            border-radius:16px;
+            background:rgba(248,245,237,.78);
+            backdrop-filter:blur(20px) saturate(145%);
+            -webkit-backdrop-filter:blur(20px) saturate(145%);
+            box-shadow:0 10px 30px rgba(36,30,20,.14), inset 0 1px 0 rgba(255,255,255,.65);
+        }
+        .navbar.is-floating .nav-links a {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-height:42px;
+            padding:0 17px;
+            border-radius:11px;
+            color:var(--ink);
+            background:rgba(255,252,247,.42);
+            white-space:nowrap;
+            font:9px var(--mono);
+            letter-spacing:.08em;
+            transition:background .2s ease, transform .2s ease, color .2s ease;
+        }
+        .navbar.is-floating .nav-links a:hover {
+            background:var(--ink);
+            color:var(--white);
+            transform:translateY(-1px);
+        }
+        .navbar.is-floating.is-visible {
+            opacity:1;
+            visibility:visible;
+            pointer-events:auto;
+            transform:translate(-50%,0);
+        }
+        @media(max-width:600px) {
+            .navbar.is-floating { top:8px; max-width:calc(100vw - 12px); }
+            .navbar.is-floating .nav-links { gap:3px; padding:4px; border-radius:13px; }
+            .navbar.is-floating .nav-links a { min-height:38px; padding:0 10px; font-size:8px; letter-spacing:.02em; }
+        }
+        @media(prefers-reduced-motion:reduce) {
+            .navbar.is-floating { transition:none !important; }
+        }
+
     </style>
 </head>
 
@@ -1708,24 +1782,45 @@ body.is-loading { overflow: hidden; }
     if (!navbar || !spacer) return;
 
     const threshold = 100;
-    let ticking = false;
+    const revealZone = 70;
+    let hideTimer = null;
 
-    function updateFloatingNavbar() {
-        const shouldFloat = window.scrollY > threshold;
-        navbar.classList.toggle('is-floating', shouldFloat);
-        spacer.classList.toggle('is-active', shouldFloat);
-        ticking = false;
+    function updateNavbarState() {
+        const scrolled = window.scrollY > threshold;
+        navbar.classList.toggle('is-floating', scrolled);
+        spacer.classList.toggle('is-active', scrolled);
+        if (!scrolled) {
+            navbar.classList.remove('is-visible');
+            clearTimeout(hideTimer);
+        }
     }
 
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(updateFloatingNavbar);
-            ticking = true;
+    function revealButtons() {
+        if (window.scrollY <= threshold) return;
+        clearTimeout(hideTimer);
+        navbar.classList.add('is-visible');
+        hideTimer = setTimeout(() => {
+            navbar.classList.remove('is-visible');
+        }, 1500);
+    }
+
+    document.addEventListener('mousemove', event => {
+        if (event.clientY <= revealZone) revealButtons();
+        else if (navbar.classList.contains('is-visible') && !navbar.contains(event.target)) {
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => navbar.classList.remove('is-visible'), 350);
         }
     }, { passive: true });
 
-    window.addEventListener('resize', updateFloatingNavbar);
-    updateFloatingNavbar();
+    navbar.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    navbar.addEventListener('mouseleave', () => {
+        if (window.scrollY > threshold) {
+            hideTimer = setTimeout(() => navbar.classList.remove('is-visible'), 350);
+        }
+    });
+    window.addEventListener('scroll', updateNavbarState, { passive: true });
+    window.addEventListener('resize', updateNavbarState);
+    updateNavbarState();
 })();
 </script>
 

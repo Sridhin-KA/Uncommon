@@ -1,4 +1,6 @@
 from django.db import models
+from django.db import models
+from django.core.validators import RegexValidator
 
 # Create your models here.
 
@@ -11,6 +13,38 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+
+class CustomerAddress(models.Model):
+    customer = models.ForeignKey(
+        "Customer",
+        on_delete=models.CASCADE,
+        related_name="saved_addresses"
+    )
+
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=15)
+
+    address_line = models.TextField()
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+
+    pincode = models.CharField(
+        max_length=6,
+        validators=[
+            RegexValidator(
+                regex=r"^[0-9]{6}$",
+                message="Enter a valid 6-digit Indian PIN code."
+            )
+        ]
+    )
+
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.city}"
 class Order(models.Model):
     STATUS_CHOICES = [
         ("PENDING", "Pending"),

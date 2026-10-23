@@ -844,14 +844,20 @@ def customer_profile(request):
         customer=customer
     ).order_by("-created_at")
 
+    # Get the customer's saved address
+    customer_address = CustomerAddress.objects.filter(
+        customer=customer
+    ).order_by("-is_default", "-created_at").first()
+
     return render(request, "customer/profile.html", {
         "customer": customer,
         "orders": orders,
         "total_orders": orders.count(),
         "delivered_orders": orders.filter(status="DELIVERED").count(),
+        "customer_address": customer_address,
     })
-
-
+    
+    
 def edit_customer_profile(request):
     customer = get_profile_customer(request)
 
@@ -888,3 +894,120 @@ def edit_customer_profile(request):
     return render(request, "customer/edit_profile.html", {
         "customer": customer,
     })
+    
+def manage_address(request):
+    """
+    The address editor is embedded in profile.html,
+    so send customers to their profile instead of a separate page.
+    """
+    return redirect("customer_profile")
+
+
+@require_POST
+def save_address(request):
+    customer_id = request.session.get("customer_id")
+
+    if not customer_id:
+        messages.error(request, "Please log in first.")
+        return redirect("login")
+
+    customer = get_object_or_404(Customer, id=customer_id)
+
+    name = request.POST.get("name", "").strip()
+    phone = request.POST.get("phone", "").strip()
+    address_line = request.POST.get("address_line", "").strip()
+    city = request.POST.get("city", "").strip()
+    state = request.POST.get("state", "").strip()
+    pincode = request.POST.get("pincode", "").strip()
+
+    # Validate required fields.
+    if not all([name, phone, address_line, city, state, pincode]):
+        messages.error(request, "Please fill in all address fields.")
+        return redirect("customer_profile")
+
+    # Validate Indian PIN code.
+    if not pincode.isdigit() or len(pincode) != 6:
+        messages.error(request, "Enter a valid 6-digit PIN code.")
+        return redirect("customer_profile")
+
+    # Allow digits and common phone-number symbols.
+    phone_digits = "".join(char for char in phone if char.isdigit())
+
+    if (
+        len(phone_digits) < 10
+        or len(phone_digits) > 15
+        or any(char not in "0123456789+()- " for char in phone)
+    ):
+        messages.error(request, "Enter a valid phone number.")
+        return redirect("customer_profile")
+
+    with transaction.atomic():
+        # Update the customer's existing default address first.
+        address = (
+            CustomerAddress.objects
+            .filter(customer=customer, is_default=True)
+            .first()
+        )
+
+        # If no default exists, update their first saved address.
+        if address is None:
+            address = (
+                CustomerAddress.objects
+                .filter(customer=customer)
+                .order_by("-created_at")
+                .first()
+            )
+
+        # Create the first address if none has been saved.
+        if address is None:
+            address = CustomerAddress(customer=customer)
+
+        # Keep one default address for this customer.
+        CustomerAddress.objects.filter(
+            customer=customer,
+            is_default=True
+        ).exclude(pk=address.pk).update(is_default=False)
+
+        address.name = name
+        address.phone = phone
+        address.address_line = address_line
+        address.city = city
+        address.state = state
+        address.pincode = pincode
+        address.is_default = True
+        address.save()
+
+    messages.success(request, "Delivery address saved successfully.")
+    return redirect("customer_profile")
+
+
+@require_POST
+def delete_address(request, address_id):
+    customer_id = request.session.get("customer_id")
+
+    if not customer_id:
+        messages.error(request, "Please log in first.")
+        return redirect("login")
+
+    customer = get_object_or_404(Customer, id=customer_id)
+
+    address = get_object_or_404(
+        CustomerAddress,
+        id=address_id,
+        customer=customer
+    )
+
+    was_default = address.is_default
+    address.delete()
+
+    if was_default:
+        next_address = CustomerAddress.objects.filter(
+            customer=customer
+        ).order_by("-created_at").first()
+
+        if next_address:
+            next_address.is_default = True
+            next_address.save(update_fields=["is_default"])
+
+    messages.success(request, "Address deleted successfully.")
+    return redirect("customer_profile")
