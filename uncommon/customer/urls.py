@@ -35,6 +35,16 @@ path(
     views.order_success,
     name="order_success",
 ),
+path(
+    "payment/verify/",
+    views.verify_razorpay_payment,
+    name="verify_razorpay_payment",
+),
+path(
+    "payment/webhook/",
+    views.razorpay_webhook,
+    name="razorpay_webhook",
+),
 path("my-orders/", views.my_orders, name="my_orders"),
 path(
     "my-orders/<str:order_number>/",

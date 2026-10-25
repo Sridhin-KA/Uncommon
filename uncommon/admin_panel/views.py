@@ -340,72 +340,49 @@ def delete_category(request, id):
 
     return redirect('view_categories')
 
+from decimal import Decimal, InvalidOperation
+
+from django.conf import settings
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+
+# Keep your existing project imports for these models:
+# from .models import Admin, Category, Product, UpcomingReservation
+
+
 def view_products(request):
     if 'admin' not in request.session:
         return redirect('home')
 
-    admin = get_object_or_404(
-        Admin,
-        id=request.session['admin']
-    )
+    admin = get_object_or_404(Admin, id=request.session['admin'])
 
-    categories = Category.objects.all().order_by(
-        'section',
-        'category_name'
-    )
-
-    products = Product.objects.select_related(
-        'category'
-    ).all().order_by('-id')
+    categories = Category.objects.all().order_by('section', 'category_name')
+    products = Product.objects.select_related('category').all().order_by('-id')
 
     search = request.GET.get('search', '').strip()
-
     if search:
         products = products.filter(
-            Q(product_name__icontains=search) |
-            Q(description__icontains=search)
+            Q(product_name__icontains=search)
+            | Q(overview__icontains=search)
+            | Q(description__icontains=search)
         )
 
     section = request.GET.get('section', '').strip()
-
     if section in ['HIM', 'HER', 'RARE']:
-        products = products.filter(
-            category__section=section
-        )
+        products = products.filter(category__section=section)
 
-    category_id = request.GET.get(
-        'category',
-        ''
-    ).strip()
-
+    category_id = request.GET.get('category', '').strip()
     if category_id:
-        products = products.filter(
-            category_id=category_id
-        )
+        products = products.filter(category_id=category_id)
 
-    low_stock_count = Product.objects.filter(
-        stock__gt=0,
-        stock__lte=5
-    ).count()
+    low_stock_count = Product.objects.filter(stock__gt=0, stock__lte=5).count()
+    out_of_stock_count = Product.objects.filter(stock=0).count()
 
-    out_of_stock_count = Product.objects.filter(
-        stock=0
-    ).count()
-
-    # PAGINATION
-    paginator = Paginator(
-        products,
-        5
-    )
-
-    page_number = request.GET.get(
-        'page'
-    )
-
-    page_obj = paginator.get_page(
-        page_number
-    )
-
+    paginator = Paginator(products, 5)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(
         request,
@@ -419,159 +396,110 @@ def view_products(request):
             'category_id': category_id,
             'low_stock_count': low_stock_count,
             'out_of_stock_count': out_of_stock_count,
-        }
+        },
     )
-    
+
 
 def add_product(request):
-
-    # Admin authentication
     if 'admin' not in request.session:
         return redirect('home')
 
-    # Get submitted values
+    if request.method != 'POST':
+        return redirect('view_products')
+
     category_id = request.POST.get('category', '').strip()
     product_name = request.POST.get('product_name', '').strip()
+    overview = request.POST.get('overview', '').strip()
     description = request.POST.get('description', '').strip()
     price_input = request.POST.get('price', '').strip()
     stock_input = request.POST.get('stock', '').strip()
-    image = request.FILES.get('image')
 
+    # The primary image is required; the other three are optional.
+    uploaded_images = {
+        field: request.FILES.get(field)
+        for field in ('image', 'image2', 'image3', 'image4')
+    }
     is_rare = request.POST.get('is_rare') == 'on'
     is_limited = request.POST.get('is_limited') == 'on'
 
-    # Validate required fields
     if not category_id or not product_name:
-        messages.error(
-            request,
-            'Category and product name are required.'
-        )
+        messages.error(request, 'Category and product name are required.')
         return redirect('view_products')
 
-    if len(product_name) > 255:
-        messages.error(
-            request,
-            'Product name is too long.'
-        )
+    if len(product_name) > 150:
+        messages.error(request, 'Product name must be 150 characters or fewer.')
         return redirect('view_products')
 
-    if not price_input:
-        messages.error(
-            request,
-            'Product price is required.'
-        )
+    if len(overview) > 300:
+        messages.error(request, 'Overview must be 300 characters or fewer.')
         return redirect('view_products')
 
-    if not stock_input:
-        messages.error(
-            request,
-            'Product stock is required.'
-        )
+    if not price_input or not stock_input:
+        messages.error(request, 'Product price and stock are required.')
         return redirect('view_products')
 
-    if not image:
-        messages.error(
-            request,
-            'Product image is required.'
-        )
+    if not uploaded_images['image']:
+        messages.error(request, 'The main product image is required.')
         return redirect('view_products')
 
-    # Validate category, price and stock
     try:
         category = Category.objects.get(id=category_id)
-
         price = Decimal(price_input)
         stock = int(stock_input)
 
-        if not price.is_finite() or price < 0:
+        if not price.is_finite() or price < 0 or stock < 0:
             raise ValueError
-
-        if stock < 0:
-            raise ValueError
-
     except Category.DoesNotExist:
-        messages.error(
-            request,
-            'Selected category does not exist.'
-        )
+        messages.error(request, 'Selected category does not exist.')
         return redirect('view_products')
-
     except (InvalidOperation, ValueError, TypeError):
-        messages.error(
-            request,
-            'Please enter valid price and stock values.'
-        )
+        messages.error(request, 'Please enter valid price and stock values.')
         return redirect('view_products')
 
-    # Create the product
     product = Product.objects.create(
         category=category,
         product_name=product_name,
+        overview=overview,
         description=description,
         price=price,
         stock=stock,
-        image=image,
+        image=uploaded_images['image'],
+        image2=uploaded_images['image2'],
+        image3=uploaded_images['image3'],
+        image4=uploaded_images['image4'],
         is_rare=is_rare,
         is_limited=is_limited,
     )
 
-    messages.success(
-        request,
-        f'"{product.product_name}" added successfully.'
-    )
+    messages.success(request, f'"{product.product_name}" added successfully.')
 
-    # Send availability notifications only when stock is available
+    # Preserve the existing subscriber notification behavior.
     if product.stock <= 0:
         messages.info(
             request,
-            'The product has no stock yet, so subscriber emails were not sent.'
+            'The product has no stock yet, so subscriber emails were not sent.',
         )
         return redirect('view_products')
 
-    # Build the list of matching subscriber interests
-    matching_interests = [
-        'New product launch',
-        'Any upcoming release',
-    ]
-
+    matching_interests = ['New product launch', 'Any upcoming release']
     if product.is_rare:
-        matching_interests.append(
-            'The Hundred — next rare release'
-        )
-
+        matching_interests.append('The Hundred — next rare release')
     if product.is_limited:
-        matching_interests.append(
-            'Limited-edition product'
-        )
+        matching_interests.append('Limited-edition product')
 
-    # Get matching subscribers
     subscribers = UpcomingReservation.objects.filter(
         interest__in=matching_interests
     ).order_by('id')
-
-    # Notify each email address only once for this product creation
-    subscriber_emails = (
-        subscribers
-        .values_list('email', flat=True)
-        .distinct()
-    )
+    subscriber_emails = subscribers.values_list('email', flat=True).distinct()
 
     email_sent = 0
     email_failed = 0
-
-    subject = (
-        f'INSOLO UNCOMMON | New Release: {product.product_name}'
-    )
+    subject = f'INSOLO UNCOMMON | New Release: {product.product_name}'
 
     for email in subscriber_emails:
-
-        # Find a subscriber record for the greeting
-        subscriber = subscribers.filter(
-            email=email
-        ).first()
-
+        subscriber = subscribers.filter(email=email).first()
         customer_name = subscriber.name if subscriber else 'Customer'
-
+        interest = subscriber.interest if subscriber else 'Upcoming release'
         body = f"""
 Hello {customer_name},
 
@@ -580,7 +508,7 @@ Good news! A new product matching your interests is now available.
 Product: {product.product_name}
 Price: ₹{product.price}
 
-Your interest: {subscriber.interest if subscriber else 'Upcoming release'}
+Your interest: {interest}
 
 Visit INSOLO UNCOMMON to explore our latest collection.
 
@@ -597,160 +525,101 @@ INSOLO UNCOMMON — The House
                 recipient_list=[email],
                 fail_silently=False,
             )
-
             email_sent += 1
-
         except Exception:
             email_failed += 1
 
-    # Report notification results to the admin
     if email_sent:
         messages.success(
             request,
-            f'Availability notification sent to {email_sent} subscriber(s).'
+            f'Availability notification sent to {email_sent} subscriber(s).',
         )
-
     if email_failed:
         messages.warning(
             request,
-            f'{email_failed} notification email(s) could not be sent.'
+            f'{email_failed} notification email(s) could not be sent.',
         )
-
     if email_sent == 0 and email_failed == 0:
-        messages.info(
-            request,
-            'No subscribers matched this product.'
-        )
+        messages.info(request, 'No subscribers matched this product.')
 
     return redirect('view_products')
 
 
 def edit_product(request, id):
-    
     if 'admin' not in request.session:
         return redirect('home')
 
-    product = get_object_or_404(
-        Product,
-        id=id
-    )
+    product = get_object_or_404(Product, id=id)
 
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return redirect('view_products')
 
-        category_id = request.POST.get('category')
-        product_name = request.POST.get(
-            'product_name',
-            ''
-        ).strip()
+    category_id = request.POST.get('category', '').strip()
+    product_name = request.POST.get('product_name', '').strip()
+    overview = request.POST.get('overview', '').strip()
+    description = request.POST.get('description', '').strip()
+    price_input = request.POST.get('price', '').strip()
+    stock_input = request.POST.get('stock', '').strip()
 
-        description = request.POST.get(
-            'description',
-            ''
-        ).strip()
+    is_rare = request.POST.get('is_rare') == 'on'
+    is_limited = request.POST.get('is_limited') == 'on'
 
-        price = request.POST.get(
-            'price',
-            ''
-        ).strip()
+    if not category_id or not product_name:
+        messages.error(request, 'Category and product name are required.')
+        return redirect('view_products')
 
-        stock = request.POST.get(
-            'stock',
-            ''
-        ).strip()
+    if len(product_name) > 150:
+        messages.error(request, 'Product name must be 150 characters or fewer.')
+        return redirect('view_products')
 
-        image = request.FILES.get('image')
+    if len(overview) > 300:
+        messages.error(request, 'Overview must be 300 characters or fewer.')
+        return redirect('view_products')
 
-        is_rare = request.POST.get(
-            'is_rare'
-        ) == 'on'
+    try:
+        category = Category.objects.get(id=category_id)
+        price = Decimal(price_input)
+        stock = int(stock_input)
+        if not price.is_finite() or price < 0 or stock < 0:
+            raise ValueError
+    except Category.DoesNotExist:
+        messages.error(request, 'Selected category does not exist.')
+        return redirect('view_products')
+    except (InvalidOperation, ValueError, TypeError):
+        messages.error(request, 'Please enter valid price and stock values.')
+        return redirect('view_products')
 
-        is_limited = request.POST.get(
-            'is_limited'
-        ) == 'on'
+    product.category = category
+    product.product_name = product_name
+    product.overview = overview
+    product.description = description
+    product.price = price
+    product.stock = stock
+    product.is_rare = is_rare
+    product.is_limited = is_limited
 
-        if not category_id or not product_name:
-            messages.error(
-                request,
-                'Category and product name are required.'
-            )
-            return redirect('view_products')
+    # Keep existing images unless a replacement file was uploaded.
+    for field in ('image', 'image2', 'image3', 'image4'):
+        uploaded_image = request.FILES.get(field)
+        if uploaded_image:
+            setattr(product, field, uploaded_image)
 
-        try:
-
-            category = Category.objects.get(
-                id=category_id
-            )
-
-            price = float(price)
-            stock = int(stock)
-
-            if price < 0 or stock < 0:
-                raise ValueError
-
-        except Category.DoesNotExist:
-
-            messages.error(
-                request,
-                'Selected category does not exist.'
-            )
-
-            return redirect('view_products')
-
-        except ValueError:
-
-            messages.error(
-                request,
-                'Please enter valid price and stock values.'
-            )
-
-            return redirect('view_products')
-
-        product.category = category
-        product.product_name = product_name
-        product.description = description
-        product.price = price
-        product.stock = stock
-        product.is_rare = is_rare
-        product.is_limited = is_limited
-
-        # Only replace image if a new image was uploaded
-        if image:
-            product.image = image
-
-        product.save()
-
-        messages.success(
-            request,
-            f'"{product_name}" updated successfully.'
-        )
-
+    product.save()
+    messages.success(request, f'"{product_name}" updated successfully.')
     return redirect('view_products')
 
 
 def delete_product(request, id):
-    
     if 'admin' not in request.session:
         return redirect('home')
 
-    product = get_object_or_404(
-        Product,
-        id=id
-    )
-
+    product = get_object_or_404(Product, id=id)
     if request.method == 'POST':
-
         product_name = product.product_name
-
         product.delete()
-
-        messages.success(
-            request,
-            f'"{product_name}" deleted successfully.'
-        )
+        messages.success(request, f'"{product_name}" deleted successfully.')
 
     return redirect('view_products')
-
-
 def view_customers(request):
     
     if 'admin' not in request.session:
@@ -1489,3 +1358,7 @@ def create_purchase_order(request):
             "Could not save the purchase order. Check your model fields and server logs.",
         )
         return redirect("admin_index")
+    
+    
+def view_feedback(response):
+    pass

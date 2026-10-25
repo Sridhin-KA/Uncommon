@@ -1407,6 +1407,47 @@
         }
 
 
+        /* =========================
+           MULTI-IMAGE PREVIEWS
+        ========================= */
+
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-preview-item {
+            min-width: 0;
+        }
+
+        .image-preview {
+            display: block;
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            background: var(--beige-subtle);
+            border: 1px solid var(--beige-border);
+        }
+
+        .image-preview-label {
+            display: block;
+            margin-top: 6px;
+            font-family: var(--font-mono);
+            font-size: 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        @media(max-width: 600px) {
+            .image-preview-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+
         .modal-footer {
             padding: 18px 24px;
 
@@ -2285,7 +2326,13 @@
                                     </div>
 
 
-                                    {% if product.description %}
+                                    {% if product.overview %}
+
+                                        <div class="description">
+                                            {{ product.overview|truncatechars:90 }}
+                                        </div>
+
+                                    {% elif product.description %}
 
                                         <div class="description">
                                             {{ product.description|truncatechars:70 }}
@@ -2456,7 +2503,8 @@
 
                                             data-name="{{ product.product_name }}"
 
-                                            data-description="{{ product.description|default:'' }}"
+                                            data-overview="{{ product.overview|default:''|escape }}"
+                                            data-description="{{ product.description|default:''|escape }}"
 
                                             data-price="{{ product.price }}"
 
@@ -2467,6 +2515,10 @@
                                             data-limited="{{ product.is_limited|yesno:'true,false' }}"
 
                                             data-image="{% if product.image %}{{ product.image.url }}{% endif %}"
+
+                                            data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+                                            data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+                                            data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
 
                                             onclick="openEditModal(this)"
                                         >
@@ -2730,13 +2782,29 @@
                 <div class="form-group">
 
                     <label>
-                        Description
+                        Short Overview
+                    </label>
+
+                    <textarea
+                        name="overview"
+                        class="form-control"
+                        maxlength="300"
+                        placeholder="A short summary shown on product cards..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Detailed Description
                     </label>
 
                     <textarea
                         name="description"
                         class="form-control"
-                        placeholder="Describe the product..."
+                        placeholder="Describe the product in detail..."
                     ></textarea>
 
                 </div>
@@ -2787,7 +2855,7 @@
                 <div class="form-group">
 
                     <label>
-                        Product Image
+                        Main Product Image (Required)
                     </label>
 
                     <input
@@ -2796,6 +2864,54 @@
                         class="form-control"
                         accept="image/*"
                         required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Product Image 2 (Optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image2"
+                        class="form-control"
+                        accept="image/*"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Product Image 3 (Optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image3"
+                        class="form-control"
+                        accept="image/*"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Product Image 4 (Optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image4"
+                        class="form-control"
+                        accept="image/*"
                     >
 
                 </div>
@@ -2958,13 +3074,31 @@
                 <div class="form-group">
 
                     <label>
-                        Description
+                        Short Overview
+                    </label>
+
+                    <textarea
+                        name="overview"
+                        id="editOverview"
+                        class="form-control"
+                        maxlength="300"
+                        placeholder="A short summary shown on product cards..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Detailed Description
                     </label>
 
                     <textarea
                         name="description"
                         id="editDescription"
                         class="form-control"
+                        placeholder="Describe the product in detail..."
                     ></textarea>
 
                 </div>
@@ -3015,7 +3149,7 @@
                 <div class="form-group">
 
                     <label>
-                        Replace Image
+                        Replace Main Image (Optional)
                     </label>
 
                     <input
@@ -3025,12 +3159,67 @@
                         accept="image/*"
                     >
 
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Replace Image 2 (Optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image2"
+                        class="form-control"
+                        accept="image/*"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Replace Image 3 (Optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image3"
+                        class="form-control"
+                        accept="image/*"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Replace Image 4 (Optional)
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image4"
+                        class="form-control"
+                        accept="image/*"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Current Product Images
+                    </label>
 
                     <div
-                        class="current-image"
-                        id="currentImage"
-                    >
-                    </div>
+                        class="image-preview-grid"
+                        id="currentImages"
+                    ></div>
 
                 </div>
 
@@ -3361,6 +3550,12 @@
             );
 
 
+        const overview =
+            document.getElementById(
+                'editOverview'
+            );
+
+
         const description =
             document.getElementById(
                 'editDescription'
@@ -3391,9 +3586,9 @@
             );
 
 
-        const currentImage =
+        const currentImages =
             document.getElementById(
-                'currentImage'
+                'currentImages'
             );
 
 
@@ -3407,6 +3602,10 @@
 
         name.value =
             button.dataset.name;
+
+
+        overview.value =
+            button.dataset.overview || '';
 
 
         description.value =
@@ -3429,34 +3628,48 @@
             button.dataset.limited === 'true';
 
 
-        if (button.dataset.image) {
+        const imageFields = [
+            ['image', 'Main image'],
+            ['image2', 'Image 2'],
+            ['image3', 'Image 3'],
+            ['image4', 'Image 4']
+        ];
 
-            currentImage.innerHTML = `
+        currentImages.innerHTML = '';
 
-                <img
-                    src="${button.dataset.image}"
-                    alt="Current product image"
-                >
+        imageFields.forEach(function(item) {
 
-            `;
+            const field = item[0];
+            const label = item[1];
+            const imageUrl = button.dataset[field];
 
-        } else {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-preview-item';
 
-            currentImage.innerHTML = `
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = label;
+                img.className = 'image-preview';
+                wrapper.appendChild(img);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'image-preview';
+                placeholder.style.display = 'grid';
+                placeholder.style.placeItems = 'center';
+                placeholder.style.fontSize = '9px';
+                placeholder.style.color = 'var(--text-muted)';
+                placeholder.textContent = 'No image';
+                wrapper.appendChild(placeholder);
+            }
 
-                <small
-                    style="
-                        color:var(--text-muted);
-                        font-family:var(--font-mono);
-                        font-size:9px;
-                    "
-                >
-                    No current image
-                </small>
+            const caption = document.createElement('span');
+            caption.className = 'image-preview-label';
+            caption.textContent = label;
+            wrapper.appendChild(caption);
 
-            `;
-
-        }
+            currentImages.appendChild(wrapper);
+        });
 
 
         openModal('editModal');

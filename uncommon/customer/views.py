@@ -16,8 +16,28 @@ import uuid
 
 from django.db import transaction
 from django.db.models import F
+import json
+import uuid
+from decimal import Decimal, ROUND_HALF_UP
 
+import razorpay
 
+from django.conf import settings
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.db.models import F
+import logging
+import uuid
+
+from decimal import Decimal, ROUND_HALF_UP
+from django.conf import settings
+from django.db import transaction
+from django.urls import reverse
+
+logger = logging.getLogger(__name__)
 # Create your views here.
 
 def get_logged_in_customer(request):
@@ -425,14 +445,22 @@ def remove_from_bag(request, product_id):
 
 
 
+from decimal import Decimal, ROUND_HALF_UP
+import uuid
+
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import F
+from django.shortcuts import get_object_or_404, redirect, render
+
+
 def checkout(request):
     customer = get_logged_in_customer(request)
 
     if not customer:
-        # Remember where the guest wants to go after login
         request.session["next_after_login"] = "checkout"
         request.session.modified = True
-
         messages.info(request, "Please log in before checkout.")
         return redirect("login")
 
@@ -442,6 +470,22 @@ def checkout(request):
         messages.info(request, "Your bag is empty.")
         return redirect("bag_view")
 
+    addresses = CustomerAddress.objects.filter(
+        customer=customer
+    ).order_by("-is_default", "-created_at")
+
+    default_address = addresses.filter(is_default=True).first()
+
+    if default_address is None:
+        default_address = addresses.first()
+
+    selected_address_id = (
+        str(default_address.id) if default_address else ""
+    )
+
+    # -----------------------------------------------
+    # BUILD BAG ITEMS
+    # -----------------------------------------------
     items = []
     total = Decimal("0.00")
 
@@ -458,7 +502,8 @@ def checkout(request):
         if quantity > product.stock:
             messages.error(
                 request,
-                f"Only {product.stock} of {product.product_name} are available."
+                f"Only {product.stock} of "
+                f"{product.product_name} are available."
             )
             return redirect("bag_view")
 
@@ -474,97 +519,305 @@ def checkout(request):
     if not items:
         request.session["bag"] = {}
         request.session.modified = True
-        messages.error(request, "Your bag contains no available products.")
+
+        messages.error(
+            request,
+            "Your bag contains no available products."
+        )
         return redirect("bag_view")
 
+    # -----------------------------------------------
+    # INITIAL CHECKOUT TOTALS FOR THE TEMPLATE
+    # -----------------------------------------------
+    processing_fee = (
+        total * Decimal("0.10")
+    ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    shipping_fee = Decimal("0.00")
+    grand_total = total + processing_fee + shipping_fee
+
+    # -----------------------------------------------
+    # HANDLE CHECKOUT SUBMISSION
+    # -----------------------------------------------
     if request.method == "POST":
-        shipping_address = request.POST.get("shipping_address", "").strip()
+        address_action = request.POST.get(
+            "address_action", "select"
+        )
 
-        if not shipping_address:
-            messages.error(request, "Please enter your shipping address.")
-            return render(request, "customer/checkout.html", {
-                "customer": customer,
-                "items": items,
-                "total": total,
-            })
+        # -------------------------------------------
+        # OPTION 1: USE A SAVED ADDRESS
+        # -------------------------------------------
+        if address_action == "select":
+            selected_address_id = request.POST.get(
+                "address_id", ""
+            ).strip()
 
-        if len(shipping_address) > 2000:
-            messages.error(request, "Please shorten your shipping address.")
-            return render(request, "customer/checkout.html", {
-                "customer": customer,
-                "items": items,
-                "total": total,
-            })
+            if not selected_address_id:
+                messages.error(
+                    request,
+                    "Please select a delivery address."
+                )
+                return render(request, "customer/checkout.html", {
+                    "customer": customer,
+                    "items": items,
+                    "total": total,
+                    "processing_fee": processing_fee,
+                    "shipping_fee": shipping_fee,
+                    "grand_total": grand_total,
+                    "addresses": addresses,
+                    "selected_address_id": selected_address_id,
+                })
 
-        with transaction.atomic():
-            order_items_to_create = []
-
-            # Lock and re-check each product to avoid overselling.
-            product_ids = sorted(
-                int(item["product"].id) for item in items
+            selected_address = get_object_or_404(
+                CustomerAddress,
+                id=selected_address_id,
+                customer=customer,
             )
-            locked_products = {
-                product.id: product
-                for product in Product.objects.select_for_update()
-                .filter(id__in=product_ids)
-                .order_by("id")
+
+        # -------------------------------------------
+        # OPTION 2: ADD AND USE A NEW ADDRESS
+        # -------------------------------------------
+        elif address_action == "new":
+            name = request.POST.get("name", "").strip()
+            phone = request.POST.get("phone", "").strip()
+            address_line = request.POST.get(
+                "address_line", ""
+            ).strip()
+            city = request.POST.get("city", "").strip()
+            state = request.POST.get("state", "").strip()
+            pincode = request.POST.get("pincode", "").strip()
+
+            required_fields = {
+                "Name": name,
+                "Phone": phone,
+                "Address": address_line,
+                "City": city,
+                "State": state,
+                "PIN code": pincode,
             }
 
-            verified_items = []
-            verified_total = Decimal("0.00")
+            missing_fields = [
+                field
+                for field, value in required_fields.items()
+                if not value
+            ]
 
-            for item in items:
-                product_id = item["product"].id
-                product = locked_products.get(product_id)
-                quantity = item["quantity"]
+            if missing_fields:
+                messages.error(
+                    request,
+                    "Please fill in: " + ", ".join(missing_fields)
+                )
+                return render(request, "customer/checkout.html", {
+                    "customer": customer,
+                    "items": items,
+                    "total": total,
+                    "processing_fee": processing_fee,
+                    "shipping_fee": shipping_fee,
+                    "grand_total": grand_total,
+                    "addresses": addresses,
+                    "selected_address_id": "",
+                    "new_address_data": request.POST,
+                    "show_new_address": True,
+                })
 
-                if not product or product.stock < quantity:
-                    messages.error(
-                        request,
-                        f"Insufficient stock for {item['product'].product_name}. "
-                        "Please review your bag."
-                    )
-                    return redirect("bag_view")
-
-                verified_items.append((product, quantity))
-                verified_total += product.price * quantity
-
-            order = Order.objects.create(
+            new_address = CustomerAddress(
                 customer=customer,
-                order_number=f"INS-{uuid.uuid4().hex[:12].upper()}",
-                total_amount=verified_total,
-                shipping_address=shipping_address,
-                status="PENDING",
+                name=name,
+                phone=phone,
+                address_line=address_line,
+                city=city,
+                state=state,
+                pincode=pincode,
+                is_default=not addresses.exists(),
             )
 
-            for product, quantity in verified_items:
-                order_items_to_create.append(
+            try:
+                new_address.full_clean()
+                new_address.save()
+
+            except ValidationError as exc:
+                for field_errors in exc.message_dict.values():
+                    for error in field_errors:
+                        messages.error(request, error)
+
+                return render(request, "customer/checkout.html", {
+                    "customer": customer,
+                    "items": items,
+                    "total": total,
+                    "processing_fee": processing_fee,
+                    "shipping_fee": shipping_fee,
+                    "grand_total": grand_total,
+                    "addresses": addresses,
+                    "selected_address_id": "",
+                    "new_address_data": request.POST,
+                    "show_new_address": True,
+                })
+
+            selected_address = new_address
+
+        else:
+            messages.error(request, "Invalid address selection.")
+            return redirect("checkout")
+
+        # Store an address snapshot with the order.
+        shipping_address = (
+            f"{selected_address.name}\n"
+            f"{selected_address.phone}\n"
+            f"{selected_address.address_line}\n"
+            f"{selected_address.city}, {selected_address.state} "
+            f"- {selected_address.pincode}"
+        )
+
+        # -----------------------------------------------
+        # RECHECK STOCK AND PRICES, THEN CREATE PAYMENT
+        # -----------------------------------------------
+        # Do NOT reduce stock or clear the bag before payment succeeds.
+        order = None
+
+        try:
+            with transaction.atomic():
+                product_ids = sorted(
+                    item["product"].id for item in items
+                )
+
+                locked_products = {
+                    product.id: product
+                    for product in Product.objects.select_for_update()
+                    .filter(id__in=product_ids)
+                    .order_by("id")
+                }
+
+                verified_items = []
+                verified_total = Decimal("0.00")
+
+                for item in items:
+                    product = locked_products.get(item["product"].id)
+                    quantity = item["quantity"]
+
+                    if not product or product.stock < quantity:
+                        messages.error(
+                            request,
+                            f"Insufficient stock for "
+                            f"{item['product'].product_name}.",
+                        )
+                        return redirect("bag_view")
+
+                    verified_items.append((product, quantity))
+                    verified_total += product.price * quantity
+
+                verified_total = verified_total.quantize(
+                    Decimal("0.01"),
+                    rounding=ROUND_HALF_UP,
+                )
+
+                verified_processing_fee = (
+                    verified_total * Decimal("0.10")
+                ).quantize(
+                    Decimal("0.01"),
+                    rounding=ROUND_HALF_UP,
+                )
+
+                verified_shipping_fee = Decimal("0.00")
+                verified_grand_total = (
+                    verified_total
+                    + verified_processing_fee
+                    + verified_shipping_fee
+                )
+
+                order = Order.objects.create(
+                    customer=customer,
+                    order_number=f"INS-{uuid.uuid4().hex[:12].upper()}",
+                    total_amount=verified_grand_total,
+                    shipping_address=shipping_address,
+                    status="PENDING",
+                )
+
+                OrderItem.objects.bulk_create([
                     OrderItem(
                         order=order,
                         product=product,
                         quantity=quantity,
                         price=product.price,
                     )
-                )
+                    for product, quantity in verified_items
+                ])
 
-                Product.objects.filter(pk=product.pk).update(
-                    stock=F("stock") - quantity
-                )
+            # Razorpay expects the amount in paise (₹1 = 100 paise).
+            amount_paise = int(verified_grand_total * 100)
+            client = get_razorpay_client()
 
-            OrderItem.objects.bulk_create(order_items_to_create)
+            razorpay_order = client.order.create({
+                "amount": amount_paise,
+                "currency": "INR",
+                "receipt": order.order_number,
+                "notes": {"order_number": order.order_number},
+            })
 
-        request.session["bag"] = {}
-        request.session.modified = True
+            payment = Payment.objects.create(
+                order=order,
+                razorpay_order_id=razorpay_order["id"],
+                amount=verified_grand_total,
+                currency="INR",
+                status="CREATED",
+            )
 
-        return redirect("order_success", order_number=order.order_number)
+        except Exception:
+            # Keep internal details in server logs, never show secrets to users.
+            logger.exception("Failed to initialize Razorpay checkout")
 
+            if order is not None:
+                Order.objects.filter(
+                    pk=order.pk,
+                    status="PENDING",
+                ).update(status="CANCELLED")
+
+            messages.error(
+                request,
+                "We couldn't start the payment. Please try again.",
+            )
+            return redirect("checkout")
+
+        # Data consumed by the Razorpay JavaScript in checkout.html.
+        razorpay_data = {
+            "key": settings.RAZORPAY_KEY_ID,
+            "amount": amount_paise,
+            "currency": "INR",
+            "order_number": order.order_number,
+            "razorpay_order_id": payment.razorpay_order_id,
+            "verify_url": reverse("verify_razorpay_payment"),
+            "customer_name": (
+                getattr(customer, "name", "")
+                or getattr(customer, "username", "")
+            ),
+            "customer_email": getattr(customer, "email", ""),
+            "customer_phone": getattr(customer, "phone", ""),
+        }
+
+        return render(request, "customer/checkout.html", {
+            "customer": customer,
+            "items": items,
+            "total": verified_total,
+            "processing_fee": verified_processing_fee,
+            "shipping_fee": verified_shipping_fee,
+            "grand_total": verified_grand_total,
+            "addresses": addresses,
+            "selected_address_id": str(selected_address.id),
+            "razorpay_data": razorpay_data,
+        })
+
+    # -----------------------------------------------
+    # DISPLAY CHECKOUT PAGE
+    # -----------------------------------------------
     return render(request, "customer/checkout.html", {
         "customer": customer,
         "items": items,
         "total": total,
+        "processing_fee": processing_fee,
+        "shipping_fee": shipping_fee,
+        "grand_total": grand_total,
+        "addresses": addresses,
+        "selected_address_id": selected_address_id,
     })
-
-
 def order_success(request, order_number):
     customer = get_logged_in_customer(request)
 
@@ -582,6 +835,263 @@ def order_success(request, order_number):
         "order": order,
     })
 
+
+def finalize_captured_payment(payment_record, razorpay_payment_id):
+    """
+    Call only after verifying the payment signature and confirming
+    Razorpay reports the payment as captured for the expected amount.
+    """
+    with transaction.atomic():
+        payment = (
+            Payment.objects.select_for_update()
+            .select_related("order")
+            .get(pk=payment_record.pk)
+        )
+        order = Order.objects.select_for_update().get(
+            pk=payment.order_id
+        )
+
+        if order.status == "CONFIRMED":
+            return True, "Payment already confirmed."
+
+        order_items = list(
+            OrderItem.objects.filter(order=order).order_by("product_id")
+        )
+        product_ids = sorted({item.product_id for item in order_items})
+
+        locked_products = {
+            product.id: product
+            for product in Product.objects.select_for_update()
+            .filter(id__in=product_ids)
+            .order_by("id")
+        }
+
+        # A captured payment cannot be treated as unpaid just because
+        # inventory changed. Record the payment and flag the order.
+        insufficient = []
+        for item in order_items:
+            product = locked_products.get(item.product_id)
+            if not product or product.stock < item.quantity:
+                insufficient.append(
+                    getattr(product, "product_name", str(item.product_id))
+                )
+
+        payment.razorpay_payment_id = razorpay_payment_id
+        payment.status = "PAID"
+        payment.save(update_fields=[
+            "razorpay_payment_id",
+            "status",
+            "updated_at",
+        ])
+
+        if insufficient:
+            # Payment was captured, but the order cannot be fulfilled.
+            # This needs a refund/manual support workflow.
+            return False, (
+                "Payment was captured, but stock is insufficient for: "
+                + ", ".join(insufficient)
+            )
+
+        # Deduct stock once, while product rows are locked.
+        for item in order_items:
+            Product.objects.filter(pk=item.product_id).update(
+                stock=F("stock") - item.quantity
+            )
+
+        order.status = "CONFIRMED"
+        order.save(update_fields=["status", "updated_at"])
+
+        return True, "Payment confirmed."
+
+
+@require_POST
+def verify_razorpay_payment(request):
+    customer = get_logged_in_customer(request)
+    if not customer:
+        return JsonResponse(
+            {"success": False, "error": "Please log in again."},
+            status=401,
+        )
+
+    try:
+        data = json.loads(request.body)
+        order_number = data["order_number"]
+        razorpay_order_id = data["razorpay_order_id"]
+        razorpay_payment_id = data["razorpay_payment_id"]
+        razorpay_signature = data["razorpay_signature"]
+    except (ValueError, KeyError, TypeError):
+        return JsonResponse(
+            {"success": False, "error": "Invalid payment response."},
+            status=400,
+        )
+
+    try:
+        payment = Payment.objects.select_related("order").get(
+            order__order_number=order_number,
+            order__customer=customer,
+            razorpay_order_id=razorpay_order_id,
+        )
+    except Payment.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Payment record not found."},
+            status=404,
+        )
+
+    try:
+        client = get_razorpay_client()
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature,
+        })
+
+        # Signature alone is not enough: check the payment with Razorpay.
+        remote_payment = client.payment.fetch(razorpay_payment_id)
+
+        expected_amount = int(payment.amount * 100)
+
+        if (
+            remote_payment.get("order_id") != payment.razorpay_order_id
+            or int(remote_payment.get("amount", -1)) != expected_amount
+            or remote_payment.get("currency") != payment.currency
+        ):
+            return JsonResponse(
+                {"success": False, "error": "Payment details do not match."},
+                status=400,
+            )
+
+        if remote_payment.get("status") != "captured":
+            payment.status = "PENDING"
+            payment.save(update_fields=["status", "updated_at"])
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": (
+                        "Payment is not captured yet. Please wait before "
+                        "retrying or contact support if money was deducted."
+                    ),
+                },
+                status=409,
+            )
+
+        success, message = finalize_captured_payment(
+            payment,
+            razorpay_payment_id,
+        )
+
+        if not success:
+            return JsonResponse(
+                {"success": False, "error": message},
+                status=409,
+            )
+
+        # Clear the bag only after successful verification and fulfilment.
+        request.session["bag"] = {}
+        request.session.modified = True
+
+        return JsonResponse({
+            "success": True,
+            "redirect_url": reverse(
+                "order_success",
+                kwargs={"order_number": payment.order.order_number},
+            ),
+        })
+
+    except razorpay.errors.SignatureVerificationError:
+        return JsonResponse(
+            {"success": False, "error": "Payment signature verification failed."},
+            status=400,
+        )
+    except Exception:
+        # Log exception details server-side; never return secrets to the client.
+        return JsonResponse(
+            {
+                "success": False,
+                "error": (
+                    "We couldn't confirm the payment status. Do not pay again "
+                    "immediately; contact support if money was deducted."
+                ),
+            },
+            status=502,
+        )
+
+
+@csrf_exempt
+@require_POST
+def razorpay_webhook(request):
+    """
+    Configure this endpoint in the Razorpay Dashboard.
+    Use the webhook secret, which is separate from the API key secret.
+    """
+    signature = request.headers.get("X-Razorpay-Signature", "")
+    webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
+
+    if not signature or not webhook_secret:
+        return HttpResponseBadRequest("Missing webhook signature or secret.")
+
+    try:
+        client = get_razorpay_client()
+        client.utility.verify_webhook_signature(
+            request.body.decode("utf-8"),
+            signature,
+            webhook_secret,
+        )
+        event_data = json.loads(request.body)
+    except Exception:
+        return HttpResponseBadRequest("Invalid webhook.")
+
+    event = event_data.get("event")
+    entity = (
+        event_data.get("payload", {})
+        .get("payment", {})
+        .get("entity", {})
+    )
+
+    if event not in ("payment.captured", "payment.failed"):
+        return JsonResponse({"received": True})
+
+    razorpay_order_id = entity.get("order_id")
+    razorpay_payment_id = entity.get("id")
+
+    if not razorpay_order_id:
+        return JsonResponse({"received": True})
+
+    try:
+        payment = Payment.objects.select_related("order").get(
+            razorpay_order_id=razorpay_order_id
+        )
+    except Payment.DoesNotExist:
+        # Unknown orders can be retried after the local record is available.
+        return JsonResponse({"received": False}, status=404)
+
+    if event == "payment.failed":
+        if payment.status != "PAID":
+            payment.status = "FAILED"
+            payment.save(update_fields=["status", "updated_at"])
+        return JsonResponse({"received": True})
+
+    # For payment.captured, validate amount/currency before fulfilment.
+    expected_amount = int(payment.amount * 100)
+    if (
+        entity.get("status") != "captured"
+        or int(entity.get("amount", -1)) != expected_amount
+        or entity.get("currency") != payment.currency
+        or not razorpay_payment_id
+    ):
+        return HttpResponseBadRequest("Captured payment details do not match.")
+
+    finalize_captured_payment(payment, razorpay_payment_id)
+    return JsonResponse({"received": True})
+
+
+def get_razorpay_client():
+    key_id = settings.RAZORPAY_KEY_ID
+    key_secret = settings.RAZORPAY_KEY_SECRET
+
+    if not key_id or not key_secret:
+        raise RuntimeError("Razorpay credentials are not configured.")
+
+    return razorpay.Client(auth=(key_id, key_secret))
 
 
 def my_orders(request):

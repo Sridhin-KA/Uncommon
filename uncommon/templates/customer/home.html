@@ -2404,6 +2404,204 @@ body.in-room-view .room-landing-view {
         mix-blend-mode: multiply;
       }
     </style>
+
+    <!-- Premium compact product details / gallery -->
+    <style>
+        .room-card-desc {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 0;
+            max-height: calc(1.7em * 3);
+            line-height: 1.7;
+        }
+        .room-card-body { min-width: 0; }
+        .room-card-title { overflow-wrap: anywhere; }
+
+        .room-dossier-modal {
+            padding: clamp(12px, 2.5vw, 28px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .24s ease, visibility .24s ease;
+        }
+        .room-dossier-modal.is-open {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+        .room-dossier-dialog {
+            width: min(900px, 100%);
+            max-height: min(84vh, 740px);
+            overflow: hidden;
+            grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+            border-radius: 22px;
+            box-shadow: 0 30px 90px rgba(0,0,0,.38);
+        }
+        .room-dossier-gallery {
+            min-width: 0;
+            padding: 18px;
+            background: #F0EADD;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .room-dossier-media {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            height: clamp(250px, 48vh, 430px);
+            overflow: hidden;
+            background: #E5DCC9;
+            border-radius: 12px;
+        }
+        .room-dossier-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity .18s ease, transform .3s ease;
+        }
+        .room-dossier-media img.is-changing { opacity: .35; transform: scale(.99); }
+        .dossier-image-count {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            padding: 7px 9px;
+            background: rgba(35,46,34,.88);
+            color: #F5F1E6;
+            font: 9px var(--mono);
+            letter-spacing: .12em;
+        }
+        .dossier-gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #ffffff9c;
+            border-radius: 50%;
+            background: rgba(251,248,241,.88);
+            color: var(--ink);
+            font: 25px/1 var(--serif);
+            cursor: pointer;
+            transition: background .2s, color .2s, opacity .2s;
+        }
+        .dossier-gallery-arrow:hover { background: var(--ink); color: var(--card); }
+        .dossier-gallery-arrow:disabled { opacity: .35; cursor: default; }
+        .dossier-prev { left: 10px; }
+        .dossier-next { right: 10px; }
+        .dossier-thumbnails {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 1px 1px 4px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--ochre) transparent;
+        }
+        .dossier-thumb {
+            position: relative;
+            flex: 0 0 58px;
+            width: 58px;
+            height: 66px;
+            padding: 0;
+            border: 1px solid var(--border);
+            background: var(--card);
+            cursor: pointer;
+            overflow: hidden;
+            opacity: .72;
+            transition: opacity .2s, border-color .2s, transform .2s;
+        }
+        .dossier-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .dossier-thumb:hover { opacity: 1; transform: translateY(-1px); }
+        .dossier-thumb.is-active { opacity: 1; border: 2px solid var(--ochre); }
+        .dossier-gallery-note {
+            margin: 0;
+            color: var(--muted);
+            font: 8px var(--mono);
+            letter-spacing: .14em;
+        }
+        .room-dossier-content {
+            min-width: 0;
+            padding: clamp(20px, 3vw, 30px);
+            gap: 13px;
+            overflow: hidden;
+        }
+        .room-dossier-top { align-items: flex-start; }
+        .room-dossier-title {
+            overflow-wrap: anywhere;
+            font-size: clamp(24px, 2.6vw, 32px);
+        }
+        .room-dossier-price { font-size: 15px; }
+        .dossier-description-label {
+            margin-top: 3px;
+            color: var(--ochre);
+            font: 9px var(--mono);
+            letter-spacing: .15em;
+        }
+        .dossier-description-scroll {
+            min-height: 75px;
+            max-height: clamp(105px, 21vh, 180px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 13px 14px 13px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            scrollbar-width: thin;
+            scrollbar-color: var(--ochre) transparent;
+        }
+        .dossier-description-scroll p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.9;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+        .room-dossier-specs { margin-top: 0; }
+        .dossier-modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: auto;
+            padding-top: 2px;
+        }
+        .dossier-modal-actions .btn {
+            min-height: 42px;
+            padding: 12px 14px;
+            font-size: 9px;
+            flex: 1 1 auto;
+            cursor: pointer;
+        }
+        .room-dossier-dialog .legal-close {
+            width: 36px;
+            height: 36px;
+            font-size: 22px;
+        }
+        @media (max-width: 760px) {
+            .room-dossier-modal { align-items: flex-start; }
+            .room-dossier-dialog {
+                width: min(560px, 100%);
+                max-height: 92vh;
+                margin: auto;
+                overflow-y: auto;
+                grid-template-columns: 1fr;
+            }
+            .room-dossier-gallery { padding: 12px 12px 10px; }
+            .room-dossier-media { height: clamp(210px, 34vh, 300px); }
+            .room-dossier-content { overflow: visible; padding: 20px; }
+            .dossier-description-scroll { max-height: 155px; }
+            .dossier-thumb { flex-basis: 52px; width: 52px; height: 58px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .room-dossier-modal, .room-dossier-dialog, .dossier-gallery-arrow,
+            .dossier-thumb, .room-dossier-media img { transition: none !important; animation: none !important; }
+        }
+    </style>
+
 </head>
 <body class="is-loading">
 <!-- Fullscreen UNCOMMEN Preloader -->
@@ -2884,11 +3082,18 @@ body.in-room-view .room-landing-view {
              data-name="{{ product.product_name }}"
              data-category="{{ product.category.category_name|default:'Collection' }}"
              data-section-display="{{ product.category.get_section_display|default:'For Him' }}"
+             data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
              data-stock="{{ product.stock|default:0 }}"
              data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
              data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+
+             data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+
+             data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+
+             data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
              data-url="{% url 'section_products' product.category.section %}"></div>
     {% endfor %}
     {% for product in her_products %}
@@ -2898,11 +3103,18 @@ body.in-room-view .room-landing-view {
              data-name="{{ product.product_name }}"
              data-category="{{ product.category.category_name|default:'Collection' }}"
              data-section-display="{{ product.category.get_section_display|default:'For Her' }}"
+             data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
              data-stock="{{ product.stock|default:0 }}"
              data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
              data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+
+             data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+
+             data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+
+             data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
              data-url="{% url 'section_products' product.category.section %}"></div>
     {% endfor %}
     {% for product in rare_products %}
@@ -2912,11 +3124,18 @@ body.in-room-view .room-landing-view {
              data-name="{{ product.product_name }}"
              data-category="{{ product.category.category_name|default:'The Hundred' }}"
              data-section-display="{{ product.category.get_section_display|default:'The Hundred' }}"
+             data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
              data-stock="{{ product.stock|default:0 }}"
              data-is-rare="true"
              data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+
+             data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+
+             data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+
+             data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
              data-url="{% url 'section_products' product.category.section %}"></div>
     {% endfor %}
     {% for product in all_products %}
@@ -2926,11 +3145,18 @@ body.in-room-view .room-landing-view {
              data-name="{{ product.product_name }}"
              data-category="{{ product.category.category_name|default:'Collection' }}"
              data-section-display="{{ product.category.get_section_display|default:'Collection' }}"
+             data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
              data-stock="{{ product.stock|default:0 }}"
              data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
              data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+
+             data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+
+             data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+
+             data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
              data-url="{% url 'section_products' product.category.section %}"></div>
     {% endfor %}
     {% for product in products %}
@@ -2940,11 +3166,18 @@ body.in-room-view .room-landing-view {
              data-name="{{ product.product_name }}"
              data-category="{{ product.category.category_name|default:'Collection' }}"
              data-section-display="{{ product.category.get_section_display|default:'Collection' }}"
+             data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
              data-stock="{{ product.stock|default:0 }}"
              data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
              data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+
+             data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+
+             data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+
+             data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
              data-url="{% url 'section_products' product.category.section %}"></div>
     {% endfor %}
     {% for product in featured_products %}
@@ -2954,20 +3187,34 @@ body.in-room-view .room-landing-view {
              data-name="{{ product.product_name }}"
              data-category="{{ product.category.category_name|default:'Collection' }}"
              data-section-display="{{ product.category.get_section_display|default:'Collection' }}"
+             data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
              data-stock="{{ product.stock|default:0 }}"
              data-is-rare="{% if product.is_rare or product.is_limited %}true{% else %}false{% endif %}"
              data-image="{% if product.image %}{{ product.image.url }}{% else %}https://picsum.photos/seed/uncommon-product-{{ product.id }}/600/700{% endif %}"
+
+             data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
+
+             data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
+
+             data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}"
              data-url="{% url 'section_products' product.category.section %}"></div>
     {% endfor %}
 </div>
 
-<!-- Quick-View Product Dossier Modal (Backend Product Details) -->
+<!-- Premium compact product details modal -->
 <div class="room-dossier-modal" id="room-dossier-modal" aria-hidden="true">
-    <section class="room-dossier-dialog" role="dialog" aria-modal="true" aria-labelledby="dossier-title">
-        <div class="room-dossier-media">
-            <img id="dossier-img" src="https://picsum.photos/seed/uncommon-him/700/800" alt="">
+    <section class="room-dossier-dialog" role="dialog" aria-modal="true" aria-labelledby="dossier-title" tabindex="-1">
+        <div class="room-dossier-gallery">
+            <div class="room-dossier-media">
+                <img id="dossier-img" src="" alt="Product image">
+                <span class="dossier-image-count" id="dossier-image-count">01 / 01</span>
+                <button type="button" class="dossier-gallery-arrow dossier-prev" id="dossier-prev" aria-label="Previous image">‹</button>
+                <button type="button" class="dossier-gallery-arrow dossier-next" id="dossier-next" aria-label="Next image">›</button>
+            </div>
+            <div class="dossier-thumbnails" id="dossier-thumbnails" aria-label="Product image thumbnails"></div>
+            <p class="dossier-gallery-note">DETAILS, FROM EVERY ANGLE</p>
         </div>
         <div class="room-dossier-content">
             <div class="room-dossier-top">
@@ -2978,15 +3225,18 @@ body.in-room-view .room-landing-view {
                 <button type="button" class="legal-close" id="dossier-close-btn" aria-label="Close product details">×</button>
             </div>
             <div class="room-dossier-price" id="dossier-price">₹0.00</div>
-            <p class="muted" id="dossier-desc" style="font-size:13px;line-height:1.8;margin:0;"></p>
+            <div class="dossier-description-label">THE DETAILS</div>
+            <div class="dossier-description-scroll" id="dossier-desc-scroll">
+                <p id="dossier-desc"></p>
+            </div>
             <div class="room-dossier-specs">
                 <div class="room-dossier-spec-row"><span>Collection</span><strong id="dossier-origin">UNCOMMON</strong></div>
                 <div class="room-dossier-spec-row"><span>Category</span><strong id="dossier-material">Category</strong></div>
                 <div class="room-dossier-spec-row"><span>Status</span><strong id="dossier-allocation">Available</strong></div>
             </div>
-            <div style="display:flex;gap:10px;margin-top:auto;padding-top:10px;flex-wrap:wrap;">
-                <a href="#" class="btn btn-dark" id="dossier-view-link" style="flex:1 1 auto;cursor:pointer;">View in Full Catalogue →</a>
-                <button type="button" class="btn btn-outline" id="dossier-reserve-btn" style="cursor:pointer;">Reserve Release ↗</button>
+            <div class="dossier-modal-actions">
+                <a href="#" class="btn btn-dark" id="dossier-view-link">View in Full Catalogue →</a>
+                <button type="button" class="btn btn-outline" id="dossier-reserve-btn">Reserve Release ↗</button>
             </div>
         </div>
     </section>
@@ -3920,6 +4170,12 @@ body.in-room-view .room-landing-view {
     const dossierModal = document.getElementById('room-dossier-modal');
     const dossierCloseBtn = document.getElementById('dossier-close-btn');
     const dossierImg = document.getElementById('dossier-img');
+    const dossierThumbnails = document.getElementById('dossier-thumbnails');
+    const dossierImageCount = document.getElementById('dossier-image-count');
+    const dossierPrevBtn = document.getElementById('dossier-prev');
+    const dossierNextBtn = document.getElementById('dossier-next');
+    let dossierImages = [];
+    let dossierImageIndex = 0;
     const dossierKicker = document.getElementById('dossier-kicker');
     const dossierTitle = document.getElementById('dossier-title');
     const dossierPrice = document.getElementById('dossier-price');
@@ -4098,10 +4354,14 @@ body.in-room-view .room-landing-view {
                 const roomKey = normalizeRoomKey(rawRoom, isRare);
                 const category = (node.getAttribute('data-category') || 'Collection').trim();
                 const sectionDisplay = (node.getAttribute('data-section-display') || roomKey).trim();
+                const overview = (node.getAttribute('data-overview') || '').trim();
                 const description = (node.getAttribute('data-description') || 'A considered addition to the collection.').trim();
                 const price = parseFloat((node.getAttribute('data-price') || '0').replace(/[^\d.]/g, '')) || 0;
                 const stock = parseInt(node.getAttribute('data-stock') || '0', 10);
                 const image = (node.getAttribute('data-image') || '').trim();
+                const images = [image, node.getAttribute('data-image2'), node.getAttribute('data-image3'), node.getAttribute('data-image4')]
+                    .map(value => (value || '').trim())
+                    .filter((value, index, list) => value && list.indexOf(value) === index);
                 const url = (node.getAttribute('data-url') || ROOM_CONFIG[roomKey].sectionUrl).trim();
 
                 const prodObj = {
@@ -4109,7 +4369,9 @@ body.in-room-view .room-landing-view {
                     name: rawName,
                     category: category,
                     sectionDisplay: sectionDisplay,
+                    overview: overview || description,
                     description: description,
+                    images: images,
                     price: price,
                     stock: Number.isFinite(stock) ? stock : 0,
                     isRare: isRare,
@@ -4149,7 +4411,9 @@ body.in-room-view .room-landing-view {
                 name: nameEl.textContent.trim(),
                 category: categoryName,
                 sectionDisplay: sectionDisplay,
+                overview: descText || 'A considered addition to the collection.',
                 description: descText || 'A considered addition to the collection.',
+                images: imgEl && imgEl.getAttribute('src') ? [imgEl.getAttribute('src')] : [],
                 price: parseFloat(priceText) || 0,
                 stock: inStock ? 1 : 0,
                 statusLabel: statusText || (inStock ? 'Available' : 'Out of stock'),
@@ -4360,7 +4624,7 @@ body.in-room-view .room-landing-view {
                         <span>${statusText}</span>
                     </div>
                     <h3 class="room-card-title" data-inspect-id="${product.id}">${product.name}</h3>
-                    <p class="room-card-desc">${product.description}</p>
+                    <p class="room-card-desc">${product.overview || product.description}</p>
                     <div class="room-card-footer">
                         <span class="room-card-price">${formatINR(product.price)}</span>
                         <div class="room-card-actions">
@@ -4695,6 +4959,72 @@ body.in-room-view .room-landing-view {
         return null;
     }
 
+    function renderDossierImage(index) {
+        if (!dossierImages.length || !dossierImg) return;
+        dossierImageIndex = (index + dossierImages.length) % dossierImages.length;
+        const nextSrc = dossierImages[dossierImageIndex];
+        dossierImg.classList.add('is-changing');
+        const showImage = () => {
+            dossierImg.src = nextSrc;
+            dossierImg.alt = `${dossierTitle ? dossierTitle.textContent : 'Product'} — image ${dossierImageIndex + 1}`;
+            dossierImg.classList.remove('is-changing');
+        };
+        const probe = new Image();
+        probe.onload = showImage;
+        probe.onerror = () => {
+            dossierImg.src = createFallbackSvgDataUri(
+                dossierTitle ? dossierTitle.textContent : 'Product',
+                currentRoom || 'HIM',
+                'UNCOMMON'
+            );
+            dossierImg.classList.remove('is-changing');
+        };
+        probe.src = nextSrc;
+
+        if (dossierImageCount) {
+            dossierImageCount.textContent =
+                `${String(dossierImageIndex + 1).padStart(2, '0')} / ${String(dossierImages.length).padStart(2, '0')}`;
+        }
+        if (dossierPrevBtn) dossierPrevBtn.disabled = dossierImages.length < 2;
+        if (dossierNextBtn) dossierNextBtn.disabled = dossierImages.length < 2;
+
+        if (dossierThumbnails) {
+            dossierThumbnails.querySelectorAll('.dossier-thumb').forEach((button, i) => {
+                button.classList.toggle('is-active', i === dossierImageIndex);
+                button.setAttribute('aria-current', i === dossierImageIndex ? 'true' : 'false');
+            });
+            const activeThumb = dossierThumbnails.querySelectorAll('.dossier-thumb')[dossierImageIndex];
+            if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+    }
+
+    function buildDossierGallery(product, roomKey) {
+        const fallback = createFallbackSvgDataUri(product.name, roomKey, product.isRare ? 'RARE' : 'UNCOMMON');
+        const candidateImages = Array.isArray(product.images) ? product.images : [];
+        dossierImages = [...new Set([product.image, ...candidateImages].filter(Boolean))].slice(0, 4);
+        if (!dossierImages.length) dossierImages = [fallback];
+        dossierImageIndex = 0;
+
+        if (dossierThumbnails) {
+            dossierThumbnails.innerHTML = '';
+            dossierImages.forEach((imageUrl, index) => {
+                const thumb = document.createElement('button');
+                thumb.type = 'button';
+                thumb.className = `dossier-thumb${index === 0 ? ' is-active' : ''}`;
+                thumb.setAttribute('aria-label', `View product image ${index + 1}`);
+                thumb.innerHTML = `<img src="${imageUrl}" alt="" loading="lazy">`;
+                thumb.addEventListener('click', () => renderDossierImage(index));
+                const thumbImg = thumb.querySelector('img');
+                thumbImg.addEventListener('error', () => {
+                    thumbImg.src = fallback;
+                }, { once: true });
+                dossierThumbnails.appendChild(thumb);
+            });
+            dossierThumbnails.hidden = dossierImages.length < 2;
+        }
+        renderDossierImage(0);
+    }
+
     function openDossierModal(productId) {
         const match = findProductById(productId);
         if (!match || !dossierModal) return;
@@ -4706,18 +5036,12 @@ body.in-room-view .room-landing-view {
         dossierKicker.textContent = `${ROOM_CONFIG[roomKey].portalKicker} · ${product.category}`;
         dossierTitle.textContent = product.name;
         dossierPrice.textContent = formatINR(product.price);
-        dossierDesc.textContent = product.description;
+        dossierDesc.textContent = product.description || product.overview || 'Details for this piece will be added soon.';
         dossierOrigin.textContent = product.sectionDisplay || ROOM_CONFIG[roomKey].portalTitle;
         dossierMaterial.textContent = product.category;
         dossierAllocation.textContent = statusStr;
 
-        if (dossierImg) {
-            dossierImg.onerror = () => {
-                dossierImg.src = createFallbackSvgDataUri(product.name, roomKey, product.isRare ? 'RARE' : '1 OF 100');
-            };
-            dossierImg.src = product.image || createFallbackSvgDataUri(product.name, roomKey, '1 OF 100');
-            dossierImg.alt = product.name;
-        }
+        buildDossierGallery(product, roomKey);
 
         if (dossierViewLink) {
             dossierViewLink.setAttribute('href', product.url || ROOM_CONFIG[roomKey].sectionUrl || '#');
@@ -4726,6 +5050,8 @@ body.in-room-view .room-landing-view {
         dossierModal.classList.add('is-open');
         dossierModal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
+        const dialog = dossierModal.querySelector('.room-dossier-dialog');
+        if (dialog) dialog.focus({ preventScroll: true });
     }
 
     function closeDossierModal() {
@@ -4733,6 +5059,16 @@ body.in-room-view .room-landing-view {
         dossierModal.classList.remove('is-open');
         dossierModal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+    }
+
+    if (dossierPrevBtn) dossierPrevBtn.addEventListener('click', () => renderDossierImage(dossierImageIndex - 1));
+    if (dossierNextBtn) dossierNextBtn.addEventListener('click', () => renderDossierImage(dossierImageIndex + 1));
+
+    if (dossierModal) {
+        dossierModal.addEventListener('keydown', event => {
+            if (event.key === 'ArrowLeft') renderDossierImage(dossierImageIndex - 1);
+            if (event.key === 'ArrowRight') renderDossierImage(dossierImageIndex + 1);
+        });
     }
 
     if (roomView) {

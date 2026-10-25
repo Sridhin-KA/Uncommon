@@ -36,15 +36,23 @@ class Category(models.Model):
         return f"{self.section} - {self.category_name}"
     
     
+
 class Product(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
-        related_name='products'
+        related_name="products"
     )
 
     product_name = models.CharField(max_length=150)
 
+    # Short summary for product cards
+    overview = models.CharField(
+        max_length=300,
+        blank=True
+    )
+
+    # Full product details
     description = models.TextField(blank=True)
 
     price = models.DecimalField(
@@ -54,22 +62,40 @@ class Product(models.Model):
 
     stock = models.PositiveIntegerField(default=0)
 
+    # Main image (existing field)
     image = models.ImageField(
-        upload_to='products/',
+        upload_to="products/",
+        blank=True,
+        null=True
+    )
+
+    # Additional product images
+    image2 = models.ImageField(
+        upload_to="products/",
+        blank=True,
+        null=True
+    )
+
+    image3 = models.ImageField(
+        upload_to="products/",
+        blank=True,
+        null=True
+    )
+
+    image4 = models.ImageField(
+        upload_to="products/",
         blank=True,
         null=True
     )
 
     is_rare = models.BooleanField(default=False)
-
     is_limited = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.product_name
-    
-    
+
 
 class Wishlist(models.Model):
     customer = models.ForeignKey(

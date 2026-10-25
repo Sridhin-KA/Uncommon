@@ -61,4 +61,5 @@ path(
    create_purchase_order,
     name="create_purchase_order",
 ),
+    path('view_feedback',view_feedback,name='view_feedback')
 ]
