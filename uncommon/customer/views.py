@@ -11,7 +11,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from decimal import Decimal
-from django.http import JsonResponse
+from django.http import JsonResponse,Http404
 import uuid
 
 from django.db import transaction
@@ -152,65 +152,67 @@ def customer_home(request):
 def section_products(request, section):
     section = section.upper()
 
-    if section not in ['HIM', 'HER', 'RARE']:
-        from django.http import Http404
-        raise Http404('Section not found')
+    if section not in ("HIM", "HER", "RARE"):
+        raise Http404("Section not found")
 
-    products = Product.objects.select_related(
-        'category'
-    ).filter(stock__gt=0)
+    products = (
+        Product.objects
+        .select_related("category")
+        .filter(stock__gt=0)
+    )
 
-    if section == 'RARE':
+    if section == "RARE":
         products = products.filter(
             Q(is_rare=True) | Q(is_limited=True)
         )
-        title = 'The Hundred'
-        subtitle = 'Rare objects. Limited numbers. Never ordinary.'
-    else:
-        products = products.filter(
-            category__section=section
-        )
-        title = 'Him' if section == 'HIM' else 'Insolo — Her'
-        subtitle = (
-            'Objects selected for him.'
-            if section == 'HIM'
-            else 'A different kind of uncommon.'
-        )
+        title = "The Hundred"
+        subtitle = "Rare objects. Limited numbers. Never ordinary."
 
-    search = request.GET.get('search', '').strip()
+        # Only confirmed orders count as purchases.
+        purchased_rare_items = (
+            OrderItem.objects
+            .filter(order__status="CONFIRMED")
+            .filter(
+                Q(product__is_rare=True)
+                | Q(product__is_limited=True)
+            )
+            .select_related("order", "product")
+            .order_by("order__created_at", "pk")
+        )
+    else:
+        products = products.filter(category__section=section)
+        title = "Him" if section == "HIM" else "Her"
+        subtitle = (
+            "Objects selected for him."
+            if section == "HIM"
+            else "A different kind of uncommon."
+        )
+        purchased_rare_items = []
+
+    search = request.GET.get("search", "").strip()
 
     if search:
         products = products.filter(
-            Q(product_name__icontains=search) |
-            Q(description__icontains=search) |
-            Q(category__category_name__icontains=search)
+            Q(product_name__icontains=search)
+            | Q(description__icontains=search)
+            | Q(category__category_name__icontains=search)
         )
 
-    products = products.order_by('-created_at')
-
-    return render(request, 'customer/section_products.html', {
-        'section': section,
-        'title': title,
-        'subtitle': subtitle,
-        'products': products,
-        'search': search,
-    })
-    customer_id = request.session.get('customer_id')
-
-    if not customer_id:
-        return render(
-            request,
-            'customer/home.html',
-            {'customer': None}
-        )
-
-    customer = Customer.objects.get(id=customer_id)
+    products = products.order_by("-created_at")
 
     return render(
         request,
-        'customer/home.html',
-        {'customer': customer}
+        "customer/section_products.html",
+        {
+            "section": section,
+            "title": title,
+            "subtitle": subtitle,
+            "products": products,
+            "search": search,
+            "purchased_rare_items": purchased_rare_items,
+        },
     )
+
     
 @require_POST
 def upcoming_reservation(request):

@@ -26,6 +26,11 @@ urlpatterns = [
     path('admin_panel/',include('admin_panel.urls')),
     path('', include('customer.urls')),
     path("accounts/", include("allauth.urls")),
+    path(
+        "api/admin/finance/weekly/",
+        admin_finance_weekly,
+        name="admin_finance_weekly",
+    ),
 ]
 urlpatterns += static(
     settings.MEDIA_URL,

@@ -7,6 +7,11 @@ urlpatterns = [
     path('login',login,name='login'),
     path('logout/', admin_logout, name='admin_logout'),
     path('index/', admin_index, name='admin_index'),
+     path(
+        "api/admin/finance/weekly/",
+        admin_finance_weekly,
+        name="admin_finance_weekly",
+    ),
     path('customers/', view_customers, name='view_customers'),
 path('customers/edit/<int:id>/', edit_customer, name='edit_customer'),
 path('customers/delete/<int:id>/', delete_customer, name='delete_customer'),

@@ -83,6 +83,18 @@ def login(request):
 
     return render(request, 'admin_panel/auth_page.html')
 
+from datetime import datetime, time, timedelta
+from decimal import Decimal
+
+from django.db.models import Prefetch
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.utils import timezone
+
+
+ZERO = Decimal("0.00")
+
+
 def admin_index(request):
     # Check admin session
     admin_id = request.session.get("admin")
@@ -102,7 +114,6 @@ def admin_index(request):
     total_customers = Customer.objects.count()
     total_orders = Order.objects.count()
 
-    # Orders that are not completed or cancelled
     active_orders = Order.objects.exclude(
         status__in=["DELIVERED", "CANCELLED"]
     ).count()
@@ -121,7 +132,7 @@ def admin_index(request):
         .order_by("-created_at")[:5]
     )
 
-    # Latest order items, including related product and customer
+    # Latest order items
     recent_order_items = (
         OrderItem.objects
         .select_related(
@@ -135,17 +146,12 @@ def admin_index(request):
 
     context = {
         "admin": admin,
-
         "total_products": total_products,
         "total_categories": total_categories,
         "total_customers": total_customers,
         "total_orders": total_orders,
         "active_orders": active_orders,
-
-        # Your template uses this value.
-        # Replace with Feedback.objects.count() if Feedback is available.
         "total_feedback": 0,
-
         "recent_products": recent_products,
         "recent_orders": recent_orders,
         "recent_order_items": recent_order_items,
@@ -157,6 +163,232 @@ def admin_index(request):
         context,
     )
 
+
+def admin_finance_weekly(request):
+    """
+    Supplies weekly finance data to the Financial Desk charts.
+
+    Counts an order only when it has a Payment record
+    with status PAID.
+    """
+
+    # Verify admin session
+    admin_id = request.session.get("admin")
+
+    if not admin_id:
+        return JsonResponse(
+            {"detail": "Authentication required."},
+            status=401,
+        )
+
+    try:
+        Admin.objects.get(id=admin_id)
+    except Admin.DoesNotExist:
+        request.session.flush()
+
+        return JsonResponse(
+            {"detail": "Authentication required."},
+            status=401,
+        )
+
+    # Generate the last 52 weekly periods
+    today = timezone.localdate()
+
+    this_monday = today - timedelta(
+        days=today.weekday()
+    )
+
+    first_monday = this_monday - timedelta(weeks=51)
+
+    start_datetime = timezone.make_aware(
+        datetime.combine(first_monday, time.min),
+        timezone.get_current_timezone(),
+    )
+
+    item_prefetch = Prefetch(
+        "items",
+        queryset=OrderItem.objects.select_related("product"),
+    )
+
+    orders = list(
+        Order.objects
+        .filter(created_at__gte=start_datetime)
+        .prefetch_related(
+            item_prefetch,
+            "payments",
+        )
+        .order_by("created_at")
+    )
+
+    # Initialize weekly buckets
+    buckets = {}
+
+    for offset in range(52):
+        week_start = first_monday + timedelta(
+            weeks=offset
+        )
+
+        buckets[week_start.isoformat()] = {
+            "start": week_start.isoformat(),
+            "orders": 0,
+            "gross": 0.0,
+            "checkoutAddons": 0.0,
+            "discounts": 0.0,
+            "returns": 0.0,
+            "rtoOrders": 0,
+            "rtoRev": 0.0,
+            "cogs": 0.0,
+            "shipping": 0.0,
+            "fees": 0.0,
+            "ads": 0.0,
+            "rtoCost": 0.0,
+            "fixed": 0.0,
+            "codOrders": 0,
+            "s5": 0.0,
+            "s18": 0.0,
+            "intra": 0.0,
+            "itcG": 0.0,
+            "itcS": 0.0,
+            "itcF": 0.0,
+            "itcA": 0.0,
+            "itcO": 0.0,
+        }
+
+    # Use a product cost field only if it exists.
+    product_fields = {
+        field.name
+        for field in Product._meta.concrete_fields
+    }
+
+    possible_cost_fields = (
+        "cost_price",
+        "purchase_price",
+        "unit_cost",
+        "buying_price",
+    )
+
+    cost_field = next(
+        (
+            name
+            for name in possible_cost_fields
+            if name in product_fields
+        ),
+        None,
+    )
+
+    # Aggregate paid orders
+    for order in orders:
+        created = order.created_at
+
+        if timezone.is_aware(created):
+            order_date = timezone.localtime(
+                created
+            ).date()
+        else:
+            order_date = created.date()
+
+        week_start = order_date - timedelta(
+            days=order_date.weekday()
+        )
+
+        bucket = buckets.get(week_start.isoformat())
+
+        if bucket is None:
+            continue
+
+        # Include only successfully paid orders.
+        paid_payments = [
+            payment
+            for payment in order.payments.all()
+            if payment.status == "PAID"
+        ]
+
+        if not paid_payments:
+            continue
+
+        items = list(order.items.all())
+
+        # Calculate the item subtotal from saved order items.
+        item_sales = sum(
+            (
+                item.price * item.quantity
+                for item in items
+            ),
+            ZERO,
+        )
+
+        order_total = order.total_amount or ZERO
+
+        # This is the difference, not a confirmed Razorpay fee.
+        checkout_addons = max(
+            order_total - item_sales,
+            ZERO,
+        )
+
+        bucket["orders"] += 1
+        bucket["gross"] += float(item_sales)
+        bucket["checkoutAddons"] += float(
+            checkout_addons
+        )
+
+        # Cost of goods, if Product has a cost field.
+        if cost_field:
+            for item in items:
+                product_cost = getattr(
+                    item.product,
+                    cost_field,
+                    None,
+                )
+
+                if product_cost is not None:
+                    bucket["cogs"] += float(
+                        Decimal(str(product_cost))
+                        * item.quantity
+                    )
+
+        # Gateway fees, refunds, GST, shipping, advertising
+        # and fixed costs remain unreported until recorded
+        # in dedicated database fields or expense records.
+
+    return JsonResponse({
+        "weeks": list(buckets.values()),
+
+        "recorded_fields": {
+            "order_total": "Order.total_amount",
+            "item_sales": (
+                "sum(OrderItem.price * OrderItem.quantity)"
+            ),
+            "successful_payment_filter": (
+                "Payment.status == PAID"
+            ),
+            "checkout_addons": (
+                "Derived from order total minus item subtotal"
+            ),
+            "product_cost": cost_field,
+            "razorpay_gateway_fee": None,
+            "refunds_returns": None,
+            "shipping": None,
+            "sales_gst_rates": None,
+            "input_tax_credit": None,
+            "advertising_spend": None,
+            "fixed_expenses": None,
+        },
+
+        "notes": [
+            (
+                "Checkout add-ons are derived values. "
+                "They are not confirmed gateway fees."
+            ),
+            (
+                "Razorpay fees are not stored in the supplied "
+                "Payment model."
+            ),
+            (
+                "Refunds, shipping, GST, advertising and fixed "
+                "expenses are not estimated."
+            ),
+        ],
+    })
 
 def admin_logout(request):
     if 'admin' in request.session:

@@ -1204,6 +1204,56 @@ body::after {
             .unified-room-tabs .room-tab b { font-size: 9px; }
         }
 
+
+
+/* THE HUNDRED: purchase register */
+.hundred-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 24px;
+    align-items: start;
+    padding-bottom: 75px;
+}
+.hundred-layout-standard { display: block; }
+.hundred-layout .grid { min-width: 0; padding-bottom: 0; }
+.purchase-register {
+    position: sticky;
+    top: 110px;
+    padding: 24px 20px;
+    background: var(--forest, #17291f);
+    color: #f5f1e6;
+    border: 1px solid var(--gold, #b89a55);
+    box-shadow: 0 14px 35px rgba(20, 30, 20, .12);
+}
+.register-eyebrow, .register-footer {
+    font: 9px var(--mono, monospace);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #d5bb7a;
+}
+.purchase-register h2 { margin: 14px 0 8px; font: 26px/1.2 var(--serif, serif); }
+.register-intro { color: #d1d5ca; font-size: 11px; line-height: 1.7; }
+.register-count {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    margin: 20px 0; padding: 14px 0;
+    border-top: 1px solid #ffffff25; border-bottom: 1px solid #ffffff25;
+    font: 10px var(--mono, monospace);
+}
+.register-count strong { font: 25px var(--serif, serif); color: #d5bb7a; }
+.register-entry { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid #ffffff20; }
+.register-number {
+    display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px;
+    border: 1px solid #b89a55; color: #e2c989; font: 11px var(--mono, monospace);
+}
+.register-entry-copy { display: grid; gap: 6px; min-width: 0; }
+.register-entry-copy strong { font: 14px var(--serif, serif); overflow-wrap: anywhere; }
+.register-entry-copy span, .register-empty { color: #d1d5ca; font: 9px/1.6 var(--mono, monospace); }
+.register-footer { margin-top: 20px; text-align: center; }
+@media (max-width: 900px) {
+    .hundred-layout { grid-template-columns: minmax(0, 1fr); }
+    .purchase-register { position: static; order: -1; }
+}
+
 </style>
 <style>
 
@@ -1437,7 +1487,8 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 
     </section>
 
-    <!-- PRODUCTS -->
+    <!-- PRODUCTS AND THE HUNDRED PURCHASE REGISTER -->
+    <div class="hundred-layout{% if section != 'RARE' %} hundred-layout-standard{% endif %}">
     <section class="grid" aria-label="Products">
 
         {% for product in products %}
@@ -1547,6 +1598,35 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
         {% endfor %}
 
     </section>
+
+    {% if section == 'RARE' %}
+    <aside class="purchase-register" aria-label="The Hundred purchase register">
+        <div class="register-eyebrow">The Hundred · Register</div>
+        <h2>Claimed pieces.</h2>
+        <p class="register-intro">A record of rare and limited pieces purchased from the collection.</p>
+
+        <div class="register-count">
+            <span>Confirmed purchases</span>
+            <strong>{{ purchased_rare_items|length }}</strong>
+        </div>
+
+        <div class="register-list">
+            {% for item in purchased_rare_items %}
+            <article class="register-entry">
+                <span class="register-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                <div class="register-entry-copy">
+                    <strong>{{ item.product.product_name }}</strong>
+                    <span>Purchased {{ item.order.created_at|date:"d M Y" }}</span>
+                </div>
+            </article>
+            {% empty %}
+            <p class="register-empty">The first entry is yet to be recorded.</p>
+            {% endfor %}
+        </div>
+        <div class="register-footer">UNCOMMON · ARCHIVE 001</div>
+    </aside>
+    {% endif %}
+    </div>
 
 </main>
 
@@ -2175,9 +2255,9 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     navigating = true;
     const destination = (link.textContent + ' ' + link.href).toUpperCase();
     transition.dataset.room = destination.includes('RARE') || destination.includes('HUNDRED') ? 'RARE'
-      : destination.includes('HER') || destination.includes('INSOLO') ? 'HER' : 'HIM';
+      : destination.includes('HER') ? 'HER' : 'HIM';
     const plaque = transition.querySelector('.door-center-mark');
-    if (plaque) plaque.textContent = transition.dataset.room === 'RARE' ? 'The Hundred.' : transition.dataset.room === 'HER' ? 'Insolo Her.' : 'Him.';
+    if (plaque) plaque.textContent = transition.dataset.room === 'RARE' ? 'The Hundred.' : transition.dataset.room === 'HER' ? 'Her.' : 'Him.';
     transition.classList.add('is-closing');
     document.body.classList.add('is-transitioning');
     window.setTimeout(() => { window.location.href = link.href; }, 740);
