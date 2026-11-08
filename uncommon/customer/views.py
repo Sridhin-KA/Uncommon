@@ -13,7 +13,9 @@ from django.views.decorators.http import require_POST
 from decimal import Decimal
 from django.http import JsonResponse,Http404
 import uuid
-
+from django.contrib import messages
+from django.db.models import Avg, Count, Q, Prefetch
+from django.db.models.functions import Coalesce
 from django.db import transaction
 from django.db.models import F
 import json
@@ -155,32 +157,53 @@ def section_products(request, section):
     if section not in ("HIM", "HER", "RARE"):
         raise Http404("Section not found")
 
-    products = (
+    customer = None
+    customer_id = request.session.get("customer_id")
+    if customer_id:
+        customer = Customer.objects.filter(pk=customer_id).first()
+
+    feedback_queryset = (
+        Feedback.objects
+        .select_related("customer")
+        .order_by("-created_at")
+    )
+
+    products_queryset = (
         Product.objects
         .select_related("category")
+        .prefetch_related(
+            Prefetch("feedbacks", queryset=feedback_queryset, to_attr="feedback_list")
+        )
+        .annotate(
+            average_rating=Avg("feedbacks__rating"),
+            review_count=Count("feedbacks", distinct=True),
+        )
         .filter(stock__gt=0)
     )
 
     if section == "RARE":
-        products = products.filter(
+        products_queryset = products_queryset.filter(
             Q(is_rare=True) | Q(is_limited=True)
         )
         title = "The Hundred"
         subtitle = "Rare objects. Limited numbers. Never ordinary."
 
-        # Only confirmed orders count as purchases.
         purchased_rare_items = (
             OrderItem.objects
             .filter(order__status="CONFIRMED")
-            .filter(
-                Q(product__is_rare=True)
-                | Q(product__is_limited=True)
-            )
-            .select_related("order", "product")
+            .filter(Q(product__is_rare=True) | Q(product__is_limited=True))
+            .select_related("order", "product", "order__customer")
             .order_by("order__created_at", "pk")
         )
+        purchase_customer_names = list(
+            purchased_rare_items.values_list(
+                "order__customer__name", flat=True
+            ).distinct()
+        )
     else:
-        products = products.filter(category__section=section)
+        products_queryset = products_queryset.filter(
+            category__section=section
+        )
         title = "Him" if section == "HIM" else "Her"
         subtitle = (
             "Objects selected for him."
@@ -188,17 +211,83 @@ def section_products(request, section):
             else "A different kind of uncommon."
         )
         purchased_rare_items = []
+        purchase_customer_names = []
 
     search = request.GET.get("search", "").strip()
-
     if search:
-        products = products.filter(
+        products_queryset = products_queryset.filter(
             Q(product_name__icontains=search)
             | Q(description__icontains=search)
             | Q(category__category_name__icontains=search)
         )
 
-    products = products.order_by("-created_at")
+    products = list(products_queryset.order_by("-created_at"))
+
+    # Add delivered orders for the signed-in customer to each product.
+    # The review form is only displayed when an OrderItem exists for this
+    # customer/product pair and the order status is DELIVERED.
+    if customer:
+        product_ids = [product.pk for product in products]
+
+        delivered_items = (
+            OrderItem.objects
+            .filter(
+                order__customer=customer,
+                order__status="DELIVERED",
+                product_id__in=product_ids,
+            )
+            .select_related("order")
+            .order_by("-order__created_at")
+        )
+
+        existing_feedback = {
+            (feedback.product_id, feedback.order_number): feedback
+            for feedback in Feedback.objects.filter(
+                customer=customer,
+                product_id__in=product_ids,
+            )
+        }
+
+        review_orders_by_product = {}
+        for item in delivered_items:
+            order_number = item.order.order_number
+            key = (item.product_id, order_number)
+
+            review_orders_by_product.setdefault(item.product_id, [])
+            # Avoid duplicate forms if an order has duplicate rows for a product.
+            if any(
+                row["order_number"] == order_number
+                for row in review_orders_by_product[item.product_id]
+            ):
+                continue
+
+            review_orders_by_product[item.product_id].append({
+                "order_number": order_number,
+                "feedback": existing_feedback.get(key),
+            })
+
+        for product in products:
+            product.review_orders = review_orders_by_product.get(product.pk, [])
+    else:
+        for product in products:
+            product.review_orders = []
+
+    # Build rating distribution for the product review panel.
+    for product in products:
+        feedback_list = list(getattr(product, "feedback_list", []))
+        product.feedback_list = feedback_list
+        product.rating_breakdown = []
+        for stars in range(5, 0, -1):
+            count = sum(1 for review in feedback_list if review.rating == stars)
+            total = product.review_count or 0
+            product.rating_breakdown.append({
+                "stars": stars,
+                "count": count,
+                "percent": round((count / total) * 100) if total else 0,
+            })
+
+    bag = request.session.get("bag", {})
+    bag_count = sum(int(qty) for qty in bag.values()) if isinstance(bag, dict) else 0
 
     return render(
         request,
@@ -209,10 +298,92 @@ def section_products(request, section):
             "subtitle": subtitle,
             "products": products,
             "search": search,
+            "customer": customer,
+            "bag_count": bag_count,
             "purchased_rare_items": purchased_rare_items,
+            "purchase_customer_names": purchase_customer_names,
         },
     )
 
+
+@require_POST
+def submit_product_feedback(request, product_id):
+    """
+    Create or update a review for a product.
+    A customer can only review a product from an order that is DELIVERED.
+    The unique constraint on (customer, product, order_number) prevents
+    duplicate reviews for the same purchase.
+    """
+    customer_id = request.session.get("customer_id")
+    if not customer_id:
+        request.session["next_after_login"] = "customer_home"
+        messages.info(request, "Please sign in to leave a product review.")
+        return redirect("login")
+
+    customer = get_object_or_404(Customer, pk=customer_id)
+    product = get_object_or_404(
+        Product.objects.select_related("category"),
+        pk=product_id,
+    )
+
+    order_number = request.POST.get("order_number", "").strip()
+    comment = request.POST.get("comment", "").strip()
+
+    try:
+        rating = int(request.POST.get("rating", ""))
+    except (TypeError, ValueError):
+        rating = 0
+
+    if not order_number or len(order_number) > 50:
+        messages.error(request, "Please select a valid delivered order.")
+        return redirect("section_products", product.category.section)
+
+    if rating not in range(1, 6):
+        messages.error(request, "Please select a rating from 1 to 5 stars.")
+        return redirect("section_products", product.category.section)
+
+    if not comment or len(comment) > 1000:
+        messages.error(request, "Your review must contain 1–1000 characters.")
+        return redirect("section_products", product.category.section)
+
+    # Server-side ownership and delivery verification. Never trust the
+    # order number supplied by the browser on its own.
+    purchased_and_delivered = OrderItem.objects.filter(
+        order__customer=customer,
+        order__order_number=order_number,
+        order__status="DELIVERED",
+        product=product,
+    ).exists()
+
+    if not purchased_and_delivered:
+        messages.error(
+            request,
+            "Only customers with a delivered purchase can review this product.",
+        )
+        return redirect("section_products", product.category.section)
+
+    feedback, created = Feedback.objects.update_or_create(
+        customer=customer,
+        product=product,
+        order_number=order_number,
+        defaults={
+            "rating": rating,
+            "comment": comment,
+        },
+    )
+
+    if created:
+        messages.success(request, "Thank you. Your verified review has been published.")
+    else:
+        messages.success(request, "Your review has been updated.")
+
+    # Rare products may not belong to a HIM/HER category. Keep their
+    # collection destination consistent with the product flags.
+    section = getattr(product.category, "section", None) or "RARE"
+    if product.is_rare or product.is_limited:
+        section = "RARE"
+
+    return redirect("section_products", section)
     
 @require_POST
 def upcoming_reservation(request):

@@ -1693,6 +1693,260 @@
 
         }
 
+    
+
+        /* =========================
+           SOFT NEUMORPHIC FINISH
+           Visual-only overrides — original page behavior preserved
+        ========================= */
+        :root {
+            --neo-light: rgba(255, 255, 255, .78);
+            --neo-shadow: rgba(105, 88, 61, .13);
+            --neo-deep: rgba(91, 76, 52, .10);
+        }
+
+        body {
+            background: var(--beige-bg);
+        }
+
+        .topbar {
+            box-shadow: 0 5px 18px var(--neo-deep);
+            border-bottom-color: rgba(214, 204, 181, .72);
+        }
+
+        .hamburger-btn,
+        .btn,
+        .filter,
+        .category-select,
+        .search-input,
+        .inventory-alert,
+        .control-panel,
+        .table-card,
+        .product-image,
+        .no-image,
+        .action-btn,
+        .page-link,
+        .modal,
+        .form-control,
+        .current-image,
+        .image-preview,
+        .secondary-btn,
+        .danger-btn,
+        .toast {
+            border-radius: 12px;
+        }
+
+        .hamburger-btn,
+        .inventory-alert,
+        .control-panel,
+        .table-card,
+        .sidebar,
+        .modal,
+        .toast {
+            box-shadow:
+                8px 8px 18px var(--neo-shadow),
+                -7px -7px 18px var(--neo-light);
+        }
+
+        .hamburger-btn,
+        .btn,
+        .filter,
+        .action-btn,
+        .page-link,
+        .secondary-btn,
+        .danger-btn {
+            transition: transform .2s ease, box-shadow .2s ease,
+                        background .2s ease, color .2s ease;
+        }
+
+        .hamburger-btn {
+            border: 1px solid rgba(214, 204, 181, .8);
+        }
+
+        .hamburger-btn:hover,
+        .btn:hover,
+        .filter:hover,
+        .action-btn:hover,
+        .page-link:hover,
+        .secondary-btn:hover,
+        .danger-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 5px 10px var(--neo-deep);
+        }
+
+        .btn-forest,
+        .filter.active,
+        .page-link.current {
+            box-shadow: 4px 5px 10px rgba(35, 46, 34, .20);
+        }
+
+        .sidebar {
+            border-right: 1px solid rgba(214, 204, 181, .75);
+        }
+
+        .nav-link {
+            margin: 3px 10px;
+            border-radius: 0 10px 10px 0;
+            transition: background .2s ease, padding .2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            box-shadow: inset 3px 3px 7px rgba(105, 88, 61, .10),
+                        inset -3px -3px 7px rgba(255, 255, 255, .48);
+        }
+
+        .inventory-alert {
+            border: 1px solid rgba(214, 204, 181, .85);
+        }
+
+        .alert-icon {
+            border-radius: 10px;
+            box-shadow: inset 3px 3px 6px rgba(105, 88, 61, .12),
+                        inset -3px -3px 6px rgba(255, 255, 255, .62);
+        }
+
+        .control-panel {
+            border: 1px solid rgba(214, 204, 181, .85);
+        }
+
+        .filter {
+            border-radius: 999px;
+            padding-inline: 16px;
+        }
+
+        .category-select,
+        .search-input,
+        .form-control {
+            border: 1px solid rgba(214, 204, 181, .9);
+            box-shadow: inset 3px 3px 7px rgba(105, 88, 61, .10),
+                        inset -3px -3px 7px rgba(255, 255, 255, .58);
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .category-select:focus,
+        .search-input:focus,
+        .form-control:focus {
+            border-color: var(--accent-ochre);
+            box-shadow: inset 2px 2px 5px rgba(105, 88, 61, .10),
+                        0 0 0 3px rgba(192, 151, 87, .13);
+        }
+
+        .table-card {
+            border: 1px solid rgba(214, 204, 181, .9);
+        }
+
+        .table-header {
+            background: linear-gradient(145deg, #FBF8F1, #F0EBDD);
+        }
+
+        th {
+            background: linear-gradient(180deg, #EEE7D8, #E7DECC);
+        }
+
+        tbody tr {
+            transition: background .2s ease;
+        }
+
+        tbody tr:hover td {
+            background: rgba(233, 224, 205, .58);
+        }
+
+        .product-image,
+        .no-image {
+            box-shadow: 3px 4px 9px rgba(105, 88, 61, .13),
+                        -2px -2px 7px rgba(255, 255, 255, .65);
+        }
+
+        .product-image {
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.04);
+            box-shadow: 5px 7px 13px rgba(105, 88, 61, .18);
+        }
+
+        .section-tag,
+        .tag,
+        .badge {
+            border-radius: 999px;
+        }
+
+        .stock-dot {
+            box-shadow: 0 0 0 3px rgba(105, 88, 61, .07);
+        }
+
+        .action-btn,
+        .page-link,
+        .secondary-btn {
+            box-shadow: 3px 3px 7px rgba(105, 88, 61, .09),
+                        -2px -2px 6px rgba(255, 255, 255, .55);
+        }
+
+        .delete-btn:hover,
+        .danger-btn {
+            box-shadow: 3px 4px 9px rgba(138, 48, 39, .18);
+        }
+
+        .modal-overlay {
+            background: rgba(36, 30, 20, .48);
+            backdrop-filter: blur(7px);
+        }
+
+        .modal {
+            border: 1px solid rgba(214, 204, 181, .9);
+            box-shadow: 16px 18px 40px rgba(36, 30, 20, .22),
+                        -5px -5px 16px rgba(255, 255, 255, .20);
+        }
+
+        .modal-header,
+        .modal-footer {
+            background: linear-gradient(145deg, #FBF8F1, #F3EEE3);
+        }
+
+        .current-image,
+        .image-preview-grid .image-preview-item {
+            border-radius: 10px;
+        }
+
+        .image-preview {
+            border-radius: 9px;
+            box-shadow: 3px 4px 8px rgba(105, 88, 61, .12);
+        }
+
+        .checkbox-label input {
+            width: 15px;
+            height: 15px;
+        }
+
+        .toast {
+            box-shadow: 8px 9px 22px rgba(36, 30, 20, .17),
+                        -3px -3px 10px rgba(255, 255, 255, .55);
+        }
+
+        .empty {
+            border-radius: 14px;
+        }
+
+        @media (max-width: 800px) {
+            .control-panel,
+            .table-card,
+            .inventory-alert,
+            .modal {
+                border-radius: 13px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .topbar {
+                box-shadow: 0 4px 14px var(--neo-deep);
+            }
+            .filter {
+                padding-inline: 12px;
+            }
+        }
+
     </style>
 
 </head>

@@ -87,4 +87,9 @@ path("profile/edit/", views.edit_customer_profile, name="edit_customer_profile")
         views.delete_address,
         name="delete_address"
     ),
+    path(
+    'feedback/<int:product_id>/',
+    views.submit_product_feedback,
+    name='submit_product_feedback'
+),
 ]

@@ -1610,7 +1610,156 @@
 
         }
 
-    </style>
+    
+        /* =========================
+           SOFT NEUMORPHIC FINISH
+           Visual-only styling; layout and functionality unchanged.
+        ========================= */
+
+        .hamburger-btn,
+        .control-panel,
+        .table-card,
+        .modal,
+        .sidebar,
+        .toast {
+            border: 1px solid rgba(214, 204, 181, .55);
+            box-shadow:
+                8px 8px 18px rgba(190, 181, 163, .42),
+                -8px -8px 18px rgba(255, 253, 247, .82);
+        }
+
+        .hamburger-btn,
+        .btn,
+        .filter,
+        .action-btn,
+        .page-link {
+            border-radius: 10px;
+            transition: box-shadow .2s ease, transform .2s ease,
+                        background .2s ease, color .2s ease;
+        }
+
+        .hamburger-btn {
+            box-shadow:
+                4px 4px 9px rgba(190, 181, 163, .42),
+                -4px -4px 9px rgba(255, 253, 247, .82);
+        }
+
+        .hamburger-btn:active,
+        .btn:active,
+        .filter:active,
+        .action-btn:active,
+        .page-link:active {
+            box-shadow:
+                inset 4px 4px 8px rgba(190, 181, 163, .42),
+                inset -4px -4px 8px rgba(255, 253, 247, .82);
+            transform: translateY(1px);
+        }
+
+        .btn {
+            box-shadow:
+                4px 4px 9px rgba(190, 181, 163, .34),
+                -4px -4px 9px rgba(255, 253, 247, .76);
+        }
+
+        .btn-forest {
+            box-shadow:
+                4px 4px 9px rgba(35, 46, 34, .22),
+                -3px -3px 8px rgba(255, 253, 247, .72);
+        }
+
+        .control-panel {
+            border-radius: 16px;
+        }
+
+        .search-input,
+        .form-control {
+            border: 1px solid rgba(214, 204, 181, .7);
+            border-radius: 10px;
+            box-shadow:
+                inset 4px 4px 8px rgba(190, 181, 163, .32),
+                inset -4px -4px 8px rgba(255, 253, 247, .9);
+        }
+
+        .search-input:focus,
+        .form-control:focus {
+            border-color: var(--accent-ochre);
+            box-shadow:
+                inset 3px 3px 6px rgba(190, 181, 163, .28),
+                inset -3px -3px 6px rgba(255, 253, 247, .85),
+                0 0 0 2px rgba(160, 118, 58, .10);
+        }
+
+        .table-card {
+            border-radius: 16px;
+        }
+
+        .table-header {
+            background: rgba(233, 224, 205, .28);
+        }
+
+        .table-wrapper {
+            background: var(--beige-card);
+        }
+
+        tbody tr {
+            transition: background .2s ease;
+        }
+
+        .section-tag {
+            border-radius: 20px;
+            box-shadow:
+                2px 2px 5px rgba(35, 46, 34, .18),
+                -2px -2px 5px rgba(255, 253, 247, .35);
+        }
+
+        .action-btn,
+        .filter,
+        .page-link {
+            box-shadow:
+                3px 3px 7px rgba(190, 181, 163, .32),
+                -3px -3px 7px rgba(255, 253, 247, .78);
+        }
+
+        .action-btn:hover,
+        .filter:hover,
+        .page-link:hover,
+        .page-link.current {
+            box-shadow:
+                inset 3px 3px 6px rgba(20, 28, 20, .2),
+                inset -3px -3px 6px rgba(255, 255, 255, .08);
+        }
+
+        .modal {
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .modal-header,
+        .modal-footer {
+            background: rgba(233, 224, 205, .22);
+        }
+
+        .toast {
+            border-radius: 12px;
+        }
+
+        .nav-link {
+            transition: background .2s ease, box-shadow .2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            box-shadow: inset 3px 3px 6px rgba(190, 181, 163, .28);
+        }
+
+        @media (max-width: 800px) {
+            .control-panel,
+            .table-card,
+            .modal {
+                border-radius: 13px;
+            }
+        }
+</style>
 
 </head>
 

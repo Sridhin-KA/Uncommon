@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -481,6 +479,43 @@
             color: var(--accent-ochre);
 
             text-align: right;
+        }
+
+        /* =========================
+           FLASH MESSAGES
+        ========================= */
+
+        .flash-stack {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .flash {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--beige-border);
+            background: var(--beige-card);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .flash.success {
+            background: #dfead9;
+            border-color: #b9cfae;
+            color: #2b4a24;
+        }
+
+        .flash.error {
+            background: #f3d9d3;
+            border-color: #dfb0a6;
+            color: #7a2a1d;
+        }
+
+        .flash.warning {
+            background: #f6ead0;
+            border-color: #e0c88f;
+            color: #6b4d16;
         }
 
         /* =========================
@@ -1190,7 +1225,7 @@
             <!-- Feedback -->
 
             <a
-                href=""
+                href="{% url 'admin_feedback' %}"
                 class="drawer-link">
 
                 <span>
@@ -1242,6 +1277,20 @@
     ========================== -->
 
     <main>
+
+        <!-- =========================
+             FLASH MESSAGES
+             (success / error from every view)
+        ========================== -->
+
+        {% if messages %}
+        <div class="flash-stack" role="status">
+            {% for message in messages %}
+            <div class="flash {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
 
         <!-- DASHBOARD HEADER -->
 
@@ -1431,10 +1480,10 @@
                             {% for item in recent_order_items %}
                             <tr>
                                 <td>
-                                    <strong>{{ item.product.product_name|default:item.product.product_name|default:"Product" }}</strong>
+                                    <strong>{{ item.product.product_name|default:"Product" }}</strong>
                                     <div class="product-description">Qty: {{ item.quantity|default:1 }} · Order #{{ item.order.id }}</div>
                                 </td>
-                                <td><span class="category-name">{{ item.product.category.category_name|default:item.product.category.category_name|default:"Uncategorised" }}</span></td>
+                                <td><span class="category-name">{{ item.product.category.category_name|default:"Uncategorised" }}</span></td>
                                 <td>
                                     <div class="patron-name">{{ item.order.customer.name|default:item.order.customer.email|default:"Customer" }}</div>
                                     <div class="patron-info">Customer #{{ item.order.customer.id }}</div>
@@ -1500,7 +1549,7 @@
                     {% for product in recent_products %}
                     <div class="log-item">
                         <div class="log-time">INVENTORY · PRODUCT #{{ product.id }}</div>
-                        <div class="log-desc">{{ product.product_name|default:product.product_name|default:"Product" }} added to the catalog.</div>
+                        <div class="log-desc">{{ product.product_name|default:"Product" }} added to the catalog.</div>
                     </div>
                     {% endfor %}
                 </div>
@@ -1745,6 +1794,82 @@ width:min(1240px,100%);background:var(--bg);color:var(--tx);border:1px solid var
 </div>
 
 
+<!-- Secondary password gate for Finance and Purchase Orders -->
+<div class="secure-gate" id="secureGate" aria-hidden="true">
+  <section class="secure-card" role="dialog" aria-modal="true" aria-labelledby="secureGateTitle">
+    <div class="secure-icon">⌑</div>
+    <p class="secure-eyebrow">UNCOMMON · RESTRICTED AREA</p>
+    <h2 id="secureGateTitle">Additional verification</h2>
+    <p class="secure-copy">Enter the finance access password to continue.</p>
+    <form id="secureGateForm">
+      <label for="secureGatePassword">Access password</label>
+      <input id="secureGatePassword" type="password" autocomplete="current-password" required placeholder="Enter access password">
+      <p class="secure-error" id="secureGateError" role="alert"></p>
+      <div class="secure-actions">
+        <button type="button" class="secure-cancel" id="secureGateCancel">Cancel</button>
+        <button type="submit" class="secure-submit" id="secureGateSubmit">Verify & Continue</button>
+      </div>
+    </form>
+  </section>
+</div>
+<script>
+(function(){
+  const gate=document.getElementById('secureGate');
+  const form=document.getElementById('secureGateForm');
+  const pass=document.getElementById('secureGatePassword');
+  const error=document.getElementById('secureGateError');
+  const submit=document.getElementById('secureGateSubmit');
+  const VERIFY_URL="{% url 'verify_finance_password' %}";
+  let nextAction=null;
+  function csrf(){const m=document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);return m?decodeURIComponent(m[1]):''}
+  window.requestFinanceAccess=function(purpose,callback){
+    nextAction=callback; gate.classList.add('show');gate.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';pass.value='';error.textContent='';
+    document.getElementById('secureGateTitle').textContent=purpose==='financials'?'Unlock Financials':purpose==='purchase_view'?'Unlock Purchase Orders':'Unlock Add Purchase Order';
+    setTimeout(()=>pass.focus(),40);
+  };
+  function close(){gate.classList.remove('show');gate.setAttribute('aria-hidden','true');document.body.style.overflow='';nextAction=null;}
+  document.getElementById('secureGateCancel').addEventListener('click',close);
+  gate.addEventListener('mousedown',e=>{if(e.target===gate)close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&gate.classList.contains('show'))close()});
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();error.textContent='';submit.disabled=true;submit.textContent='Checking…';
+    try{
+      const response=await fetch(VERIFY_URL,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},body:JSON.stringify({password:pass.value})});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||!data.success)throw new Error(data.message||'Incorrect password. Please try again.');
+      const action=nextAction;close();if(action)action();
+    }catch(err){error.textContent=err.message||'Verification failed. Please try again.';pass.select();}
+    finally{submit.disabled=false;submit.textContent='Verify & Continue'}
+  });
+})();
+</script>
+
+<style>
+/* Soft neumorphic dashboard surface */
+:root{--neo-bg:#e9e5dc;--neo-light:#fffdf7;--neo-dark:#c9c2b5;--neo-ink:#29271f;--neo-muted:#777064;--neo-green:#344b3a;--neo-shadow:9px 9px 18px #c9c5bc,-9px -9px 18px #fffdf6;--neo-inset:inset 5px 5px 10px #cbc6bb,inset -5px -5px 10px #fffdf7}
+body{background:var(--neo-bg)!important;color:var(--neo-ink)}
+.metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert,.fx-p,.fx-c,.po-section,.po-modal,.modal-content,.dashboard-card,.content-card{background:var(--neo-bg)!important;border:1px solid rgba(255,255,255,.42)!important;border-radius:22px!important;box-shadow:var(--neo-shadow)!important}
+.metric-card:hover,.stat-card:hover,.table-card:hover,.dashboard-card:hover{transform:translateY(-3px);box-shadow:12px 12px 22px #c5c0b5,-12px -12px 22px #fffdf7!important}
+button,.btn,.fx-btn,.po-btn,.drawer-link{border-radius:13px!important;transition:all .2s ease}
+input,select,textarea{background:var(--neo-bg)!important;border:0!important;border-radius:12px!important;box-shadow:var(--neo-inset)!important;color:var(--neo-ink)!important}
+input:focus,select:focus,textarea:focus{outline:2px solid rgba(52,75,58,.28)!important;box-shadow:var(--neo-inset),0 0 0 3px rgba(52,75,58,.08)!important}
+.fx-btn,.secure-submit{background:var(--neo-bg)!important;color:var(--neo-green)!important;border:1px solid rgba(255,255,255,.6)!important;box-shadow:5px 5px 10px #c9c5bc,-5px -5px 10px #fffdf7!important;font-weight:700}
+.fx-btn:active,.secure-submit:active{box-shadow:var(--neo-inset)!important;transform:translateY(1px)}
+.po-modal{background:var(--neo-bg)!important;border-radius:24px!important}
+.secure-gate{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(38,39,34,.48);backdrop-filter:blur(7px)}
+.secure-gate.show{display:flex}
+.secure-card{width:min(420px,100%);padding:30px;border-radius:26px;background:var(--neo-bg);box-shadow:18px 18px 36px rgba(0,0,0,.2),-8px -8px 24px rgba(255,255,255,.28);color:var(--neo-ink)}
+.secure-icon{width:54px;height:54px;display:grid;place-items:center;border-radius:17px;font-size:28px;color:var(--neo-green);box-shadow:var(--neo-shadow);margin-bottom:20px}
+.secure-eyebrow{font:10px monospace;letter-spacing:.16em;color:var(--neo-muted);margin:0 0 8px}
+.secure-card h2{font-size:24px;margin:0 0 8px}.secure-copy{font-size:13px;color:var(--neo-muted);margin:0 0 22px}
+.secure-card label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}.secure-card input{width:100%;padding:14px 15px;box-sizing:border-box}
+.secure-error{min-height:18px;color:#a33d32;font-size:12px;margin:8px 0}
+.secure-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.secure-actions button{padding:11px 15px;border:0;cursor:pointer;font-weight:700}
+.secure-cancel{background:var(--neo-bg);color:var(--neo-muted);box-shadow:var(--neo-shadow)}.secure-submit{border-radius:12px;padding:11px 16px;cursor:pointer}.secure-submit:disabled{opacity:.6;cursor:wait}
+@media(max-width:600px){.secure-card{padding:23px}.secure-actions button{flex:1}}
+</style>
+
 <script>
 (function(){
 var M=document.getElementById('fxScrim'),$=function(s){return M.querySelector(s)};
@@ -1810,7 +1935,7 @@ function loadChart(cb){if(window.Chart)return cb();var s=document.createElement(
 function open_(){opener=document.activeElement;M.classList.add('on');M.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('#fxClose').focus();
 if(booted){draw(1);return}$('#fxNote').className='fx-note';$('#fxNote').textContent='Loading financial data...';loadChart(function(){load().then(function(rows){W=rows;booted=LIVE;draw()})})}
 function close_(){M.classList.remove('on');M.setAttribute('aria-hidden','true');document.body.style.overflow='';if(opener&&opener.focus)opener.focus()}
-document.addEventListener('click',function(e){if(e.target.closest('[data-fin-open]'))open_()});
+document.addEventListener('click',function(e){if(e.target.closest('[data-fin-open]'))window.requestFinanceAccess('financials',open_)});
 $('#fxClose').onclick=close_;M.addEventListener('mousedown',function(e){if(e.target===M)close_()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&M.classList.contains('on'))close_()});
 $('#fxSeg').onclick=function(e){var b=e.target.closest('button');if(!b||!window.Chart||!S.length)return;P=b.dataset.p;M.querySelectorAll('#fxSeg button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});draw()};
@@ -1821,146 +1946,357 @@ if(location.hash==='#financials')open_();
 </script>
 
 
+<!-- Premium UI refinement: keeps the existing dashboard structure and Django functionality. -->
 <style>
-/* Purchase Order modal — UNCOMMON admin theme */
-.po-scrim{position:fixed;inset:0;z-index:300;background:rgba(36,30,20,.62);display:none;align-items:flex-start;justify-content:center;padding:3vh 2vw;overflow:auto;backdrop-filter:blur(4px)}
-.po-scrim.open{display:flex}.po-modal{width:min(1180px,100%);max-height:94vh;overflow:auto;background:var(--beige-bg,#EFEBE1);color:var(--text-primary,#241E14);border:1px solid var(--beige-border,#D6CCB5);border-radius:24px;box-shadow:0 24px 80px #0003}
-.po-head{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;background:rgba(239,235,225,.97);border-bottom:1px solid var(--beige-border,#D6CCB5);backdrop-filter:blur(8px)}
-.po-head h2{font:700 23px var(--font-serif,serif)}.po-kicker{font:10px var(--font-mono,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted,#6F6350);margin-bottom:4px}
-.po-close{border:1px solid var(--beige-border,#D6CCB5);background:var(--beige-card,#FBF8F1);font-size:25px;width:40px;height:40px;cursor:pointer;border-radius:12px}
-.po-body{padding:22px 24px 28px}.po-section{background:var(--beige-card,#FBF8F1);border:1px solid var(--beige-border,#D6CCB5);border-radius:16px;padding:18px;margin-bottom:16px}.po-section h3{font:700 17px var(--font-serif,serif);margin-bottom:14px}
-.po-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.po-field{display:flex;flex-direction:column;gap:6px;min-width:0}.po-field label{font:10px var(--font-mono,monospace);letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted,#6F6350)}
-.po-field input,.po-field select,.po-field textarea{width:100%;min-width:0;border:1px solid var(--beige-border,#D6CCB5);border-radius:10px;padding:10px 11px;background:#fffdf8;color:var(--text-primary,#241E14);font:13px var(--font-sans,Arial,sans-serif)}.po-field textarea{min-height:75px;resize:vertical}
-.po-table-wrap{overflow-x:auto}.po-table{width:100%;border-collapse:collapse;min-width:760px}.po-table th,.po-table td{padding:9px;border-bottom:1px solid var(--beige-border,#D6CCB5);text-align:left}.po-table th{font:10px var(--font-mono,monospace);text-transform:uppercase;color:var(--text-muted,#6F6350);background:var(--beige-subtle,#E9E0CD)}.po-table input,.po-table select{width:100%;min-width:75px;padding:9px;border:1px solid var(--beige-border,#D6CCB5);border-radius:8px;background:#fffdf8}.po-table .po-product{min-width:170px}.po-line-total{font:12px var(--font-mono,monospace);white-space:nowrap}.po-remove{border:1px solid #d9b7ac;background:#fff5f1;color:#8b3425;border-radius:8px;padding:7px 10px;cursor:pointer}
-.po-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.po-btn{border:1px solid var(--text-primary,#241E14);background:transparent;color:var(--text-primary,#241E14);border-radius:10px;padding:11px 15px;cursor:pointer;font:11px var(--font-mono,monospace);letter-spacing:.05em;text-transform:uppercase}.po-btn.primary{background:var(--accent-forest,#232E22);color:#fff;border-color:var(--accent-forest,#232E22)}.po-btn.add{border-color:var(--beige-border,#D6CCB5);background:var(--beige-subtle,#E9E0CD)}
-.po-totals{margin-left:auto;max-width:390px;display:grid;gap:8px}.po-total-row{display:flex;justify-content:space-between;gap:16px;font:12px var(--font-mono,monospace)}.po-total-row.grand{font-weight:700;font-size:16px;border-top:1px solid var(--beige-border,#D6CCB5);padding-top:12px;margin-top:4px}.po-help{font-size:12px;color:var(--text-muted,#6F6350);line-height:1.5;margin-top:10px}
-@media(max-width:760px){.po-scrim{padding:0}.po-modal{max-height:100vh;border-radius:0}.po-head{padding:15px}.po-body{padding:14px}.po-grid{grid-template-columns:1fr}.po-section{padding:14px}.po-actions .po-btn{flex:1}}
+:root {
+  --ui-radius-card: 20px;
+  --ui-radius-control: 12px;
+  --ui-shadow: 0 12px 28px -18px rgba(36, 30, 20, .38);
+  --ui-shadow-hover: 0 18px 34px -18px rgba(36, 30, 20, .42);
+}
+.metric-card,
+.admin-panel,
+.stat-card,
+.table-card,
+.control-panel,
+.inventory-alert {
+  border-radius: var(--ui-radius-card);
+  border: 1px solid var(--beige-border);
+  box-shadow: var(--ui-shadow);
+  transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+}
+.metrics-strip {
+  gap: 14px;
+  background: transparent;
+  border: 0;
+}
+.metric-card {
+  padding: 24px 25px;
+  background: linear-gradient(145deg, var(--beige-card), #f7f2e8);
+}
+.metric-card:hover,
+.admin-panel:hover,
+.stat-card:hover,
+.table-card:hover,
+.control-panel:hover,
+.inventory-alert:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--ui-shadow-hover);
+  border-color: #c5b58f;
+}
+.admin-panel { background: var(--beige-card); }
+.panel-header { padding: 22px 26px; }
+.btn,
+.btn-forest,
+.btn-primary,
+.btn-danger,
+.secondary-btn,
+.danger-btn,
+.action-btn,
+.hamburger-btn,
+.menu-btn,
+.dashboard-link,
+.logout-link,
+.search-btn,
+.clear-btn,
+.page-link,
+.modal-close,
+.fx-btn {
+  border-radius: var(--ui-radius-control);
+  transition: transform .2s ease, box-shadow .2s ease, background .18s ease,
+              border-color .18s ease, color .18s ease;
+}
+.btn:hover,
+.btn-forest:hover,
+.btn-primary:hover,
+.btn-danger:hover,
+.secondary-btn:hover,
+.danger-btn:hover,
+.action-btn:hover,
+.hamburger-btn:hover,
+.menu-btn:hover,
+.dashboard-link:hover,
+.logout-link:hover,
+.search-btn:hover,
+.clear-btn:hover,
+.page-link:hover,
+.modal-close:hover,
+.fx-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 18px -12px rgba(36, 30, 20, .55);
+}
+.search-input,
+.status-select,
+.form-select,
+.form-control,
+.form-input,
+.category-select,
+.filter {
+  border-radius: var(--ui-radius-control);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.search-input:focus,
+.status-select:focus,
+.form-select:focus,
+.form-control:focus,
+.form-input:focus,
+.category-select:focus,
+.filter:focus {
+  outline: none;
+  border-color: var(--accent-ochre);
+  box-shadow: 0 0 0 3px rgba(198, 156, 92, .18);
+}
+.tag,
+.badge,
+.status-badge,
+.tag-badge,
+.tag-shelf,
+.product-alert-badge,
+.status-current,
+.status-tag {
+  border-radius: 8px;
+}
+.product-image,
+.no-image,
+.current-image { border-radius: 14px; }
+.modal-box,
+.modal-overlay > .modal,
+.fx,
+.hb { border-radius: 24px; }
+.toast { border-radius: 14px; }
+.drawer-link,
+.nav-link { transition: transform .2s ease, background .18s ease, color .18s ease; }
+.drawer-link:hover,
+.nav-link:hover { transform: translateX(3px); }
+tbody tr { transition: background .18s ease; }
+tbody tr:hover { background: rgba(198, 156, 92, .12); }
+.table-wrapper { border-radius: 0 0 var(--ui-radius-card) var(--ui-radius-card); }
+@media (max-width: 700px) {
+  .metrics-strip { gap: 10px; }
+  .metric-card { border-radius: 16px; }
+  .dashboard-columns { gap: 18px; }
+  .admin-panel { border-radius: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .metric-card,.admin-panel,.stat-card,.table-card,.control-panel,.inventory-alert,
+  .btn,.btn-forest,.btn-primary,.btn-danger,.secondary-btn,.danger-btn,.action-btn,
+  .hamburger-btn,.menu-btn,.dashboard-link,.logout-link,.search-btn,.clear-btn,
+  .page-link,.modal-close,.drawer-link,.nav-link,tbody tr {
+    transition: none !important;
+  }
+  .metric-card:hover,.admin-panel:hover,.stat-card:hover,.table-card:hover,
+  .control-panel:hover,.inventory-alert:hover,.btn:hover,.btn-forest:hover,
+  .btn-primary:hover,.btn-danger:hover,.secondary-btn:hover,.danger-btn:hover,
+  .action-btn:hover,.hamburger-btn:hover,.menu-btn:hover,.dashboard-link:hover,
+  .logout-link:hover,.search-btn:hover,.clear-btn:hover,.page-link:hover,
+  .modal-close:hover,.drawer-link:hover,.nav-link:hover {
+    transform: none !important;
+    box-shadow: var(--ui-shadow);
+  }
+}
 </style>
 
 
-<!-- Purchase Order modal -->
-<div class="po-scrim" id="purchaseOrderScrim" aria-hidden="true">
-  <section class="po-modal" role="dialog" aria-modal="true" aria-labelledby="purchaseOrderTitle">
-    <header class="po-head">
-      <div><div class="po-kicker">UNCOMMON · Procurement</div><h2 id="purchaseOrderTitle">New Purchase Order</h2></div>
-      <button type="button" class="po-close" id="purchaseOrderClose" aria-label="Close purchase order">&times;</button>
-    </header>
-    <form id="purchaseOrderForm" method="post" action="/admin_panel/purchases/create/">
-      {% csrf_token %}
-      <div class="po-body">
-        <section class="po-section"><h3>Order details</h3><div class="po-grid">
-          <div class="po-field"><label for="po_number">Purchase order number</label><input id="po_number" name="po_number" placeholder="PO-2026-0001" required></div>
-          <div class="po-field"><label for="po_supplier_name">Vendor / supplier name</label><input id="po_supplier_name" name="supplier_name" placeholder="Enter vendor or supplier name" required></div>
-          <div class="po-field"><label for="po_supplier_contact">Contact person</label><input id="po_supplier_contact" name="supplier_contact_person" placeholder="Contact person"></div>
-          <div class="po-field"><label for="po_supplier_phone">Vendor phone</label><input id="po_supplier_phone" name="supplier_phone" type="tel" placeholder="+91 98765 43210"></div>
-          <div class="po-field"><label for="po_supplier_email">Vendor email</label><input id="po_supplier_email" name="supplier_email" type="email" placeholder="vendor@example.com"></div>
-          <div class="po-field"><label for="po_supplier_gstin">Vendor GSTIN</label><input id="po_supplier_gstin" name="supplier_gstin" maxlength="15" placeholder="Optional GSTIN"></div>
-          <div class="po-field"><label for="po_supplier_address">Vendor address</label><textarea id="po_supplier_address" name="supplier_address" placeholder="Vendor billing address"></textarea></div>
-          <div class="po-field"><label for="po_status">Status</label><select id="po_status" name="status"><option value="draft">Draft</option><option value="submitted">Submit for approval</option></select></div>
-          <div class="po-field"><label for="po_order_date">Order date</label><input type="date" id="po_order_date" name="order_date" required></div>
-          <div class="po-field"><label for="po_delivery_date">Expected delivery</label><input type="date" id="po_delivery_date" name="expected_delivery_date"></div>
-          <div class="po-field"><label for="po_reference">Supplier quotation / reference</label><input id="po_reference" name="reference_number" placeholder="Quotation or reference"></div>
-        </div></section>
-        <section class="po-section"><h3>Delivery & tax</h3><div class="po-grid">
-          <div class="po-field"><label for="po_warehouse">Destination warehouse</label><input id="po_warehouse" name="destination_warehouse" placeholder="Main warehouse"></div>
-          <div class="po-field"><label for="po_place_supply">Place of supply</label><input id="po_place_supply" name="place_of_supply" placeholder="Kerala"></div>
-          <div class="po-field"><label for="po_interstate">Supply type</label><select id="po_interstate" name="is_interstate"><option value="false">Intrastate (CGST + SGST)</option><option value="true">Interstate (IGST)</option></select></div>
-          <div class="po-field"><label for="po_shipping_address">Ship-to address</label><textarea id="po_shipping_address" name="shipping_address" placeholder="Delivery address"></textarea></div>
-          <div class="po-field"><label for="po_delivery_method">Delivery method</label><input id="po_delivery_method" name="delivery_method" placeholder="Supplier delivery / courier"></div>
-          <div class="po-field"><label for="po_terms">Payment / delivery terms</label><input id="po_terms" name="terms_and_conditions" placeholder="e.g. Net 30 days"></div>
-        </div></section>
-        <section class="po-section"><h3>Products ordered</h3><div class="po-table-wrap"><table class="po-table"><thead><tr><th>Product name</th><th>Qty</th><th>Unit price (₹)</th><th>Discount %</th><th>GST %</th><th>Line total (incl. GST)</th><th></th></tr></thead><tbody id="purchaseOrderLines"></tbody></table></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="po-btn add" id="addPurchaseLine">+ Add product</button><button type="button" class="po-btn" id="exportPurchaseExcel">Export Excel</button></div><span class="po-help">Enter product names manually. Export downloads the current purchase order details and line items as an Excel-compatible spreadsheet.</span></div>
-        </section>
-        <section class="po-section"><h3>Charges & totals</h3><div class="po-grid">
-          <div class="po-field"><label for="po_discount_type">Order discount type</label><select id="po_discount_type" name="discount_type"><option value="fixed">Fixed amount</option><option value="percent">Percentage</option></select></div>
-          <div class="po-field"><label for="po_discount_value">Order discount value</label><input type="number" min="0" step="0.01" id="po_discount_value" name="discount_value" value="0"></div>
-          <div class="po-field"><label for="po_shipping_cost">Shipping charge (₹)</label><input type="number" min="0" step="0.01" id="po_shipping_cost" name="shipping_cost" value="0"></div>
-          <div class="po-field"><label for="po_other_charges">Other charges (₹)</label><input type="number" min="0" step="0.01" id="po_other_charges" name="other_charges" value="0"></div>
-          <div class="po-field"><label for="po_adjustment">Adjustment (₹)</label><input type="number" step="0.01" id="po_adjustment" name="adjustment_amount" value="0"></div>
-          <div class="po-field"><label for="po_currency">Currency</label><select id="po_currency" name="currency"><option value="INR">INR — Indian Rupee</option></select></div>
-        </div>
-        <div class="po-totals" style="margin-top:20px"><div class="po-total-row"><span>Subtotal</span><strong id="poSubtotal">₹0.00</strong></div><div class="po-total-row"><span>Line discounts</span><strong id="poLineDiscounts">− ₹0.00</strong></div><div class="po-total-row"><span>Order discount</span><strong id="poOrderDiscount">− ₹0.00</strong></div><div class="po-total-row"><span>Taxable amount</span><strong id="poTaxable">₹0.00</strong></div><div class="po-total-row"><span>CGST</span><strong id="poCgst">₹0.00</strong></div><div class="po-total-row"><span>SGST</span><strong id="poSgst">₹0.00</strong></div><div class="po-total-row"><span>IGST</span><strong id="poIgst">₹0.00</strong></div><div class="po-total-row"><span>Shipping + other charges</span><strong id="poExtra">₹0.00</strong></div><div class="po-total-row grand"><span>Grand total</span><strong id="poGrandTotal">₹0.00</strong></div></div></section>
-        <section class="po-section"><h3>Internal notes</h3><div class="po-field"><label for="po_internal_notes">Notes for your team</label><textarea id="po_internal_notes" name="internal_notes" placeholder="Supplier discussion, approval context, or other internal notes"></textarea></div></section>
-        <div class="po-actions"><button type="button" class="po-btn" id="purchaseOrderCancel">Cancel</button><button type="submit" class="po-btn primary">Save Purchase Order</button></div>
-        <p class="po-help">Vendor and product details are entered manually; this form does not fetch supplier or product records from database tables. Saving still requires your Django endpoint to accept these manual fields.</p>
-      </div>
-    </form>
-  </section>
+<style>
+/* Compact purchasing dropdown in the dashboard command bar */
+.procurement-launcher{position:relative;display:flex;align-items:center;margin:0!important;max-width:none;z-index:80}
+.procurement-dropdown{position:relative}
+.procurement-dropdown-trigger{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--accent-forest);background:var(--accent-forest);color:#fff;padding:10px 15px;border-radius:12px;font:600 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:.2s}
+.procurement-dropdown-trigger:hover,.procurement-dropdown.open .procurement-dropdown-trigger{background:#182219;box-shadow:var(--ui-shadow)}
+.procurement-dropdown-trigger .procurement-chevron{font-size:12px;transition:transform .2s ease}
+.procurement-dropdown.open .procurement-chevron{transform:rotate(180deg)}
+.procurement-menu-panel{display:none;position:absolute;right:0;top:calc(100% + 10px);width:260px;padding:8px;background:var(--beige-card);border:1px solid var(--beige-border);border-radius:15px;box-shadow:0 18px 45px rgba(36,30,20,.2);z-index:500}
+.procurement-dropdown.open .procurement-menu-panel{display:block;animation:procMenuIn .16s ease-out}
+@keyframes procMenuIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.procurement-menu-label{padding:9px 10px 6px;color:var(--text-muted);font:600 9px var(--font-mono);letter-spacing:.14em;text-transform:uppercase}
+.procurement-menu-item{width:100%;display:flex;align-items:center;gap:11px;padding:10px;border:0;border-radius:9px;background:transparent;color:var(--text-primary);text-align:left;font:500 12px var(--font-sans);cursor:pointer;transition:background .15s ease,color .15s ease}
+.procurement-menu-item:hover{background:var(--beige-subtle);color:var(--accent-forest)}
+.procurement-menu-item .proc-menu-icon{width:27px;height:27px;display:grid;place-items:center;flex:0 0 27px;border:1px solid var(--beige-border);border-radius:8px;color:var(--accent-ochre);font-size:13px}
+.procurement-menu-divider{height:1px;background:var(--beige-border);margin:6px 4px}
+@media(max-width:900px){.procurement-launcher{max-width:none}}
+@media(max-width:700px){.procurement-dropdown-trigger{padding:8px 10px;font-size:9px;gap:6px}.procurement-menu-panel{right:0;width:min(260px,85vw)}}
+.procurement-btn{border:1px solid var(--beige-border);background:var(--beige-card);color:var(--text-primary);padding:10px 14px;border-radius:12px;font:600 12px var(--font-sans);cursor:pointer;transition:.2s}
+.procurement-btn.primary{background:var(--accent-forest);color:#fff;border-color:var(--accent-forest)}
+.procurement-btn:hover{transform:translateY(-2px);box-shadow:var(--ui-shadow)}
+.procurement-scrim{position:fixed;inset:0;background:rgba(25,22,17,.58);backdrop-filter:blur(5px);z-index:300;display:none;align-items:center;justify-content:center;padding:22px}
+.procurement-scrim.open{display:flex}
+.procurement-modal{width:min(1120px,100%);max-height:92vh;overflow:auto;background:var(--beige-card);border:1px solid var(--beige-border);border-radius:22px;box-shadow:0 28px 80px rgba(0,0,0,.28);padding:24px}
+.procurement-modal.narrow{width:min(760px,100%)}
+.procurement-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--beige-border)}
+.procurement-kicker{font:600 10px var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ochre)}
+.procurement-head h2{font:400 27px var(--font-serif);margin-top:5px}
+.procurement-close{border:1px solid var(--beige-border);background:transparent;border-radius:50%;width:36px;height:36px;font-size:20px;cursor:pointer;color:var(--text-primary)}
+.procurement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.procurement-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.procurement-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.procurement-field.full{grid-column:1/-1}
+.procurement-field label{font:600 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.procurement-field input,.procurement-field select,.procurement-field textarea,.procurement-table input,.procurement-table select{width:100%;min-width:0;border:1px solid var(--beige-border);border-radius:10px;padding:10px 11px;background:#fffdf8;color:var(--text-primary);font:13px var(--font-sans);outline:none}
+.procurement-field textarea{min-height:72px;resize:vertical}
+.procurement-field input:focus,.procurement-field select:focus,.procurement-field textarea:focus,.procurement-table input:focus{border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(198,156,92,.15)}
+.procurement-section{margin:20px 0 12px;font:400 18px var(--font-serif);color:var(--text-primary)}
+.procurement-table-wrap{overflow:auto;border:1px solid var(--beige-border);border-radius:13px;background:#fffdf8}
+.procurement-table{width:100%;border-collapse:collapse;min-width:760px}
+.procurement-table th{font:600 10px var(--font-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);background:var(--beige-subtle);padding:10px;text-align:left;white-space:nowrap}
+.procurement-table td{padding:8px;border-top:1px solid #e9e0cd;vertical-align:middle}
+.procurement-table td input,.procurement-table td select{padding:8px}
+.procurement-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--beige-border)}
+.procurement-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.procurement-summary div{background:#f1ebdd;border:1px solid var(--beige-border);border-radius:12px;padding:11px}
+.procurement-summary small{display:block;color:var(--text-muted);font:10px var(--font-mono);text-transform:uppercase}
+.procurement-summary strong{display:block;margin-top:5px;font:600 15px var(--font-mono)}
+.procurement-note{font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:8px}
+.procurement-list{display:grid;gap:8px;max-height:260px;overflow:auto}
+.procurement-list-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;background:#fffdf8;border:1px solid var(--beige-border);border-radius:11px;font-size:12px}
+.procurement-list-item form{margin:0}
+.procurement-muted{color:var(--text-muted);font-size:11px}
+@media(max-width:900px){.procurement-launcher{max-width:100%;}.topbar-right{flex-wrap:wrap}}
+@media(max-width:760px){.procurement-modal{padding:17px}.procurement-grid,.procurement-grid.three{grid-template-columns:1fr}.procurement-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.procurement-head h2{font-size:22px}.procurement-scrim{padding:8px}}
+</style>
+
+<div class="procurement-launcher" id="procurementLauncher">
+  <div class="procurement-dropdown" id="procurementDropdown">
+    <button type="button" class="procurement-dropdown-trigger" id="procurementDropdownTrigger"
+            aria-haspopup="true" aria-expanded="false" aria-controls="procurementMenu">
+      <span>Purchasing</span><span class="procurement-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div class="procurement-menu-panel" id="procurementMenu" role="menu" aria-label="Purchasing actions">
+      <div class="procurement-menu-label">Procurement</div>
+      <button type="button" class="procurement-menu-item" data-open-proc="po" role="menuitem">
+        <span class="proc-menu-icon">＋</span><span>New Purchase Order</span>
+      </button>
+      <button type="button" class="procurement-menu-item" data-open-proc="supplier" role="menuitem">
+        <span class="proc-menu-icon">♙</span><span>Supplier Management</span>
+      </button>
+      <button type="button" class="procurement-menu-item" data-open-proc="receipt" role="menuitem">
+        <span class="proc-menu-icon">↓</span><span>Goods Receipt</span>
+      </button>
+      <div class="procurement-menu-divider"></div>
+      <div class="procurement-menu-label">Accounts Payable</div>
+      <button type="button" class="procurement-menu-item" data-open-proc="bill" role="menuitem">
+        <span class="proc-menu-icon">▤</span><span>Vendor Bill</span>
+      </button>
+      <button type="button" class="procurement-menu-item" data-open-proc="payment" role="menuitem">
+        <span class="proc-menu-icon">₹</span><span>Vendor Payment</span>
+      </button>
+      <div class="procurement-menu-divider"></div>
+      <button type="button" class="procurement-menu-item" data-open-proc="register" role="menuitem">
+        <span class="proc-menu-icon">☷</span><span>Purchase Register</span>
+      </button>
+    </div>
+  </div>
 </div>
+
+<!-- Supplier master -->
+<div class="procurement-scrim" id="procSupplier"><section class="procurement-modal" role="dialog" aria-modal="true" aria-labelledby="procSupplierTitle">
+ <div class="procurement-head"><div><div class="procurement-kicker">UNCOMMON · Vendor master</div><h2 id="procSupplierTitle">Add supplier</h2></div><button type="button" class="procurement-close" data-close-proc>×</button></div>
+ <form method="post" action="{% url 'supplier_create' %}">{% csrf_token %}
+  <div class="procurement-grid three">
+   <div class="procurement-field"><label>Supplier code (optional)</label><input name="supplier_code" placeholder="Auto-generated if blank"></div>
+   <div class="procurement-field"><label>Company name *</label><input name="company_name" required></div>
+   <div class="procurement-field"><label>Contact person</label><input name="contact_person"></div>
+   <div class="procurement-field"><label>Email</label><input name="email" type="email"></div><div class="procurement-field"><label>Phone</label><input name="phone"></div><div class="procurement-field"><label>Alternate phone</label><input name="alternate_phone"></div>
+   <div class="procurement-field"><label>Website</label><input name="website" type="url"></div><div class="procurement-field"><label>GSTIN</label><input name="gstin" maxlength="15"></div><div class="procurement-field"><label>PAN</label><input name="pan_number" maxlength="10"></div>
+   <div class="procurement-field"><label>Registration type</label><select name="tax_registration_type"><option value="registered">Regular registered</option><option value="composition">Composition</option><option value="unregistered">Unregistered</option><option value="overseas">Overseas</option></select></div>
+   <div class="procurement-field"><label>Payment terms (days)</label><input type="number" min="0" name="payment_terms_days" value="30"></div><div class="procurement-field"><label>Credit limit (₹)</label><input type="number" min="0" step="0.01" name="credit_limit" value="0"></div>
+   <div class="procurement-field"><label>Opening balance (₹)</label><input type="number" step="0.01" name="opening_balance" value="0"></div>
+   <div class="procurement-field full"><label>Billing address</label><textarea name="billing_address"></textarea></div>
+   <div class="procurement-field"><label>Billing city</label><input name="billing_city"></div><div class="procurement-field"><label>Billing state</label><input name="billing_state"></div><div class="procurement-field"><label>State code</label><input name="billing_state_code" maxlength="2"></div><div class="procurement-field"><label>Billing PIN</label><input name="billing_postal_code"></div><div class="procurement-field"><label>Billing country</label><input name="billing_country" value="India"></div>
+   <div class="procurement-field full"><label>Shipping address</label><textarea name="shipping_address"></textarea></div><div class="procurement-field"><label>Shipping city</label><input name="shipping_city"></div><div class="procurement-field"><label>Shipping state</label><input name="shipping_state"></div><div class="procurement-field"><label>Shipping PIN</label><input name="shipping_postal_code"></div><div class="procurement-field"><label>Shipping country</label><input name="shipping_country" value="India"></div>
+   <div class="procurement-field"><label>Bank name</label><input name="bank_name"></div><div class="procurement-field"><label>Account name</label><input name="bank_account_name"></div><div class="procurement-field"><label>Account number</label><input name="bank_account_number"></div><div class="procurement-field"><label>IFSC</label><input name="bank_ifsc"></div><div class="procurement-field"><label>Branch</label><input name="bank_branch"></div><div class="procurement-field full"><label>Notes</label><textarea name="notes"></textarea></div>
+  </div><div class="procurement-actions"><button type="button" class="procurement-btn" data-close-proc>Cancel</button><button class="procurement-btn primary">Save Supplier</button></div>
+ </form>
+ <h3 class="procurement-section">Supplier directory</h3><div class="procurement-list">{% for s in suppliers %}<div class="procurement-list-item"><span><strong>{{ s.company_name }}</strong><br><span class="procurement-muted">{{ s.supplier_code }} · {{ s.phone|default:"No phone" }} · {{ s.gstin|default:"No GSTIN" }}</span></span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><details><summary class="procurement-btn" style="padding:6px 9px;cursor:pointer">Edit</summary><form method="post" action="{% url 'supplier_update' s.pk %}" style="position:absolute;z-index:4;background:var(--beige-card);border:1px solid var(--beige-border);border-radius:12px;padding:12px;box-shadow:var(--ui-shadow);width:min(420px,80vw)">{% csrf_token %}<div class="procurement-field"><label>Company</label><input name="company_name" value="{{ s.company_name }}" required></div><div class="procurement-field"><label>Contact</label><input name="contact_person" value="{{ s.contact_person }}"></div><div class="procurement-field"><label>Email</label><input name="email" type="email" value="{{ s.email }}"></div><div class="procurement-field"><label>Phone</label><input name="phone" value="{{ s.phone }}"></div><div class="procurement-field"><label>GSTIN</label><input name="gstin" value="{{ s.gstin }}" maxlength="15"></div><div class="procurement-field"><label>Billing address</label><textarea name="billing_address">{{ s.billing_address }}</textarea></div><div class="procurement-field"><label>Billing city</label><input name="billing_city" value="{{ s.billing_city }}"></div><div class="procurement-field"><label>Billing state</label><input name="billing_state" value="{{ s.billing_state }}"></div><div class="procurement-field"><label>Payment terms (days)</label><input type="number" name="payment_terms_days" value="{{ s.payment_terms_days }}"></div><div class="procurement-field"><label>Credit limit</label><input type="number" step="0.01" name="credit_limit" value="{{ s.credit_limit }}"></div><div class="procurement-field"><label>Opening balance</label><input type="number" step="0.01" name="opening_balance" value="{{ s.opening_balance }}"></div><button class="procurement-btn primary" style="margin-top:8px">Update supplier</button></form></details><form method="post" action="{% url 'supplier_toggle' s.pk %}">{% csrf_token %}<button class="procurement-btn" style="padding:6px 9px">{% if s.is_active %}Deactivate{% else %}Activate{% endif %}</button></form></span></div>{% empty %}<p class="procurement-muted">No suppliers yet.</p>{% endfor %}</div>
+</section></div>
+
+<!-- Purchase order -->
+<div class="procurement-scrim" id="procPO"><section class="procurement-modal" role="dialog" aria-modal="true" aria-labelledby="procPOTitle">
+ <div class="procurement-head"><div><div class="procurement-kicker">UNCOMMON · Procurement</div><h2 id="procPOTitle">Create purchase order</h2><p class="procurement-note">PO number is generated by the server. Select an existing product or enter a new product name on each line.</p></div><button type="button" class="procurement-close" data-close-proc>×</button></div>
+ <form method="post" action="{% url 'purchase_order_create' %}" id="procPOForm">{% csrf_token %}
+  <div class="procurement-grid three">
+   <div class="procurement-field"><label>Supplier *</label><select name="supplier" required><option value="">Select supplier</option>{% for s in suppliers %}{% if s.is_active %}<option value="{{ s.pk }}">{{ s.company_name }} · {{ s.supplier_code }}</option>{% endif %}{% endfor %}</select></div>
+   <div class="procurement-field"><label>Order date</label><input type="date" name="order_date" value="{% now 'Y-m-d' %}"></div><div class="procurement-field"><label>Expected delivery</label><input type="date" name="expected_delivery_date"></div>
+   <div class="procurement-field"><label>Status</label><select name="status"><option value="draft">Draft</option><option value="submitted">Submitted for approval</option></select></div><div class="procurement-field"><label>Reference / quotation</label><input name="reference_number"></div><div class="procurement-field"><label>Warehouse</label><input name="destination_warehouse" placeholder="Main warehouse"></div>
+   <div class="procurement-field"><label>Place of supply</label><input name="place_of_supply" value="Kerala"></div><div class="procurement-field"><label>Supply type</label><select name="is_interstate"><option value="false">Within state · CGST + SGST</option><option value="true">Interstate · IGST</option></select></div><div class="procurement-field"><label>Currency</label><select name="currency"><option>INR</option><option>USD</option><option>EUR</option></select></div>
+   <div class="procurement-field"><label>Delivery method</label><input name="delivery_method"></div><div class="procurement-field"><label>Discount type</label><select name="discount_type"><option value="fixed">Fixed amount</option><option value="percent">Percentage</option></select></div><div class="procurement-field"><label>Order discount</label><input type="number" min="0" step="0.01" name="discount_value" value="0"></div>
+   <div class="procurement-field"><label>Shipping cost</label><input type="number" min="0" step="0.01" name="shipping_cost" value="0"></div><div class="procurement-field"><label>Other charges</label><input type="number" min="0" step="0.01" name="other_charges" value="0"></div><div class="procurement-field"><label>Adjustment (+ / −)</label><input type="number" step="0.01" name="adjustment_amount" value="0"></div>
+  </div>
+  <h3 class="procurement-section">Purchase items</h3><div class="procurement-table-wrap"><table class="procurement-table"><thead><tr><th>Existing product</th><th>Or new product name</th><th>New product category</th><th>Qty</th><th>Unit price</th><th>Discount %</th><th>GST %</th><th></th></tr></thead><tbody id="procPOLines"></tbody></table></div><button type="button" class="procurement-btn" id="procAddPOLine" style="margin-top:10px">＋ Add item</button>
+  <div class="procurement-grid" style="margin-top:15px"><div class="procurement-field"><label>Terms & conditions</label><textarea name="terms_and_conditions"></textarea></div><div class="procurement-field"><label>Internal notes</label><textarea name="internal_notes"></textarea></div></div>
+  <div class="procurement-actions"><button type="button" class="procurement-btn" data-close-proc>Cancel</button><button class="procurement-btn primary">Save Purchase Order</button></div>
+ </form>
+</section></div>
+
+<!-- Goods receipt -->
+<div class="procurement-scrim" id="procReceipt"><section class="procurement-modal" role="dialog" aria-modal="true"><div class="procurement-head"><div><div class="procurement-kicker">UNCOMMON · Inventory receiving</div><h2>Record goods receipt</h2><p class="procurement-note">Only accepted quantities increase product stock. Received = accepted + rejected.</p></div><button type="button" class="procurement-close" data-close-proc>×</button></div>
+ <form method="post" action="{% url 'goods_receipt_create' %}" id="procReceiptForm">{% csrf_token %}<div class="procurement-grid three"><div class="procurement-field"><label>Purchase order *</label><select name="purchase_order" id="procReceiptPO" required><option value="">Select open PO</option>{% for po in purchase_orders %}{% if po.status != 'cancelled' and po.status != 'closed' %}<option value="{{ po.pk }}">{{ po.po_number }} · {{ po.supplier.company_name }}</option>{% endif %}{% endfor %}</select></div><div class="procurement-field"><label>Receipt date</label><input type="date" name="receipt_date" value="{% now 'Y-m-d' %}"></div><div class="procurement-field"><label>Delivery note number</label><input name="supplier_delivery_note"></div><div class="procurement-field"><label>Carrier</label><input name="carrier_name"></div><div class="procurement-field"><label>Tracking number</label><input name="tracking_number"></div><div class="procurement-field"><label>Warehouse</label><input name="warehouse"></div></div>
+ <h3 class="procurement-section">Items expected</h3><div class="procurement-table-wrap"><table class="procurement-table"><thead><tr><th>Product</th><th>Ordered</th><th>Already received</th><th>Receiving now</th><th>Accepted</th><th>Rejected</th></tr></thead><tbody id="procReceiptLines"><tr><td colspan="6" class="procurement-muted">Choose a purchase order to load its items.</td></tr></tbody></table></div>
+ <div class="procurement-grid" style="margin-top:14px"><div class="procurement-field"><label>Inspection notes</label><textarea name="inspection_notes"></textarea></div><div class="procurement-field"><label>Internal notes</label><textarea name="internal_notes"></textarea></div></div><div class="procurement-actions"><button type="button" class="procurement-btn" data-close-proc>Cancel</button><button class="procurement-btn primary">Save Goods Receipt</button></div></form>
+</section></div>
+
+<!-- Vendor bill -->
+<div class="procurement-scrim" id="procBill"><section class="procurement-modal"><div class="procurement-head"><div><div class="procurement-kicker">UNCOMMON · Accounts payable</div><h2>Record vendor bill</h2></div><button type="button" class="procurement-close" data-close-proc>×</button></div>
+ <form method="post" enctype="multipart/form-data" action="{% url 'vendor_bill_create' %}" id="procBillForm">{% csrf_token %}<div class="procurement-grid three"><div class="procurement-field"><label>Supplier *</label><select name="supplier" id="procBillSupplier" required><option value="">Select supplier</option>{% for s in suppliers %}{% if s.is_active %}<option value="{{ s.pk }}">{{ s.company_name }}</option>{% endif %}{% endfor %}</select></div><div class="procurement-field"><label>Purchase order (optional)</label><select name="purchase_order" id="procBillPO"><option value="">No linked PO</option>{% for po in purchase_orders %}<option value="{{ po.pk }}" data-supplier="{{ po.supplier_id }}">{{ po.po_number }}</option>{% endfor %}</select></div><div class="procurement-field"><label>Supplier invoice number *</label><input name="supplier_invoice_number" required></div><div class="procurement-field"><label>Invoice date</label><input type="date" name="invoice_date" value="{% now 'Y-m-d' %}"></div><div class="procurement-field"><label>Accounting date</label><input type="date" name="accounting_date" value="{% now 'Y-m-d' %}"></div><div class="procurement-field"><label>Due date</label><input type="date" name="due_date"></div><div class="procurement-field"><label>Other charges</label><input type="number" min="0" step="0.01" name="other_charges" value="0"></div><div class="procurement-field"><label>Currency</label><select name="currency"><option>INR</option><option>USD</option><option>EUR</option></select></div><div class="procurement-field"><label>Invoice attachment</label><input type="file" name="attachment" accept=".pdf,.jpg,.jpeg,.png"></div></div>
+ <h3 class="procurement-section">Invoice lines</h3><div class="procurement-table-wrap"><table class="procurement-table"><thead><tr><th>Product</th><th>Qty</th><th>Unit price</th><th>Discount ₹</th><th>CGST ₹</th><th>SGST ₹</th><th>IGST ₹</th><th></th></tr></thead><tbody id="procBillLines"></tbody></table></div><button type="button" class="procurement-btn" id="procAddBillLine" style="margin-top:10px">＋ Add invoice line</button><div class="procurement-field" style="margin-top:14px"><label>Notes</label><textarea name="notes"></textarea></div><div class="procurement-actions"><button type="button" class="procurement-btn" data-close-proc>Cancel</button><button class="procurement-btn primary">Post Vendor Bill</button></div></form>
+</section></div>
+
+<!-- Vendor payment -->
+<div class="procurement-scrim" id="procPayment"><section class="procurement-modal narrow"><div class="procurement-head"><div><div class="procurement-kicker">UNCOMMON · Accounts payable</div><h2>Record vendor payment</h2><p class="procurement-note">Allocate the payment to one or more outstanding bills. Any unallocated balance remains as supplier advance.</p></div><button type="button" class="procurement-close" data-close-proc>×</button></div>
+ <form method="post" action="{% url 'vendor_payment_create' %}" id="procPaymentForm">{% csrf_token %}<div class="procurement-grid"><div class="procurement-field"><label>Supplier *</label><select name="supplier" id="procPaymentSupplier" required><option value="">Select supplier</option>{% for s in suppliers %}{% if s.is_active %}<option value="{{ s.pk }}">{{ s.company_name }}</option>{% endif %}{% endfor %}</select></div><div class="procurement-field"><label>Payment date</label><input type="date" name="payment_date" value="{% now 'Y-m-d' %}"></div><div class="procurement-field"><label>Amount (₹) *</label><input type="number" min="0.01" step="0.01" name="amount" required></div><div class="procurement-field"><label>Payment method</label><select name="method"><option value="bank">Bank transfer</option><option value="upi">UPI</option><option value="cash">Cash</option><option value="card">Card</option><option value="cheque">Cheque</option><option value="other">Other</option></select></div><div class="procurement-field"><label>Transaction reference</label><input name="transaction_reference"></div><div class="procurement-field"><label>Bank name</label><input name="bank_name"></div><div class="procurement-field"><label>Cheque number</label><input name="cheque_number"></div><div class="procurement-field full"><label>Notes</label><textarea name="notes"></textarea></div></div><h3 class="procurement-section">Allocate to bills</h3><div id="procPaymentBills" class="procurement-list"><p class="procurement-muted">Select a supplier to load unpaid bills.</p></div><div class="procurement-actions"><button type="button" class="procurement-btn" data-close-proc>Cancel</button><button class="procurement-btn primary">Save Payment</button></div></form>
+</section></div>
+
+<!-- Purchase register -->
+<div class="procurement-scrim" id="procRegister"><section class="procurement-modal"><div class="procurement-head"><div><div class="procurement-kicker">UNCOMMON · Procurement ledger</div><h2>Purchase register</h2></div><button type="button" class="procurement-close" data-close-proc>×</button></div>
+ <h3 class="procurement-section">Purchase orders</h3><input id="procRegisterSearch" placeholder="Search this register by supplier or reference" style="width:100%;padding:10px;border:1px solid var(--beige-border);border-radius:10px;margin-bottom:10px"><div class="procurement-list" id="procRegisterList">{% for po in purchase_orders %}<div class="procurement-list-item" data-register-item data-search="{{ po.po_number|lower }} {{ po.supplier.company_name|lower }} {{ po.get_status_display|lower }}"><span><strong>{{ po.po_number }}</strong><br><span class="procurement-muted">{{ po.supplier.company_name }} · {{ po.get_status_display }} · {{ po.order_date }}</span></span><span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>₹{{ po.grand_total|floatformat:2 }}</strong><form method="post" action="{% url 'purchase_order_status_update' po.pk %}" style="display:flex;gap:5px;align-items:center">{% csrf_token %}<select name="status" style="padding:6px;border:1px solid var(--beige-border);border-radius:8px;font-size:11px"><option value="draft" {% if po.status == 'draft' %}selected{% endif %}>Draft</option><option value="submitted" {% if po.status == 'submitted' %}selected{% endif %}>Submitted</option><option value="approved" {% if po.status == 'approved' %}selected{% endif %}>Approved</option><option value="sent" {% if po.status == 'sent' %}selected{% endif %}>Sent</option><option value="partial" {% if po.status == 'partial' %}selected{% endif %}>Partial</option><option value="received" {% if po.status == 'received' %}selected{% endif %}>Received</option><option value="closed" {% if po.status == 'closed' %}selected{% endif %}>Closed</option><option value="cancelled" {% if po.status == 'cancelled' %}selected{% endif %}>Cancelled</option></select><button class="procurement-btn" style="padding:6px 8px">Update</button></form></span></div>{% empty %}<p class="procurement-muted">No purchase orders.</p>{% endfor %}</div>
+ <h3 class="procurement-section">Goods receipts</h3><div class="procurement-list">{% for gr in goods_receipts %}<div class="procurement-list-item"><span><strong>{{ gr.receipt_number }}</strong><br><span class="procurement-muted">{{ gr.supplier.company_name }} · {{ gr.receipt_date }} · {{ gr.purchase_order.po_number }}</span></span><span>{{ gr.get_status_display }}</span></div>{% empty %}<p class="procurement-muted">No goods receipts.</p>{% endfor %}</div>
+ <h3 class="procurement-section">Vendor bills</h3><div class="procurement-list">{% for bill in vendor_bills %}<div class="procurement-list-item"><span><strong>{{ bill.bill_number }}</strong><br><span class="procurement-muted">{{ bill.supplier.company_name }} · Invoice {{ bill.supplier_invoice_number }} · {{ bill.get_status_display }}</span></span><span><strong>₹{{ bill.grand_total|floatformat:2 }}</strong><br><span class="procurement-muted">Due ₹{{ bill.amount_due|floatformat:2 }}</span></span></div>{% empty %}<p class="procurement-muted">No vendor bills.</p>{% endfor %}</div>
+ <h3 class="procurement-section">Vendor payments</h3><div class="procurement-list">{% for payment in vendor_payments %}<div class="procurement-list-item"><span><strong>{{ payment.payment_number }}</strong><br><span class="procurement-muted">{{ payment.supplier.company_name }} · {{ payment.payment_date }} · {{ payment.get_method_display }}</span></span><strong>₹{{ payment.amount|floatformat:2 }}</strong></div>{% empty %}<p class="procurement-muted">No vendor payments.</p>{% endfor %}</div>
+</section></div>
+
+{{ procurement_po_lines|json_script:"procurement-po-lines" }}
+{{ procurement_products|json_script:"procurement-products" }}
+{{ procurement_categories|json_script:"procurement-categories" }}
+{{ procurement_bills|json_script:"procurement-bills" }}
 <script>
-(function(){
-  const scrim=document.getElementById('purchaseOrderScrim');
-  if(!scrim)return;
-  const form=document.getElementById('purchaseOrderForm');
-  const body=document.getElementById('purchaseOrderLines');
-  const openBtn=document.createElement('button');
-  openBtn.type='button';openBtn.className='fx-btn';openBtn.textContent='Purchase Order';openBtn.setAttribute('data-purchase-open','');
-  const host=document.querySelector('.topbar-right,.top-right');
-  const finance=document.querySelector('[data-fin-open]');
-  if(host){if(finance&&finance.parentElement===host)host.insertBefore(openBtn,finance.nextSibling);else{const logout=host.querySelector('form,.logout-link');logout?host.insertBefore(openBtn,logout):host.appendChild(openBtn)}}else{openBtn.classList.add('float');openBtn.style.right='150px';document.body.appendChild(openBtn)}
-  const money=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-  function open(){scrim.classList.add('open');scrim.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.getElementById('po_supplier_name').focus();if(!body.children.length)addLine();}
-  function close(){scrim.classList.remove('open');scrim.setAttribute('aria-hidden','true');document.body.style.overflow='';}
-  openBtn.addEventListener('click',open);document.getElementById('purchaseOrderClose').addEventListener('click',close);document.getElementById('purchaseOrderCancel').addEventListener('click',close);
-  scrim.addEventListener('mousedown',e=>{if(e.target===scrim)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&scrim.classList.contains('open'))close()});
-  const val=id=>Math.max(0,Number(document.getElementById(id).value)||0);
-  function addLine(){const tr=document.createElement('tr');tr.innerHTML='<td><input name="product_name[]" type="text" placeholder="Enter product name" required></td><td><input name="quantity[]" type="number" min="0.001" step="0.001" value="1" required></td><td><input name="unit_price[]" type="number" min="0" step="0.01" value="0" required></td><td><input name="discount_percent[]" type="number" min="0" max="100" step="0.01" value="0"></td><td><input name="gst_rate[]" type="number" min="0" max="100" step="0.01" value="0"></td><td class="po-line-total">₹0.00</td><td><button type="button" class="po-remove" aria-label="Remove product line">×</button></td>';body.appendChild(tr);tr.addEventListener('input',calculate);tr.querySelector('.po-remove').addEventListener('click',()=>{tr.remove();if(!body.children.length)addLine();calculate()});calculate();}
-  function calculate(){let subtotal=0,lineDiscount=0,taxable=0,cgst=0,sgst=0,igst=0;const interstate=document.getElementById('po_interstate').value==='true';[...body.querySelectorAll('tr')].forEach(tr=>{const inputs=tr.querySelectorAll('input');const qty=Math.max(0,Number(inputs[1].value)||0),price=Math.max(0,Number(inputs[2].value)||0),disc=Math.min(100,Math.max(0,Number(inputs[3].value)||0)),rate=Math.max(0,Number(inputs[4].value)||0);const sub=qty*price,d=sub*disc/100,t=sub-d,tax=t*rate/100;subtotal+=sub;lineDiscount+=d;taxable+=t;if(interstate)igst+=tax;else{cgst+=tax/2;sgst+=tax/2}tr.querySelector('.po-line-total').textContent=money(t+tax)});const discountType=document.getElementById('po_discount_type').value;const discountValue=val('po_discount_value');const orderDiscount=Math.min(taxable,discountType==='percent'?taxable*Math.min(100,discountValue)/100:discountValue);const ratio=taxable?((taxable-orderDiscount)/taxable):0;cgst*=ratio;sgst*=ratio;igst*=ratio;const finalTaxable=taxable-orderDiscount;const extra=val('po_shipping_cost')+val('po_other_charges');const total=finalTaxable+cgst+sgst+igst+extra+(Number(document.getElementById('po_adjustment').value)||0);document.getElementById('poSubtotal').textContent=money(subtotal);document.getElementById('poLineDiscounts').textContent='− '+money(lineDiscount);document.getElementById('poOrderDiscount').textContent='− '+money(orderDiscount);document.getElementById('poTaxable').textContent=money(finalTaxable);document.getElementById('poCgst').textContent=money(cgst);document.getElementById('poSgst').textContent=money(sgst);document.getElementById('poIgst').textContent=money(igst);document.getElementById('poExtra').textContent=money(extra);document.getElementById('poGrandTotal').textContent=money(total);}
-  document.getElementById('addPurchaseLine').addEventListener('click',addLine);form.addEventListener('input',calculate);document.getElementById('po_interstate').addEventListener('change',calculate);document.getElementById('po_discount_type').addEventListener('change',calculate);
-  function csvCell(value){const text=String(value==null?'':value).replace(/\r?\n/g,' ');return '"'+text.replace(/"/g,'""')+'"';}
-  function exportExcel(){
-    calculate();
-    const rows=[
-      ['UNCOMMON - PURCHASE ORDER'],
-      ['Purchase order number',document.getElementById('po_number').value],
-      ['Order date',document.getElementById('po_order_date').value],
-      ['Expected delivery',document.getElementById('po_delivery_date').value],
-      ['Status',document.getElementById('po_status').selectedOptions[0]?.text||''],
-      ['Vendor name',document.getElementById('po_supplier_name').value],
-      ['Contact person',document.getElementById('po_supplier_contact').value],
-      ['Vendor phone',document.getElementById('po_supplier_phone').value],
-      ['Vendor email',document.getElementById('po_supplier_email').value],
-      ['Vendor GSTIN',document.getElementById('po_supplier_gstin').value],
-      ['Vendor address',document.getElementById('po_supplier_address').value],
-      ['Reference',document.getElementById('po_reference').value],
-      ['Destination warehouse',document.getElementById('po_warehouse').value],
-      ['Place of supply',document.getElementById('po_place_supply').value],
-      ['Supply type',document.getElementById('po_interstate').selectedOptions[0]?.text||''],
-      [],
-      ['Product name','Quantity','Unit price (INR)','Discount %','GST %','Line total (INR)']
-    ];
-    [...body.querySelectorAll('tr')].forEach(tr=>{
-      const inputs=tr.querySelectorAll('input');
-      const name=inputs[0]?.value||'';
-      const qty=Math.max(0,Number(inputs[1]?.value)||0), price=Math.max(0,Number(inputs[2]?.value)||0);
-      const discount=Math.min(100,Math.max(0,Number(inputs[3]?.value)||0));
-      const gst=Math.min(100,Math.max(0,Number(inputs[4]?.value)||0));
-      const line=(qty*price)*(1-discount/100)*(1+gst/100);
-      rows.push([name,qty,price,discount,gst,line.toFixed(2)]);
-    });
-    rows.push([],['Subtotal',document.getElementById('poSubtotal').textContent],
-      ['Line discounts',document.getElementById('poLineDiscounts').textContent],
-      ['Order discount',document.getElementById('poOrderDiscount').textContent],
-      ['Taxable amount',document.getElementById('poTaxable').textContent],
-      ['CGST',document.getElementById('poCgst').textContent],
-      ['SGST',document.getElementById('poSgst').textContent],
-      ['IGST',document.getElementById('poIgst').textContent],
-      ['Shipping + other charges',document.getElementById('poExtra').textContent],
-      ['Grand total',document.getElementById('poGrandTotal').textContent],
-      ['Payment / delivery terms',document.getElementById('po_terms').value],
-      ['Internal notes',document.getElementById('po_internal_notes').value]);
-    const csv='\ufeff'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
-    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement('a');
-    const po=(document.getElementById('po_number').value||'purchase-order').replace(/[^a-z0-9_-]/gi,'_');
-    link.href=url;link.download=po+'.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
-  }
-  document.getElementById('exportPurchaseExcel').addEventListener('click',exportExcel);
-  const today=new Date();document.getElementById('po_order_date').value=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+(()=>{
+ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+ const launcher=$('#procurementLauncher');const topbar=$('.topbar-right');if(launcher&&topbar)topbar.insertBefore(launcher,topbar.firstChild);
+ const dropdown=$('#procurementDropdown'),dropdownTrigger=$('#procurementDropdownTrigger');
+ function closeDropdown(){if(dropdown){dropdown.classList.remove('open');dropdownTrigger?.setAttribute('aria-expanded','false');}}
+ dropdownTrigger?.addEventListener('click',e=>{e.stopPropagation();const isOpen=dropdown.classList.toggle('open');dropdownTrigger.setAttribute('aria-expanded',String(isOpen));});
+ document.addEventListener('click',e=>{if(dropdown&&!dropdown.contains(e.target))closeDropdown();});
+ const modals={supplier:$('#procSupplier'),po:$('#procPO'),receipt:$('#procReceipt'),bill:$('#procBill'),payment:$('#procPayment'),register:$('#procRegister')};
+ function open(name){closeDropdown();Object.values(modals).forEach(m=>m.classList.remove('open'));if(modals[name]){modals[name].classList.add('open');document.body.style.overflow='hidden';}}
+ function close(m){m.classList.remove('open');if(!$('.procurement-scrim.open'))document.body.style.overflow='';}
+ $$('[data-open-proc]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.openProc;const run=()=>open(key);if(window.requestFinanceAccess)window.requestFinanceAccess(key==='register'?'purchase_view':'purchase_add',run);else run();}));
+ $$('[data-close-proc]').forEach(b=>b.addEventListener('click',()=>close(b.closest('.procurement-scrim'))));
+ $$('.procurement-scrim').forEach(m=>m.addEventListener('mousedown',e=>{if(e.target===m)close(m)}));document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDropdown();$$('.procurement-scrim.open').forEach(close);}});
+ const readJSON=(id,fallback)=>{try{return JSON.parse($(id)?.textContent||'')||fallback}catch(_){return fallback}};
+ const products=readJSON('#procurement-products',[]);
+ const categories=readJSON('#procurement-categories',[]);
+ const poLines=readJSON('#procurement-po-lines',[]);
+ const bills=readJSON('#procurement-bills',[]);
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function productOptions(){return '<option value="">Select existing product</option>'+products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');}
+ function categoryOptions(){return '<option value="">Use default category</option>'+categories.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.section)}</option>`).join('');}
+ function removeButton(){return '<button type="button" class="procurement-btn" data-remove-line style="padding:7px 10px">×</button>';}
+ function bindRemove(root){$$('[data-remove-line]',root).forEach(b=>b.addEventListener('click',()=>b.closest('tr').remove()));}
+ function addPOLine(){const tr=document.createElement('tr');tr.innerHTML=`<td><select name="product_id[]">${productOptions()}</select></td><td><input name="new_product_name[]" placeholder="New product (optional)"></td><td><select name="new_product_category_id[]">${categoryOptions()}</select></td><td><input name="quantity[]" type="number" min="0.001" step="0.001" value="1" required></td><td><input name="unit_price[]" type="number" min="0" step="0.01" value="0" required></td><td><input name="discount_percent[]" type="number" min="0" max="100" step="0.01" value="0"></td><td><input name="gst_rate[]" type="number" min="0" max="100" step="0.01" value="0"></td><td>${removeButton()}</td>`;$('#procPOLines').append(tr);bindRemove(tr);}
+ $('#procAddPOLine')?.addEventListener('click',addPOLine);addPOLine();
+ // Receipt rows are sourced from the actual PO lines passed by the view.
+ $('#procReceiptPO')?.addEventListener('change',e=>{const id=e.target.value,root=$('#procReceiptLines');root.innerHTML='';const lines=poLines.filter(x=>String(x.po_id)===String(id)&&Number(x.remaining)>0);if(!lines.length){root.innerHTML='<tr><td colspan="6" class="procurement-muted">No remaining quantities for this order.</td></tr>';return;}lines.forEach(l=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(l.product)}</td><td>${l.ordered}</td><td>${l.received}</td><td><input type="hidden" name="po_line_id[]" value="${l.id}"><input name="quantity_received[]" type="number" min="0" max="${l.remaining}" step="0.001" value="0"></td><td><input name="quantity_accepted[]" type="number" min="0" max="${l.remaining}" step="0.001" value="0"></td><td><input name="quantity_rejected[]" type="number" min="0" max="${l.remaining}" step="0.001" value="0"></td>`;root.append(tr);});});
+ // Bill lines allow existing catalogue products; bills do not create stock (receipts do).
+ function addBillLine(){const tr=document.createElement('tr');tr.innerHTML=`<td><select name="bill_product_id[]" required>${productOptions()}</select></td><td><input name="bill_quantity[]" type="number" min="0.001" step="0.001" value="1" required></td><td><input name="bill_unit_price[]" type="number" min="0" step="0.01" value="0" required></td><td><input name="bill_discount[]" type="number" min="0" step="0.01" value="0"></td><td><input name="bill_cgst[]" type="number" min="0" step="0.01" value="0"></td><td><input name="bill_sgst[]" type="number" min="0" step="0.01" value="0"></td><td><input name="bill_igst[]" type="number" min="0" step="0.01" value="0"></td><td><input type="hidden" name="bill_po_line_id[]" value="">${removeButton()}</td>`;$('#procBillLines').append(tr);bindRemove(tr);}
+ $('#procAddBillLine')?.addEventListener('click',addBillLine);addBillLine();
+ // Keep the PO selector limited to the selected supplier.
+ $('#procBillSupplier')?.addEventListener('change',e=>{$$('#procBillPO option').forEach(o=>{if(o.value)o.hidden=o.dataset.supplier!==e.target.value;});$('#procBillPO').value='';});
+ // Purchase register search.
+ $('#procRegisterSearch')?.addEventListener('input',e=>{const q=e.target.value.toLowerCase();$$('[data-register-item]').forEach(row=>row.hidden=!row.dataset.search.includes(q));});
+ // Payment bill allocations are filtered to the selected supplier.
+ $('#procPaymentSupplier')?.addEventListener('change',e=>{const root=$('#procPaymentBills');root.innerHTML='';const openBills=bills.filter(b=>String(b.supplier_id)===String(e.target.value)&&Number(b.due)>0);if(!openBills.length){root.innerHTML='<p class="procurement-muted">No outstanding bills for this supplier.</p>';return;}openBills.forEach(b=>{const row=document.createElement('div');row.className='procurement-list-item';row.innerHTML=`<span><strong>${esc(b.number)}</strong><br><span class="procurement-muted">Invoice ${esc(b.invoice)} · Due ₹${Number(b.due).toFixed(2)}</span></span><span style="width:150px"><input type="hidden" name="bill_id[]" value="${b.id}"><input name="allocation_amount[]" type="number" min="0" max="${b.due}" step="0.01" placeholder="Allocate ₹"></span>`;root.append(row);});});
 })();
 </script>
+
 
 </body>
 

@@ -935,6 +935,384 @@ body.is-loading { overflow: hidden; }
             .navbar.is-floating { transition:none !important; }
         }
 
+    
+/* =========================================================
+   UNCOMMON WISHLIST — FULL IMAGE / GRADIENT PRODUCT CARDS
+   Inspired by the supplied product-card reference.
+   No reviews or rating UI on the wishlist page.
+========================================================= */
+
+.grid {
+    align-items: stretch;
+    gap: 28px 22px;
+}
+
+.wishlist-product-card {
+    position: relative;
+    min-width: 0;
+    height: 510px;
+    min-height: 510px;
+    overflow: hidden;
+    border: 3px solid #fffdf8;
+    border-radius: 27px;
+    background: #e9e5dc;
+    box-shadow: 0 8px 25px rgba(36, 30, 20, .08);
+    transition: transform .35s ease, box-shadow .35s ease;
+}
+
+.wishlist-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 38px rgba(36, 30, 20, .16);
+}
+
+.wishlist-card-media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #e9e5dc;
+}
+
+.wishlist-product-card .product-image,
+.wishlist-card-media > .image-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    transition: transform .65s ease;
+}
+
+.wishlist-product-card:hover .product-image {
+    transform: scale(1.055);
+}
+
+.wishlist-card-media > .image-placeholder {
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    background: #e9e5dc;
+    font: 12px var(--mono);
+    letter-spacing: 3px;
+}
+
+.wishlist-image-shade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, .025) 0%,
+        rgba(0, 0, 0, .025) 35%,
+        rgba(0, 0, 0, .30) 54%,
+        rgba(0, 0, 0, .82) 100%
+    );
+}
+
+.wishlist-remove-form {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 5;
+    margin: 0;
+}
+
+.wishlist-product-card .heart {
+    display: grid;
+    place-items: center;
+    width: 43px;
+    height: 43px;
+    border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: 50%;
+    background: rgba(255, 252, 247, .94);
+    color: var(--red);
+    font-size: 21px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .12);
+    transition: transform .22s ease, background .22s ease;
+}
+
+.wishlist-product-card .heart:hover {
+    transform: scale(1.09);
+    background: #f7e6e2;
+}
+
+.wishlist-product-flag {
+    position: absolute;
+    top: 19px;
+    left: 16px;
+    z-index: 4;
+    padding: 8px 11px;
+    border: 1px solid rgba(255, 255, 255, .48);
+    border-radius: 30px;
+    background: rgba(35, 35, 30, .48);
+    color: #fff;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font: 8px var(--mono);
+    letter-spacing: .12em;
+}
+
+.wishlist-card-content {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 18px 18px;
+    color: #fff;
+}
+
+.wishlist-card-content .category {
+    margin: 0 0 8px;
+    color: #e5c58d;
+    font: 9px var(--mono);
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+}
+
+.wishlist-card-content .product-name {
+    margin: 0 0 8px;
+    color: #fff;
+    font: 400 23px/1.25 var(--serif);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.wishlist-card-content .description {
+    margin: 0 0 13px;
+    color: rgba(255, 255, 255, .84);
+    font: 11px/1.6 'Archivo', sans-serif;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.wishlist-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.wishlist-card-content .price {
+    margin: 0;
+    color: #fff;
+    font: 500 25px/1.2 'Archivo', sans-serif;
+}
+
+.availability-pill {
+    max-width: 48%;
+    padding: 6px 9px;
+    border: 1px solid rgba(255, 255, 255, .32);
+    border-radius: 30px;
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    font: 8px var(--mono);
+    text-align: center;
+}
+
+.availability-pill.out {
+    border-color: rgba(255, 210, 200, .5);
+    background: rgba(139, 48, 40, .48);
+}
+
+.wishlist-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin: 0;
+}
+
+.wishlist-card-actions form {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.wishlist-card-actions .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+    min-height: 47px;
+    margin: 0;
+    padding: 11px 9px;
+    border-radius: 35px;
+    font: 600 9px 'Archivo', sans-serif;
+    letter-spacing: .02em;
+    text-transform: none;
+    transition: background .22s ease, color .22s ease,
+                border-color .22s ease, transform .22s ease;
+}
+
+.wishlist-card-actions .btn-bag {
+    border: 1px solid #fff;
+    background: #fff;
+    color: #25251f;
+}
+
+.wishlist-card-actions .btn-bag:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: #e9d2a6;
+    background: #e9d2a6;
+    color: #25251f;
+}
+
+.wishlist-card-actions .btn-remove {
+    border: 1px solid rgba(255, 255, 255, .72);
+    background: rgba(255, 255, 255, .045);
+    color: #fff;
+}
+
+.wishlist-card-actions .btn-remove:hover {
+    transform: translateY(-2px);
+    border-color: #fff;
+    background: rgba(255, 255, 255, .18);
+    color: #fff;
+}
+
+.wishlist-card-actions .btn:disabled {
+    border-color: #d5d1c9;
+    background: #d5d1c9;
+    color: #666;
+    opacity: .85;
+    cursor: not-allowed;
+}
+
+/* EMPTY WISHLIST */
+.empty {
+    border-radius: 18px;
+}
+
+/* TABLET */
+@media (max-width: 1000px) {
+    .wishlist-product-card {
+        height: 465px;
+        min-height: 465px;
+    }
+
+    .wishlist-card-content {
+        padding: 20px 14px 14px;
+    }
+
+    .wishlist-card-content .product-name {
+        font-size: 20px;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 10px;
+    }
+
+    .wishlist-product-card {
+        height: 390px;
+        min-height: 390px;
+        border-width: 2px;
+        border-radius: 21px;
+    }
+
+    .wishlist-remove-form {
+        top: 10px;
+        right: 10px;
+    }
+
+    .wishlist-product-card .heart {
+        width: 36px;
+        height: 36px;
+        font-size: 19px;
+    }
+
+    .wishlist-card-content {
+        padding: 14px 10px 11px;
+    }
+
+    .wishlist-card-content .category {
+        margin-bottom: 6px;
+        font-size: 7px;
+        letter-spacing: 1px;
+    }
+
+    .wishlist-card-content .product-name {
+        margin-bottom: 6px;
+        font-size: 16px;
+    }
+
+    .wishlist-card-content .description {
+        margin-bottom: 8px;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .wishlist-price-row {
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .wishlist-card-content .price {
+        font-size: 18px;
+    }
+
+    .availability-pill {
+        padding: 5px 6px;
+        font-size: 7px;
+    }
+
+    .wishlist-card-actions {
+        gap: 6px;
+    }
+
+    .wishlist-card-actions .btn {
+        min-height: 39px;
+        padding: 8px 4px;
+        font-size: 8px;
+    }
+}
+
+/* VERY SMALL PHONES */
+@media (max-width: 360px) {
+    .wishlist-product-card {
+        height: 365px;
+        min-height: 365px;
+    }
+
+    .wishlist-card-content .product-name {
+        font-size: 14px;
+    }
+
+    .wishlist-card-content .price {
+        font-size: 16px;
+    }
+
+    .wishlist-card-actions .btn {
+        font-size: 7px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wishlist-product-card,
+    .wishlist-product-card .product-image,
+    .wishlist-product-card .heart,
+    .wishlist-card-actions .btn {
+        transition: none !important;
+    }
+}
+
     </style>
 </head>
 
@@ -1028,116 +1406,137 @@ body.is-loading { overflow: hidden; }
 
             {% for product in wishlist_products %}
 
-                <article class="product">
+                <article class="product wishlist-product-card">
 
-                    <!-- PRODUCT IMAGE AND REMOVE HEART -->
-                    <div class="image-wrap">
+                    <div class="wishlist-card-media">
 
-                        <a
-                            href="{% url 'section_products' 'HIM' %}"
-                            aria-label="Browse products"
-                        >
-                            {% if product.image %}
-                                <img
-                                    class="product-image"
-                                    src="{{ product.image.url }}"
-                                    alt="{{ product.product_name }}"
-                                    loading="lazy"
-                                >
-                            {% else %}
-                                <div class="image-placeholder">
-                                    INSOLO
-                                </div>
-                            {% endif %}
-                        </a>
+                        {% if product.image %}
+                            <img
+                                class="product-image"
+                                src="{{ product.image.url }}"
+                                alt="{{ product.product_name|escape }}"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <div class="image-placeholder">
+                                UNCOMMON
+                            </div>
+                        {% endif %}
 
+                        <div class="wishlist-image-shade"></div>
+
+                        {% if product.is_rare or product.is_limited %}
+                            <span class="wishlist-product-flag">
+                                {% if product.is_rare %}
+                                    RARE EDITION
+                                {% else %}
+                                    LIMITED EDITION
+                                {% endif %}
+                            </span>
+                        {% endif %}
+
+                        <!-- REMOVE FROM WISHLIST -->
                         <form
                             method="POST"
                             action="{% url 'remove_from_wishlist' product.id %}"
+                            class="wishlist-remove-form"
                         >
                             {% csrf_token %}
-
                             <button
                                 class="heart"
                                 type="submit"
-                                aria-label="Remove {{ product.product_name }} from wishlist"
+                                aria-label="Remove {{ product.product_name|escape }} from wishlist"
                                 title="Remove from wishlist"
                             >
                                 ♥
                             </button>
                         </form>
 
-                    </div>
+                        <!-- PRODUCT DETAILS OVER IMAGE -->
+                        <div class="wishlist-card-content">
 
-                    <!-- PRODUCT DETAILS -->
-                    <div class="product-info">
+                            {% if product.category %}
+                                <p class="category">
+                                    {{ product.category.category_name }}
+                                </p>
+                            {% endif %}
 
-                        {% if product.category %}
-                            <p class="category">
-                                {{ product.category.category_name }}
-                            </p>
-                        {% endif %}
+                            <h2 class="product-name">
+                                {{ product.product_name }}
+                            </h2>
 
-                        <h2 class="product-name">
-                            {{ product.product_name }}
-                        </h2>
+                            {% if product.description %}
+                                <p class="description">
+                                    {{ product.description|truncatechars:110 }}
+                                </p>
+                            {% else %}
+                                <p class="description">
+                                    A considered addition to the UNCOMMON collection.
+                                </p>
+                            {% endif %}
 
-                        {% if product.description %}
-                            <p class="description">
-                                {{ product.description|truncatechars:100 }}
-                            </p>
-                        {% endif %}
+                            <div class="wishlist-price-row">
+                                <p class="price">
+                                    ₹{{ product.price|floatformat:2 }}
+                                </p>
 
-                        <p class="price">
-                            ₹{{ product.price|floatformat:2 }}
-                        </p>
+                                {% if product.stock > 0 %}
+                                    <span class="availability-pill">
+                                        {% if product.stock <= 5 %}
+                                            Only {{ product.stock }} left
+                                        {% else %}
+                                            Available
+                                        {% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="availability-pill out">
+                                        Out of stock
+                                    </span>
+                                {% endif %}
+                            </div>
 
-                        {% if product.stock > 0 %}
-                            <p class="availability">
-                                Available
-                            </p>
-                        {% else %}
-                            <p class="availability out">
-                                Currently out of stock
-                            </p>
-                        {% endif %}
+                            <!-- ACTIONS -->
+                            <div class="actions wishlist-card-actions">
 
-                        <!-- PRODUCT ACTIONS -->
-                        <div class="actions">
-
-                            <form
-                                method="POST"
-                                action="{% url 'move_to_bag' product.id %}"
-                            >
-                                {% csrf_token %}
-
-                                <button
-                                    class="btn btn-bag"
-                                    type="submit"
-                                    {% if product.stock < 1 %}disabled{% endif %}
+                                <form
+                                    method="POST"
+                                    action="{% url 'move_to_bag' product.id %}"
+                                    class="wishlist-bag-form"
                                 >
-                                    Move to Bag
-                                </button>
-                            </form>
+                                    {% csrf_token %}
+                                    <button
+                                        class="btn btn-bag"
+                                        type="submit"
+                                        {% if product.stock < 1 %}disabled{% endif %}
+                                    >
+                                        <span>
+                                            {% if product.stock > 0 %}
+                                                Move to Bag
+                                            {% else %}
+                                                Sold Out
+                                            {% endif %}
+                                        </span>
+                                        <span aria-hidden="true">↗</span>
+                                    </button>
+                                </form>
 
-                            <form
-                                method="POST"
-                                action="{% url 'remove_from_wishlist' product.id %}"
-                            >
-                                {% csrf_token %}
-
-                                <button
-                                    class="btn btn-remove"
-                                    type="submit"
+                                <form
+                                    method="POST"
+                                    action="{% url 'remove_from_wishlist' product.id %}"
+                                    class="wishlist-remove-bottom-form"
                                 >
-                                    Remove
-                                </button>
-                            </form>
+                                    {% csrf_token %}
+                                    <button
+                                        class="btn btn-remove"
+                                        type="submit"
+                                    >
+                                        Remove
+                                    </button>
+                                </form>
 
+                            </div>
                         </div>
-
                     </div>
-
                 </article>
 
             {% endfor %}

@@ -1,0 +1,526 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#EFEBE1">
+
+    <title>UNCOMMEN — Admin Login</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --beige-bg: #EFEBE1;
+            --beige-card: #F7F4EC;
+            --beige-input: #FAF8F2;
+            --beige-tint: #E8E1CE;
+            --beige-border: #D6CCB5;
+            --beige-border-dark: #B8AC90;
+
+            --text-primary: #241E14;
+            --text-muted: #6F6350;
+
+            --accent-ochre: #A0763A;
+            --accent-green: #3E4A3A;
+
+            --font-serif: 'Libre Caslon Text', serif;
+            --font-sans: 'Archivo', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--beige-bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: #C69C5C;
+            color: var(--text-primary);
+        }
+
+        /* Main container */
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        /* Brand section */
+
+        .brand-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-name {
+            font-family: var(--font-serif);
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #17140F;
+        }
+
+        .brand-subtitle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+
+            margin-top: 12px;
+
+            color: var(--accent-ochre);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .brand-subtitle::before,
+        .brand-subtitle::after {
+            content: "";
+            width: 25px;
+            height: 1px;
+            background: var(--accent-ochre);
+        }
+
+        /* Login card */
+
+        .login-card {
+            background: var(--beige-card);
+            border: 1px solid var(--beige-border);
+            border-radius: 5px;
+
+            box-shadow: 0 18px 45px -20px rgba(50, 40, 25, .2);
+
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 30px 35px 25px;
+
+            background: linear-gradient(
+                180deg,
+                #FBF9F4 0%,
+                var(--beige-card) 100%
+            );
+
+            border-bottom: 1px solid var(--beige-border);
+        }
+
+        .admin-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            color: var(--accent-green);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+
+            margin-bottom: 17px;
+        }
+
+        .admin-label::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            background: var(--accent-green);
+            border-radius: 50%;
+        }
+
+        .card-header h1 {
+            font-family: var(--font-serif);
+            font-size: 29px;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+
+        .card-header p {
+            margin-top: 10px;
+
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* Form */
+
+        .form-body {
+            padding: 32px 35px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 22px;
+        }
+
+        .field-group label {
+            color: var(--text-muted);
+
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .field-group input {
+            width: 100%;
+            height: 49px;
+
+            padding: 0 15px;
+
+            background: var(--beige-input);
+            border: 1px solid var(--beige-border);
+            border-radius: 3px;
+
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+
+            outline: none;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .field-group input::placeholder {
+            color: #A99F8C;
+        }
+
+        .field-group input:focus {
+            border-color: var(--accent-ochre);
+            box-shadow: 0 0 0 3px rgba(160, 118, 58, .10);
+        }
+
+        .password-input {
+            padding-right: 75px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            border: none;
+            background: transparent;
+
+            color: var(--accent-ochre);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+
+            cursor: pointer;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
+        }
+
+        /* Error message */
+
+        .error-message {
+            padding: 12px 14px;
+            margin-bottom: 22px;
+
+            background: #F4E8E2;
+            border: 1px solid #DDB9AA;
+            border-left: 3px solid #A54B35;
+
+            color: #8B3828;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Submit button */
+
+        .btn-submit {
+            width: 100%;
+            height: 51px;
+
+            margin-top: 5px;
+
+            border: 1px solid var(--accent-green);
+            border-radius: 3px;
+
+            background: var(--accent-green);
+            color: #F7F4EC;
+
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+
+            cursor: pointer;
+            transition: all .25s ease;
+        }
+
+        .btn-submit:hover {
+            background: #293326;
+            border-color: #293326;
+            transform: translateY(-1px);
+            box-shadow: 0 7px 16px rgba(40, 50, 35, .15);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Security note */
+
+        .security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+
+            margin-top: 25px;
+            padding: 14px;
+
+            background: var(--beige-tint);
+            border: 1px solid var(--beige-border);
+
+            color: var(--text-muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .security-icon {
+            color: var(--accent-green);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+
+        .card-footer {
+            padding: 17px 20px;
+
+            border-top: 1px solid var(--beige-border);
+
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .page-footer {
+            margin-top: 25px;
+
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 480px) {
+            .brand-name {
+                font-size: 32px;
+            }
+
+            .card-header {
+                padding: 25px 23px;
+            }
+
+            .form-body {
+                padding: 27px 23px;
+            }
+
+            .card-header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="login-wrapper">
+
+        <!-- Brand -->
+        <div class="brand-section">
+            <div class="brand-name">UNCOMMEN</div>
+
+            <div class="brand-subtitle">
+                Private Administration
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <section class="login-card">
+
+            <div class="card-header">
+
+                <div class="admin-label">
+                    Admin Portal
+                </div>
+
+                <h1>Welcome back.</h1>
+
+                <p>
+                    Sign in with your administrator credentials
+                    to access the UNCOMMEN management dashboard.
+                </p>
+
+            </div>
+
+            <div class="form-body">
+
+                <!-- Django Error Message -->
+                {% if error %}
+                    <div class="error-message" role="alert">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="error-message" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Admin Login Form -->
+                <form method="POST" action="{% url 'admin_login' %}">
+                    {% csrf_token %}
+
+                    <div class="field-group">
+
+                        <label for="admin-email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="admin-email"
+                            name="email"
+                            placeholder="admin@uncommen.com"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                    <div class="field-group">
+
+                        <label for="admin-password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <input
+                                type="password"
+                                id="admin-password"
+                                name="password"
+                                class="password-input"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                id="togglePassword"
+                                onclick="togglePasswordVisibility()"
+                            >
+                                Show
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        Access Dashboard &nbsp; →
+                    </button>
+
+                </form>
+
+                <!-- Security Information -->
+                <div class="security-note">
+
+                    <span class="security-icon">◆</span>
+
+                    <span>
+                        This portal is restricted to authorized
+                        UNCOMMEN administrators. Unauthorized
+                        access is not permitted.
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+                UNCOMMEN &nbsp; / &nbsp; Administration
+            </div>
+
+        </section>
+
+        <div class="page-footer">
+            © {% now "Y" %} UNCOMMEN. All rights reserved.
+        </div>
+
+    </main>
+
+    <script>
+        function togglePasswordVisibility() {
+
+            const passwordInput =
+                document.getElementById("admin-password");
+
+            const toggleButton =
+                document.getElementById("togglePassword");
+
+            if (passwordInput.type === "password") {
+
+                passwordInput.type = "text";
+                toggleButton.textContent = "Hide";
+
+            } else {
+
+                passwordInput.type = "password";
+                toggleButton.textContent = "Show";
+
+            }
+        }
+    </script>
+
+</body>
+</html>
