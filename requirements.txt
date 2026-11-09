@@ -19,3 +19,5 @@ whitenoise==6.5.0
 razorpay==2.0.1
 dj-database-url
 psycopg2-binary
+cloudinary
+django-cloudinary-storage

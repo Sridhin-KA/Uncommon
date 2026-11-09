@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+     'cloudinary_storage',
+    'cloudinary',
     
 ]
 
@@ -76,6 +78,15 @@ SOCIALACCOUNT_PROVIDERS = {
             "prompt": "select_account",
         },
     }
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
 
 SITE_ID = 1
