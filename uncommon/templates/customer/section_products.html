@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} — UNCOMMON</title>
+    <title>{{ title }} — UNCOMMEN</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -813,7 +813,7 @@
                 transition: none !important;
             }
         }
-    /* Exact animated logo reveal shared with the UNCOMMON homepage */
+    /* Exact animated logo reveal shared with the UNCOMMEN homepage */
 #uncommon-loader { gap:0; }
 #uncommon-loader .preloader-content { display:flex; flex-direction:column; align-items:center; gap:24px; }
 #uncommon-loader .preloader-logo { display:block; width:min(360px,84vw); height:auto; overflow:visible; }
@@ -1754,8 +1754,77 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 </style>
 
 <style>
+/* Product image opens the dedicated product details page. */
+.product-card .product-detail-image-link {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    overflow: hidden;
+    cursor: zoom-in;
+}
+.product-card .product-detail-image-link .product-image,
+.product-card .product-detail-image-link .product-image-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+.product-card .product-detail-image-link .product-image {
+    transition: transform .65s cubic-bezier(.22,1,.36,1);
+}
+.product-card:hover .product-detail-image-link .product-image {
+    transform: scale(1.075);
+}
+.product-card .product-image-shade { z-index: 1; }
+.product-card .product-overlay-content { z-index: 3; }
+.product-card .wishlist-form { z-index: 5; }
+.product-card .product-detail-image-link:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: -5px;
+}
+
+/* UNCOMMEN product image: square-to-circle reveal + cursor-follow zoom */
+.product-card .product-detail-image-link {
+    border-radius: 10px;
+    transform: scale(1);
+    transition: border-radius .72s cubic-bezier(.22,1,.36,1),
+                transform .45s cubic-bezier(.22,1,.36,1);
+}
+.product-card .product-detail-image-link .product-image {
+    transform: scale(1);
+    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+    transition: transform .55s cubic-bezier(.22,1,.36,1),
+                border-radius .72s cubic-bezier(.22,1,.36,1);
+    will-change: transform;
+}
+.product-card:hover .product-detail-image-link {
+    border-radius: 50%;
+}
+.product-card:hover .product-detail-image-link .product-image {
+    transform: scale(1.65);
+}
+.product-card .product-detail-image-link:focus-visible {
+    border-radius: 50%;
+}
+@media (hover: none), (pointer: coarse) {
+    .product-card .product-detail-image-link,
+    .product-card .product-detail-image-link .product-image {
+        transition-duration: .35s;
+    }
+    .product-card:hover .product-detail-image-link .product-image {
+        transform: scale(1.08);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .product-card .product-detail-image-link,
+    .product-card .product-detail-image-link .product-image {
+        transition: none !important;
+    }
+}
+
 /* =====================================================
-   UNCOMMON — FULL IMAGE PRODUCT CARDS (REFERENCE DESIGN)
+   UNCOMMEN — FULL IMAGE PRODUCT CARDS (REFERENCE DESIGN)
    ===================================================== */
 .grid {
     display: grid;
@@ -2034,7 +2103,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 <body>
 
 <!-- GLOBAL PAGE LOADER -->
-<div id="uncommon-loader" aria-label="Loading UNCOMMON" role="status">
+<div id="uncommon-loader" aria-label="Loading UNCOMMEN" role="status">
     <svg viewBox="115 42 282 200" class="preloader-logo" aria-label="UNCOMMEN">
       <!-- 1. Large C + Lower Swash -->
       <g class="uc-group-c uc-monogram-shadow">
@@ -2069,12 +2138,12 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 </div>
 
 
-<div class="page-door-transition" id="page-door-transition" aria-hidden="true"><div class="door-panel left"></div><div class="door-panel right"></div><div class="door-center-mark">UNCOMMON · Entering the archive</div></div>
+<div class="page-door-transition" id="page-door-transition" aria-hidden="true"><div class="door-panel left"></div><div class="door-panel right"></div><div class="door-center-mark">UNCOMMEN · Entering the archive</div></div>
 
 <!-- SINGLE UNIFIED NAVBAR -->
 <header class="site-header">
     <div class="nav">
-        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home"><img src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMON" fetchpriority="high"></a>
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMEN home"><img src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMEN" fetchpriority="high"></a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" onclick="toggleNav(this)">Menu</button>
         <nav class="nav-links section-room-links" id="primary-nav" aria-label="Choose a collection room">
             <a href="{% url 'section_products' 'HIM' %}" class="{% if section == 'HIM' %}active{% endif %}"><span class="room-number">ROOM 01</span> HIM</a>
@@ -2155,11 +2224,15 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 
             <article class="product product-card">
                 <div class="product-image-container">
-                    {% if product.image %}
-                        <img class="product-image" src="{{ product.image.url }}" alt="{{ product.product_name|escape }}" loading="lazy">
-                    {% else %}
-                        <div class="product-image-placeholder"><span>UNCOMMON</span></div>
-                    {% endif %}
+                    <a href="{% url 'product_detail' product.id %}"
+                       class="product-detail-image-link"
+                       aria-label="View details for {{ product.product_name|escape }}">
+                        {% if product.image %}
+                            <img class="product-image" src="{{ product.image.url }}" alt="{{ product.product_name|escape }}" loading="lazy">
+                        {% else %}
+                            <div class="product-image-placeholder"><span>UNCOMMEN</span></div>
+                        {% endif %}
+                    </a>
 
                     <div class="product-image-shade"></div>
 
@@ -2227,7 +2300,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
                     <section class="product-reviews">
                         <div class="reviews-heading">
                             <div>
-                                <span class="reviews-eyebrow">THE UNCOMMON COMMUNITY</span>
+                                <span class="reviews-eyebrow">THE UNCOMMEN COMMUNITY</span>
                                 <h3>Customer notes</h3>
                             </div>
                             <div class="reviews-summary">
@@ -2257,7 +2330,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
                             {% for review in product.feedback_list %}
                                 <article class="review-item">
                                     <div class="review-item-top">
-                                        <strong>{{ review.customer.name|default:"UNCOMMON customer" }}</strong>
+                                        <strong>{{ review.customer.name|default:"UNCOMMEN customer" }}</strong>
                                         <span class="review-stars" aria-label="{{ review.rating }} out of 5 stars">
                                             {% for star in "12345" %}
                                                 {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
@@ -2383,7 +2456,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
                 </div>
             </div>
         </div>
-        <div class="register-footer">UNCOMMON · ARCHIVE 001</div>
+        <div class="register-footer">UNCOMMEN · ARCHIVE 001</div>
     </aside>
     {% endif %}
     </div>
@@ -2398,7 +2471,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
         <div class="inspect-gallery">
             <div class="inspect-image-area">
                 <img src="" alt="Product image" id="inspect-image">
-                <div class="inspect-image-label">UNCOMMON · COLLECTION</div>
+                <div class="inspect-image-label">UNCOMMEN · COLLECTION</div>
                 <button type="button" class="gallery-arrow gallery-prev" id="inspect-prev" aria-label="Previous image">‹</button>
                 <button type="button" class="gallery-arrow gallery-next" id="inspect-next" aria-label="Next image">›</button>
             </div>
@@ -2478,7 +2551,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 
                 <div class="footer-links">
                     <button type="button" data-open-legal="about-modal">
-                        About UNCOMMON
+                        About UNCOMMEN
                     </button>
 
                     <button type="button" data-open-legal="contact-modal">
@@ -2518,7 +2591,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
         </div>
 
         <div class="footer-bottom">
-            <span>© 2026 UNCOMMON — Made for one.</span>
+            <span>© 2026 UNCOMMEN — Made for one.</span>
             <span>NUMBERED ONCE. RECORDED TO A SINGLE NAME.</span>
         </div>
 
@@ -2536,10 +2609,10 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     <div class="legal-dialog">
         <button class="legal-close" type="button" aria-label="Close">×</button>
 
-        <h2 id="about-title">About UNCOMMON</h2>
+        <h2 id="about-title">About UNCOMMEN</h2>
 
         <p>
-            UNCOMMON is built around considered style, distinctive finds,
+            UNCOMMEN is built around considered style, distinctive finds,
             and pieces chosen with intention. Our collections bring together
             everyday essentials and limited selections.
         </p>
@@ -3220,6 +3293,33 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
         if (event.key === 'Escape') closeInspect();
         if (event.key === 'ArrowLeft') showImage(currentImage - 1);
         if (event.key === 'ArrowRight') showImage(currentImage + 1);
+    });
+})();
+</script>
+
+
+<script>
+/* UNCOMMEN: make the product zoom follow the pointer position */
+(() => {
+    const links = document.querySelectorAll('.product-card .product-detail-image-link');
+    links.forEach(link => {
+        const image = link.querySelector('.product-image');
+        if (!image) return;
+
+        link.addEventListener('pointermove', event => {
+            if (event.pointerType === 'touch') return;
+            const rect = link.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            const x = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+            const y = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100));
+            image.style.setProperty('--zoom-x', x + '%');
+            image.style.setProperty('--zoom-y', y + '%');
+        });
+
+        link.addEventListener('pointerleave', () => {
+            image.style.setProperty('--zoom-x', '50%');
+            image.style.setProperty('--zoom-y', '50%');
+        });
     });
 })();
 </script>

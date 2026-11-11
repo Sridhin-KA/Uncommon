@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Checkout | UNCOMMON</title>
+    <title>Checkout | UNCOMMEN</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -46,6 +46,9 @@
         }
 
         .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1200;
             min-height: 78px;
             padding: 15px 7%;
             display: flex;
@@ -58,9 +61,17 @@
 
         .brand img {
             display: block;
-            width: 78px;
+            width: 185px;
             height: 50px;
             object-fit: contain;
+            opacity: 1;
+            transition: opacity .28s ease, visibility .28s ease;
+        }
+
+        .navbar.is-scrolled .brand img {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .nav-links {
@@ -104,7 +115,7 @@
         }
 
 /* Shared homepage logo-reveal loader animation */
-/* Exact animated logo reveal shared with the UNCOMMON homepage */
+/* Exact animated logo reveal shared with the UNCOMMEN homepage */
 #page-preloader { gap:0; }
 #page-preloader .preloader-content { display:flex; flex-direction:column; align-items:center; gap:24px; }
 #page-preloader .preloader-logo { display:block; width:min(360px,84vw); height:auto; overflow:visible; }
@@ -738,7 +749,7 @@
             }
 
             .brand img {
-                width: 65px;
+                width: 155px;
                 height: 45px;
             }
 
@@ -825,7 +836,7 @@
 
 <body>
 
-<div id="page-preloader" role="status" aria-live="polite" aria-label="Loading UNCOMMON checkout">
+<div id="page-preloader" role="status" aria-live="polite" aria-label="Loading UNCOMMEN checkout">
     <div class="preloader-content">
         <svg viewBox="115 42 282 200" class="preloader-logo" aria-label="UNCOMMEN">
       <!-- 1. Large C + Lower Swash -->
@@ -862,18 +873,18 @@
 </div>
 
 <nav class="navbar">
-    <a href="{% url 'customer_home' %}" class="brand" aria-label="UNCOMMON home">
-        <img src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMON">
+    <a href="{% url 'customer_home' %}" class="brand" aria-label="UNCOMMEN home">
+        <img src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMEN">
     </a>
 
     <div class="nav-links">
         <a href="{% url 'customer_home' %}">Shop</a>
-        <a href="{% url 'bag_view' %}">Bag</a>
+        <a href="{% url 'bag_view' %}">Acquisition</a>
     </div>
 </nav>
 
 <main class="page">
-    <div class="eyebrow">UNCOMMON / Your order</div>
+    <div class="eyebrow">UNCOMMEN / Your order</div>
     <h1>Checkout.</h1>
     <p class="intro">
         Almost yours. Confirm your delivery address and review your collection.
@@ -1118,7 +1129,7 @@
                                         loading="lazy">
                                 {% else %}
                                     <div class="item-image-placeholder">
-                                        UNCOMMON
+                                        UNCOMMEN
                                     </div>
                                 {% endif %}
 
@@ -1193,7 +1204,7 @@
 </main>
 
 <footer class="footer">
-    UNCOMMON · LESS, BUT BETTER.
+    UNCOMMEN · LESS, BUT BETTER.
 </footer>
 
 <script>
@@ -1435,7 +1446,7 @@ document.addEventListener("DOMContentLoaded", function () {
         key: paymentData.key,
         amount: paymentData.amount,
         currency: paymentData.currency || "INR",
-        name: "UNCOMMON",
+        name: "UNCOMMEN",
         description: "Order " + paymentData.order_number,
         order_id: paymentData.razorpay_order_id,
         image: paymentData.logo_url || undefined,
@@ -1512,6 +1523,21 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {% endif %}
+
+
+<script>
+(() => {
+    const navbar = document.querySelector(".navbar");
+    if (!navbar) return;
+
+    const updateLogoVisibility = () => {
+        navbar.classList.toggle("is-scrolled", window.scrollY > 48);
+    };
+
+    window.addEventListener("scroll", updateLogoVisibility, { passive: true });
+    updateLogoVisibility();
+})();
+</script>
 
 </body>
 </html>

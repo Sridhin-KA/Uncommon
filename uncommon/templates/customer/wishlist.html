@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist | UNCOMMON</title>
+    <title>Private Vault | UNCOMMEN</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -1313,6 +1313,35 @@ body.is-loading { overflow: hidden; }
     }
 }
 
+
+        /* Matching UNCOMMEN logo sizing in the header and footer */
+        .navbar {
+            min-height: 130px !important;
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+        }
+        .navbar .brand img {
+            width: 150px !important;
+            height: 106px !important;
+            object-fit: contain;
+        }
+        .footer-inline-logo {
+            width: 150px !important;
+            height: auto !important;
+        }
+        @media (max-width: 600px) {
+            .navbar {
+                min-height: 108px !important;
+            }
+            .navbar .brand img {
+                width: 125px !important;
+                height: 88px !important;
+            }
+            .footer-inline-logo {
+                width: 125px !important;
+            }
+        }
+
     </style>
 </head>
 
@@ -1368,7 +1397,7 @@ body.is-loading { overflow: hidden; }
         <a href="{% url 'customer_home' %}">Shop</a>
         <a href="{% url 'bag_view' %}">Bag</a>
         <a href="{% url 'wishlist_view' %}">
-            Wishlist ({{ wishlist_count }})
+            Private Vault ({{ wishlist_count }})
         </a>
     </div>
 </nav>
@@ -1380,7 +1409,7 @@ body.is-loading { overflow: hidden; }
     <p class="eyebrow">Your personal collection</p>
 
     <h1>
-        My Wishlist<span style="color: var(--gold);">.</span>
+        Private Vault<span style="color: var(--gold);">.</span>
     </h1>
 
     <p class="intro">
@@ -1419,7 +1448,7 @@ body.is-loading { overflow: hidden; }
                             >
                         {% else %}
                             <div class="image-placeholder">
-                                UNCOMMON
+                                UNCOMMEN
                             </div>
                         {% endif %}
 
@@ -1471,7 +1500,7 @@ body.is-loading { overflow: hidden; }
                                 </p>
                             {% else %}
                                 <p class="description">
-                                    A considered addition to the UNCOMMON collection.
+                                    A considered addition to the UNCOMMEN collection.
                                 </p>
                             {% endif %}
 
@@ -1608,7 +1637,7 @@ body.is-loading { overflow: hidden; }
 
                 <p>
                     Considered pieces, selected with intention.
-                    Some things are better when they are uncommon.
+                    Some things are better when they are uncommen.
                 </p>
 
             </div>
@@ -1639,7 +1668,7 @@ body.is-loading { overflow: hidden; }
                         type="button"
                         data-open-legal="about-modal"
                     >
-                        About UNCOMMON
+                        About UNCOMMEN
                     </button>
 
                     <button
@@ -1684,7 +1713,7 @@ body.is-loading { overflow: hidden; }
                     </button>
 
                     <a href="{% url 'wishlist_view' %}">
-                        My Wishlist
+                        Private Vault
                     </a>
 
                     <a href="mailto:Contact@uncommen.in">
@@ -1697,7 +1726,7 @@ body.is-loading { overflow: hidden; }
 
         <div class="footer-bottom">
             <span>
-                © {% now "Y" %} UNCOMMON — Made for one.
+                © {% now "Y" %} UNCOMMEN — Made for one.
             </span>
 
             <span>
@@ -1725,10 +1754,10 @@ body.is-loading { overflow: hidden; }
             aria-label="Close"
         >×</button>
 
-        <h2 id="about-title">About UNCOMMON</h2>
+        <h2 id="about-title">About UNCOMMEN</h2>
 
         <p>
-            UNCOMMON is built around considered style, distinctive finds,
+            UNCOMMEN is built around considered style, distinctive finds,
             and pieces chosen with intention. Our collections bring together
             everyday essentials and limited selections.
         </p>

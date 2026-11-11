@@ -12,6 +12,11 @@ urlpatterns = [
         name='section_products',
     ),
     path(
+    "product/<int:product_id>/",
+    views.product_detail,
+    name="product_detail"
+),
+    path(
         "reserve-upcoming/",
         views.upcoming_reservation,
         name="upcoming_reservation",

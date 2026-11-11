@@ -305,6 +305,66 @@ def section_products(request, section):
         },
     )
 
+def product_detail(request, product_id):
+    product = get_object_or_404(
+        Product.objects
+        .select_related("category")
+        .prefetch_related(
+            Prefetch(
+                "feedbacks",
+                queryset=Feedback.objects.select_related("customer").order_by("-created_at"),
+                to_attr="feedback_list"
+            )
+        )
+        .annotate(
+            average_rating=Avg("feedbacks__rating"),
+            review_count=Count("feedbacks", distinct=True),
+        ),
+        pk=product_id
+    )
+
+    # Determine the product's collection.
+    section = (
+        "RARE"
+        if product.is_rare or product.is_limited
+        else product.category.section
+    )
+
+    customer = None
+    customer_id = request.session.get("customer_id")
+
+    if customer_id:
+        customer = Customer.objects.filter(pk=customer_id).first()
+
+    reviews = product.feedback_list
+    product.rating_breakdown = []
+
+    for stars in range(5, 0, -1):
+        count = sum(1 for review in reviews if review.rating == stars)
+        total = product.review_count or 0
+
+        product.rating_breakdown.append({
+            "stars": stars,
+            "count": count,
+            "percent": round((count / total) * 100) if total else 0,
+        })
+
+    bag = request.session.get("bag", {})
+    bag_count = (
+        sum(int(qty) for qty in bag.values())
+        if isinstance(bag, dict) else 0
+    )
+
+    return render(
+        request,
+        "customer/product_detail.html",
+        {
+            "product": product,
+            "section": section,
+            "customer": customer,
+            "bag_count": bag_count,
+        }
+    )
 
 @require_POST
 def submit_product_feedback(request, product_id):

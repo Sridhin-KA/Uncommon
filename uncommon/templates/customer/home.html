@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#EFEBE1">
-    <title>UNCOMMEN — Made for One</title>
-    <meta name="description" content="Considered objects, uncommon details, and limited pieces chosen to feel distinctly yours.">
+    <title>UCOMMEN — Crafted Once. Inscribed to One.</title>
+    <meta name="description" content="Singular lifestyle artifacts issued in strictly finite allocations, crafted for an audience of one.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -667,7 +667,7 @@
 }
 @media(prefers-reduced-motion:reduce) { .legal-modal, .legal-dialog, .legal-close, .footer-col button.footer-modal-link { animation:none; transition:none; } }
 
-/* ===== UNCOMMON — Larger navbar logo ===== */
+/* ===== UCOMMEN — Larger navbar logo ===== */
 .logo {
     width: clamp(180px, 19vw, 245px);
     flex: 0 0 auto;
@@ -953,9 +953,10 @@ body.is-loading .site-header .logo {
   }
 }
 footer .footer-brand {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
-  width: clamp(165px, 17vw, 215px);
+  width: 300px !important;
+  max-width: 100%;
   letter-spacing: normal;
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
 }
@@ -964,23 +965,31 @@ footer .footer-brand:hover {
 }
 footer .footer-brand img,
 footer .footer-brand svg.footer-logo-svg-fallback {
-  display: block;
-  width: 100%;
-  height: 68px;
-  max-height: none;
+  display: block !important;
+  width: 100% !important;
+  height: 100px !important;
+  max-height: none !important;
   object-fit: contain;
   overflow: visible;
 }
 @media (max-width: 760px) {
   footer .footer-brand {
-    width: 155px;
+    width: 240px !important;
   }
   footer .footer-brand img,
   footer .footer-brand svg.footer-logo-svg-fallback {
-    height: 60px;
+    height: 82px !important;
   }
 }
-
+@media (max-width: 420px) {
+  footer .footer-brand {
+    width: 205px !important;
+  }
+  footer .footer-brand img,
+  footer .footer-brand svg.footer-logo-svg-fallback {
+    height: 72px !important;
+  }
+}
 
 /* ===== Premium Editorial Polish, Tactile Grain & Micro-Interactions ===== */
 
@@ -1034,7 +1043,7 @@ body::after {
   box-shadow: 0 10px 22px -10px rgba(36, 30, 20, 0.22);
 }
 
-/* Hide section links ("The Rooms", "Services", "How It Works", "The Hundred") while scrolling;
+/* Hide section links ("The Rooms", "Services", "How It Works", "The 100 Registry") while scrolling;
    reveal them when the cursor moves over the navbar and hide again on cursor leave or scroll resume */
 @media (min-width: 761px) {
   .site-header .nav-links {
@@ -1242,7 +1251,7 @@ body::after {
   color: var(--ochre);
 }
 
-/* Process grid and The Hundred vault ledger */
+/* Process grid and The 100 Registry vault ledger */
 .process-grid {
   border-radius: 18px;
   corner-shape: squircle;
@@ -1412,7 +1421,7 @@ body.is-loading .hero-art {
 }
 
     
-/* ===== Interactive Room Threshold Animation & Room Landing Experience (Him / Her / The Hundred) ===== */
+/* ===== Interactive Room Threshold Animation & Room Landing Experience (Him / Her / The 100 Registry) ===== */
 
 /* Architectural Double-Door Portal Overlay */
 .room-portal-overlay {
@@ -2642,25 +2651,25 @@ body.in-room-view .room-landing-view {
 </div>
 <header class="site-header">
     <div class="nav">
-        <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home"></a>
+        <a href="{% url 'customer_home' %}" class="logo" aria-label="UCOMMEN home"></a>
 
         <nav class="nav-links" id="primary-nav" aria-label="Main navigation">
             <a href="#catalogue">The Rooms</a>
             <a href="#services">Services</a>
-            <a href="#process">How It Works</a>
-            <a href="#hundred">The Hundred</a>
+            <a href="#process">The Protocol</a>
+            <a href="#hundred">The 100 Registry</a>
         </nav>
 
         <div class="nav-actions">
-            <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Wishlist" title="Wishlist">
-                <span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Wishlist</span>
+            <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Private Vault" title="Private Vault">
+                <span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Private Vault</span>
             </a>
             <a class="bag-link" href="{{ bag_url|default:'/bag/' }}" aria-label="Shopping bag">
-                <span>Bag</span><span class="bag-count">0</span>
+                <span>Acquisition</span><span class="bag-count"></span>
             </a>
             <div class="nav-dropdown account-dropdown">
                 <button type="button" class="account-trigger" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown(this)">
-                    {% if customer %}{{ customer.name|truncatechars:12 }}{% else %}Account{% endif %}
+                    {% if customer %}{{ customer.name|truncatechars:12 }}{% else %}Patron Identity{% endif %}
                     <span class="account-chevron" aria-hidden="true">⌄</span>
                 </button>
                 <div class="nav-dropdown-menu account-menu">
@@ -2668,7 +2677,7 @@ body.in-room-view .room-landing-view {
                         <div class="account-menu-heading">Signed in as {{ customer.name }}</div>
                          <a href="{% url 'customer_profile' %}">My Profile<span aria-hidden="true">↗</span></a>
                         <a href="{{ my_orders_url|default:'/my-orders/' }}">My Orders <span aria-hidden="true">↗</span></a>
-                        <a href="{% url 'wishlist_view' %}">Wishlist <span aria-hidden="true">↗</span></a>
+                        <a href="{% url 'wishlist_view' %}">Private Vault <span aria-hidden="true">↗</span></a>
                         <form action="{% url 'admin_logout' %}" method="POST">
                             {% csrf_token %}
                             <button type="submit" class="dropdown-logout">Logout <span aria-hidden="true">↗</span></button>
@@ -2690,35 +2699,35 @@ body.in-room-view .room-landing-view {
     <section class="hero" id="top">
         <div class="wrap hero-grid">
             <div class="hero-copy">
-                <div class="eyebrow">Made once · Numbered to one name</div>
-                <h1>Not made for the many.<br><em>Made for one man. You.</em></h1>
-                <p>You have spent enough time owning what everyone else owns. Discover considered objects, uncommon details, and limited pieces chosen to feel distinctly yours.</p>
+                <div class="eyebrow">Crafted Once. Inscribed to One.</div>
+                <h1>Built for the few.<br><em>Unattainable by the rest.</em></h1>
+                <p>The world is flooded with excess. We craft the baseline of distinction. UCOMMEN creates singular lifestyle artifacts issued in strictly finite allocations with unrepeatable narratives. Designed not to fill space, but to anchor a life of quiet authority.</p>
                 <div class="hero-actions">
-                    <a href="#catalogue" class="btn btn-dark">Enter the catalogue <span aria-hidden="true">→</span></a>
-                    <a href="#process" class="btn btn-outline">How buying works</a>
+                    <a href="#catalogue" class="btn btn-dark">Explore the Vaults <span aria-hidden="true">→</span></a>
+                    <a href="#process" class="btn btn-outline">The Allocation Protocol</a>
                 </div>
-                <div class="hero-note">Priced plainly on every shelf. A piece in your bag is held — invisible to every other buyer.</div>
+                <div class="hero-note">Select. Secure. Decide in peace. The moment an artifact enters your bag, it vanishes from the world. Yours to hold, invisible to the market, until you are ready.</div>
             </div>
             <div class="hero-art">
-                <img class="hero-image" src="https://picsum.photos/id/91/1000/1100" alt="Editorial still life for the UNCOMMON collection" fetchpriority="high">
+                <img class="hero-image" src="https://picsum.photos/id/91/1000/1100" alt="Editorial still life for the UCOMMEN collection" fetchpriority="high">
                 <img class="hero-inset" src="https://picsum.photos/id/145/500/640" alt="" loading="lazy">
                 <div class="number-seal"><strong>No. 001</strong><span>Yours alone</span></div>
-                <div class="art-caption">UNCOMMON — Objects beyond the ordinary</div>
+                <div class="art-caption">UCOMMEN — Objects beyond the ordinary</div>
             </div>
         </div>
     </section>
 
     <section class="manifesto">
         <div class="wrap manifesto-inner">
-            <div class="eyebrow">The UNCOMMON position</div>
-            <h2>You were never the target audience. You are the audience of one.</h2>
-            <p>Mass luxury is a contradiction. Discover pieces selected for him, explore INSOLO for her, or enter The Hundred for rare and limited finds. Each collection has its own character. The question is never what is popular. The question is what is yours.</p>
+            <div class="eyebrow">The UCOMMEN position</div>
+            <h2>We do not build for demographic trends. We build for an audience of one.</h2>
+            <p>Mass luxury is a contradiction. True distinction cannot be manufactured in volume. We curate the antidote to the expected: essential allocations for men, singular expressions within INSOLO for women, or access to The 100 Registry—our registry of strictly finite creations. The pursuit is never consensus. The pursuit is setting self apart from the ordinary.</p>
             <div class="manifesto-images" aria-label="A glimpse into the collection">
                 <img src="https://picsum.photos/id/838/600/500" alt="Craft and materials" loading="lazy">
                 <img src="https://picsum.photos/id/447/600/500" alt="Details from the collection" loading="lazy">
                 <img src="https://picsum.photos/id/653/600/500" alt="Objects chosen with intention" loading="lazy">
             </div>
-            <div class="manifesto-note">For the ones who stopped waiting to be the target audience.</div>
+            <div class="manifesto-note">Crafted for those who refuse to be categorized by the market.</div>
         </div>
     </section>
 
@@ -2727,19 +2736,19 @@ body.in-room-view .room-landing-view {
             <div class="section-heading">
                 <div>
                     <div class="eyebrow">Three doors</div>
-                    <h2>Choose the room that already sounds like you.</h2>
+                    <h2>Step into the domain that reflects your standard.</h2>
                 </div>
                 <p>Three ways into the collection. Each opens onto its own point of view, with pieces chosen for individuality rather than the crowd.</p>
             </div>
             <div class="rooms">
                 <a class="room" href="{% url 'section_products' 'HIM' %}">
-                    <img src="https://picsum.photos/seed/uncommon-him/700/900" alt="Explore the UNCOMMON collection for him" loading="lazy">
+                    <img src="https://picsum.photos/seed/uncommon-him/700/900" alt="Explore the UCOMMEN collection for him" loading="lazy">
                     <div class="room-shade"></div>
                     <div class="room-copy">
                         <div class="room-count">Room 01 · {{ him_count }} available</div>
                         <h3>Him.</h3>
                         <p>Distinctive objects, considered details, and everyday essentials with a point of view.</p>
-                        <span class="room-link">Enter UNCOMMON for him →</span>
+                        <span class="room-link">Enter UCOMMEN for him →</span>
                     </div>
                 </a>
                 <a class="room" href="{% url 'section_products' 'HER' %}">
@@ -2753,11 +2762,11 @@ body.in-room-view .room-landing-view {
                     </div>
                 </a>
                 <a class="room" href="{% url 'section_products' 'RARE' %}">
-                    <img src="https://picsum.photos/seed/uncommon-hundred/700/900" alt="Explore rare and limited pieces in The Hundred" loading="lazy">
+                    <img src="https://picsum.photos/seed/uncommon-hundred/700/900" alt="Explore rare and limited pieces in The 100 Registry" loading="lazy">
                     <div class="room-shade"></div>
                     <div class="room-copy">
                         <div class="room-count">Room 03 · {{ rare_count }} available</div>
-                        <h3>The Hundred.</h3>
+                        <h3>The 100 Registry.</h3>
                         <p>Rare finds and limited pieces, gathered in one carefully selected collection.</p>
                         <span class="room-link">Discover the rare →</span>
                     </div>
@@ -2770,10 +2779,10 @@ body.in-room-view .room-landing-view {
         <div class="wrap">
             <div class="section-heading">
                 <div>
-                    <div class="eyebrow">Noted in the register</div>
-                    <h2>Where it usually begins.</h2>
+                    <div class="eyebrow">Inscribed in The Ledger</div>
+                    <h2>Where lineage begins.</h2>
                 </div>
-                <p>No one plans their first number. It tends to find them — most often among the pieces below.</p>
+                <p>Acquisition is rarely premeditated. Your first numbered piece finds you—quietly waiting among the creations below.</p>
             </div>
             <div class="product-grid">
                 {% for product in featured_products %}
@@ -2801,7 +2810,7 @@ body.in-room-view .room-landing-view {
                         </a>
                     </article>
                 {% empty %}
-                    <div class="empty">The catalogue is being prepared. Products added by the UNCOMMON team will appear here.</div>
+                    <div class="empty">The catalogue is being prepared. Products added by the UCOMMEN team will appear here.</div>
                 {% endfor %}
             </div>
             <a href="{% url 'section_products' 'HIM' %}" class="text-link">Browse the full catalogue <span aria-hidden="true">→</span></a>
@@ -2813,7 +2822,7 @@ body.in-room-view .room-landing-view {
             <div class="services-copy">
                 <div class="eyebrow">Services · The story, nurtured</div>
                 <h2>A service is not an add-on. It is the next chapter of the story.</h2>
-                <p>Every piece has a story — its material, its making, its details. Thoughtful care and personal touches help that story stay with you. These are ideas for services that can sit alongside the collection as the house grows.</p>
+                <p>Every piece has a story — its material, its making, its details. Thoughtful care and personal touches help that story stay with you. These are ideas for services that can sit alongside the collection as the house grows. Held n reserve. The Gallery will open when perfection is attained.</p>
             </div>
             <div class="service-list">
                 <div class="service-item"><strong>Monogramming</strong><span>Make the piece your own · Personal detail</span></div>
@@ -2852,9 +2861,9 @@ body.in-room-view .room-landing-view {
     <section class="hundred" id="hundred">
         <div class="wrap hundred-grid">
             <div class="hundred-copy">
-                <div class="eyebrow">The Hundred — rare & limited</div>
+                <div class="eyebrow">The 100 Registry — rare & limited</div>
                 <h2>Not everything is made to stay available.</h2>
-                <p>Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
+                <p>Discover products marked rare or limited by the UCOMMEN team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
                 <div class="hundred-actions">
                     <a href="{% url 'section_products' 'RARE' %}" class="btn">Explore available pieces <span aria-hidden="true">→</span></a>
                     <button type="button" class="btn reserve-open" data-open-reservation>Reserve an upcoming release <span aria-hidden="true">↗</span></button>
@@ -2862,7 +2871,7 @@ body.in-room-view .room-landing-view {
             </div>
             <div>
                 <div class="hundred-card">
-                    <div class="hundred-stat"><span>Collection</span><span>The Hundred</span></div>
+                    <div class="hundred-stat"><span>Collection</span><span>The 100 Registry</span></div>
                     <div class="hundred-stat"><span>Rare and limited pieces</span><span>{{ rare_count }} AVAILABLE</span></div>
                     <div class="hundred-stat"><span>Upcoming releases</span><span>RESERVATION REQUESTS</span></div>
                     <div class="hundred-stat"><span>Confirmation</span><span>BY EMAIL</span></div>
@@ -2880,7 +2889,7 @@ body.in-room-view .room-landing-view {
     <div class="portal-door portal-door-right"></div>
     <div class="portal-medallion">
         <div class="portal-ring"><span class="portal-ring-num" id="portal-ring-num">01</span></div>
-        <div class="portal-kicker" id="portal-kicker">ROOM 01 · UNCOMMON</div>
+        <div class="portal-kicker" id="portal-kicker">ROOM 01 · UCOMMEN</div>
         <h2 class="portal-title" id="portal-title">Him.</h2>
         <p class="portal-subtitle" id="portal-subtitle">Unlocking the room · Numbered to one</p>
     </div>
@@ -2896,7 +2905,7 @@ body.in-room-view .room-landing-view {
             <div class="room-switcher-pills" role="tablist" aria-label="Switch collection room">
                 <button type="button" class="room-switch-pill is-active" data-switch-room="HIM" role="tab" aria-selected="true" aria-controls="room-section-HIM">Room 01 · Him</button>
                 <button type="button" class="room-switch-pill" data-switch-room="HER" role="tab" aria-selected="false" aria-controls="room-section-HER">Room 02 · Her</button>
-                <button type="button" class="room-switch-pill" data-switch-room="RARE" role="tab" aria-selected="false" aria-controls="room-section-RARE">Room 03 · The Hundred</button>
+                <button type="button" class="room-switch-pill" data-switch-room="RARE" role="tab" aria-selected="false" aria-controls="room-section-RARE">Room 03 · The 100 Registry</button>
             </div>
             <div class="room-subnav-meta">
                 <span class="room-meta-dot" aria-hidden="true"></span>
@@ -2910,7 +2919,7 @@ body.in-room-view .room-landing-view {
         <div class="room-hero">
             <div class="wrap room-hero-grid">
                 <div class="room-hero-copy">
-                    <div class="room-hero-kicker" id="room-hero-kicker">Room 01 · UNCOMMON Archive for Him</div>
+                    <div class="room-hero-kicker" id="room-hero-kicker">Room 01 · UCOMMEN Archive for Him</div>
                     <h1 class="room-hero-title" id="room-hero-title">Objects with weight, patina, and a point of view.</h1>
                     <p class="room-hero-desc" id="room-hero-desc">Distinctive objects, considered details, and everyday essentials with a point of view. Priced plainly on every shelf and numbered to one buyer.</p>
                     <div class="room-hero-stats">
@@ -3016,9 +3025,9 @@ body.in-room-view .room-landing-view {
         <div class="room-hero">
             <div class="wrap room-hero-grid">
                 <div class="room-hero-copy">
-                    <div class="room-hero-kicker">Room 03 · The Hundred Permanent Vault</div>
+                    <div class="room-hero-kicker">Room 03 · The 100 Registry Permanent Vault</div>
                     <h2 class="room-hero-title">Not everything is made to stay available.</h2>
-                    <p class="room-hero-desc">Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
+                    <p class="room-hero-desc">Discover products marked rare or limited by the UCOMMEN team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
                     <div class="room-hero-stats">
                         <div class="room-stat-box">
                             <strong>100 Max</strong>
@@ -3040,7 +3049,7 @@ body.in-room-view .room-landing-view {
                     </div>
                     <div class="room-hero-seal">
                         <strong>Room 03</strong>
-                        <span>The Hundred</span>
+                        <span>The 100 Registry</span>
                     </div>
                 </div>
             </div>
@@ -3122,8 +3131,8 @@ body.in-room-view .room-landing-view {
              data-id="{{ product.id }}"
              data-room="RARE"
              data-name="{{ product.product_name }}"
-             data-category="{{ product.category.category_name|default:'The Hundred' }}"
-             data-section-display="{{ product.category.get_section_display|default:'The Hundred' }}"
+             data-category="{{ product.category.category_name|default:'The 100 Registry' }}"
+             data-section-display="{{ product.category.get_section_display|default:'The 100 Registry' }}"
              data-overview="{{ product.overview|default:'' }}"
              data-description="{{ product.description|default:'A considered addition to the collection.' }}"
              data-price="{{ product.price|floatformat:2 }}"
@@ -3230,7 +3239,7 @@ body.in-room-view .room-landing-view {
                 <p id="dossier-desc"></p>
             </div>
             <div class="room-dossier-specs">
-                <div class="room-dossier-spec-row"><span>Collection</span><strong id="dossier-origin">UNCOMMON</strong></div>
+                <div class="room-dossier-spec-row"><span>Collection</span><strong id="dossier-origin">UCOMMEN</strong></div>
                 <div class="room-dossier-spec-row"><span>Category</span><strong id="dossier-material">Category</strong></div>
                 <div class="room-dossier-spec-row"><span>Status</span><strong id="dossier-allocation">Available</strong></div>
             </div>
@@ -3254,7 +3263,7 @@ body.in-room-view .room-landing-view {
     <section class="reserve-dialog" role="dialog" aria-modal="true" aria-labelledby="reserve-dialog-title">
         <div class="reserve-dialog-head">
             <div>
-                <div class="eyebrow">The Hundred · Early interest</div>
+                <div class="eyebrow">The 100 Registry · Early interest</div>
                 <h3 id="reserve-dialog-title">Be considered for what comes next.</h3>
                 <p class="reserve-dialog-intro">Leave your details for an upcoming release. We’ll email an acknowledgement when your request has been received. This is not a purchase or a guarantee of availability.</p>
             </div>
@@ -3294,7 +3303,7 @@ body.in-room-view .room-landing-view {
                     <label for="reservation-interest">What are you waiting for?</label>
                     <select id="reservation-interest" name="interest" required>
                         <option value="" selected disabled>Select an upcoming collection</option>
-                        <option value="The Hundred — next rare release">The Hundred — next rare release</option>
+                        <option value="The 100 Registry — next rare release">The 100 Registry — next rare release</option>
                         <option value="Limited-edition product">A limited-edition piece</option>
                         <option value="New product launch">A new product launch</option>
                         <option value="Any upcoming release">Any upcoming release</option>
@@ -3328,46 +3337,46 @@ body.in-room-view .room-landing-view {
 
 
 <!-- Each footer information item has its own independent modal -->
-<div class="legal-modal" id="about-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="about-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">The story behind the collection</div><h2 id="about-modal-title">About Uncommen</h2><p class="legal-emphasis">Exclusivity Preserved. Restocks Forbidden.</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close About Uncommen">×</button></div>
-<h3>The Luxury of Being One in 100 Out of Millions</h3><p>In an era governed by ubiquitous mass production, true individuality has become the ultimate luxury. Millions move through life enveloped in uniformity—wearing identical silhouettes, carrying repeated products, and surrounding themselves with choices dictated by the masses.</p><p>We forged Uncommen for the discerning few who refuse to conform.</p><p>Uncommen stands as a manifesto against the ordinary: dedicated to those who embody what is singular, rare, and un-repeatable.</p>
+<div class="legal-modal" id="about-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="about-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">The story behind the collection</div><h2 id="about-modal-title">About Ucommen</h2><p class="legal-emphasis">Exclusivity Preserved. Restocks Forbidden.</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close About Ucommen">×</button></div>
+<h3>The Luxury of Being One in 100 Out of Millions</h3><p>In an era governed by ubiquitous mass production, true individuality has become the ultimate luxury. Millions move through life enveloped in uniformity—wearing identical silhouettes, carrying repeated products, and surrounding themselves with choices dictated by the masses.</p><p>We forged Ucommen for the discerning few who refuse to conform.</p><p>Ucommen stands as a manifesto against the ordinary: dedicated to those who embody what is singular, rare, and un-repeatable.</p>
 <h3>Journeys Across India for the Unobtainable</h3><p>To bring this vision to life, our specialized sourcing team travels to remote corners, heritage ateliers, and hidden artisanal hubs across India. They seek out master craftsmen and rare design methodologies that cannot be replicated by modern factories.</p><p>We curate these exceptional, obscure creations under an unyielding mandate: a maximum of 100 individually numbered pieces are ever brought into existence.</p>
 <h3>Our Absolute Promise</h3><p>When you acquire a piece from us, that specific edition number is indelibly reserved for you. Once claimed, it transcends ordinary retail and enters the realm of the permanent vault.</p><p>While a product category or physical item type may eventually return to our store in a new form, a design once vaulted will NEVER be restocked or reproduced.</p><p class="legal-emphasis">No reprints. No duplicates. No exceptions.</p><p>Some things in life—once gone—cannot be bought, regardless of price. By capping our releases so strictly, we guarantee that your acquisition remains a personal archetype, exclusively aligned with your journey.</p><p>We do not merely sell products; we are cultivating an elite community of connoisseurs who value true rarity, deep heritage, and unrepeatable sophistication.</p>
-<h3>The Uncommen Ethos</h3><ul><li><strong>The Century Limit:</strong> Every design or artefact we unveil is strictly capped at precisely 100 iterations globally.</li><li><strong>Exclusive Ownership:</strong> The moment your order is sealed, your unique serial number is permanently locked to your identity.</li><li><strong>Vaulted in Perpetuity:</strong> Once the 100th piece of a design is claimed, it is archived forever—preserving your exclusivity for a lifetime.</li></ul></section></div>
+<h3>The Ucommen Ethos</h3><ul><li><strong>The Century Limit:</strong> Every design or artefact we unveil is strictly capped at precisely 100 iterations globally.</li><li><strong>Exclusive Ownership:</strong> The moment your order is sealed, your unique serial number is permanently locked to your identity.</li><li><strong>Vaulted in Perpetuity:</strong> Once the 100th piece of a design is claimed, it is archived forever—preserving your exclusivity for a lifetime.</li></ul></section></div>
 
 <div class="legal-modal" id="contact-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Personal service, considered</div><h2 id="contact-modal-title">Contact Us</h2><p class="legal-emphasis">We Are Here to Assist You</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close Contact Us">×</button></div>
-<p>At Uncommen, we value seamless service as much as we value exclusivity. Whether you have an inquiry regarding your reserved edition, order status, or bespoke sourcing, our dedicated team is at your service. We are always open to suggestions.</p><h3>Get in Touch</h3><p><strong>General Inquiries &amp; Support:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a></p><p><strong>Direct Line / Escalations:</strong> <a href="tel:+917051259897">+91 7051259897</a> (Direct line to the Founder)</p><h3>Grievance Redressal</h3><p>We take pride in our commitment to quality and transparency. If you experience any issues with your order, authentication, or service that require immediate resolution, please feel free to reach out to us directly.</p><p><strong>Grievance Email:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> (Please include your Order ID and Serial Number for priority handling)</p><p><strong>Grievance Officer Contact:</strong> <a href="tel:+917051259897">+91 7051259897</a></p><p>Our team typically responds within 24–48 business hours.</p></section></div>
+<p>At Ucommen, we value seamless service as much as we value exclusivity. Whether you have an inquiry regarding your reserved edition, order status, or bespoke sourcing, our dedicated team is at your service. We are always open to suggestions.</p><h3>Get in Touch</h3><p><strong>General Inquiries &amp; Support:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a></p><p><strong>Direct Line / Escalations:</strong> <a href="tel:+917051259897">+91 7051259897</a> (Direct line to the Founder)</p><h3>Grievance Redressal</h3><p>We take pride in our commitment to quality and transparency. If you experience any issues with your order, authentication, or service that require immediate resolution, please feel free to reach out to us directly.</p><p><strong>Grievance Email:</strong> <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> (Please include your Order ID and Serial Number for priority handling)</p><p><strong>Grievance Officer Contact:</strong> <a href="tel:+917051259897">+91 7051259897</a></p><p>Our team typically responds within 24–48 business hours.</p></section></div>
 
 <div class="legal-modal" id="privacy-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Your information, respected</div><h2 id="privacy-modal-title">Privacy Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Privacy Policy">×</button></div>
-<p>Uncommen ("we," "us," or "our"), a sole proprietorship based in Bengaluru, Karnataka, is committed to safeguarding your privacy and personal data. This Privacy Policy outlines how we collect, use, process, and protect your information when you visit our website or purchase our limited-edition creations.</p><h3>1. Information We Collect</h3><p>To fulfill your orders and deliver an exceptional experience, we collect personal information you provide directly to us, including:</p><ul><li><strong>Contact &amp; Identity Information:</strong> Full name, phone number, email address, and delivery address.</li><li><strong>Order &amp; Serial Details:</strong> Purchases made, reserved edition/serial numbers assigned to your identity, and transaction history.</li><li><strong>Payment Processing Data:</strong> Financial transactions are processed securely through our authorized payment partner, Razorpay. We do not store or process your credit/debit card details, UPI PINs, or net banking credentials on our servers.</li></ul><h3>2. How We Use Your Information</h3><p>We utilize your personal information exclusively for operational and service excellence:</p><ul><li>Processing, dispatching, and delivering your reserved limited-edition items.</li><li>Verifying and maintaining your unique serial number allocation.</li><li>Communicating order updates, delivery statuses, and customer support responses.</li><li>Complying with legal, tax, and regulatory obligations within India.</li></ul><h3>3. Data Sharing &amp; Security</h3><p>We value your trust and never sell, rent, or trade your personal data to third parties. Your information is shared only with trusted third-party service providers (such as logistics partners and our payment gateway, Razorpay) strictly to complete your orders. We enforce stringent technical and organizational measures to safeguard your data against unauthorized access, loss, or disclosure.</p><h3>4. Your Rights &amp; Grievances</h3><p>You have the right to request access to, correction of, or deletion of your personal data stored with us. For any privacy concerns, data inquiries, or grievances, please contact us at <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or reach us directly at <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
+<p>Ucommen ("we," "us," or "our"), a sole proprietorship based in Bengaluru, Karnataka, is committed to safeguarding your privacy and personal data. This Privacy Policy outlines how we collect, use, process, and protect your information when you visit our website or purchase our limited-edition creations.</p><h3>1. Information We Collect</h3><p>To fulfill your orders and deliver an exceptional experience, we collect personal information you provide directly to us, including:</p><ul><li><strong>Contact &amp; Identity Information:</strong> Full name, phone number, email address, and delivery address.</li><li><strong>Order &amp; Serial Details:</strong> Purchases made, reserved edition/serial numbers assigned to your identity, and transaction history.</li><li><strong>Payment Processing Data:</strong> Financial transactions are processed securely through our authorized payment partner, Razorpay. We do not store or process your credit/debit card details, UPI PINs, or net banking credentials on our servers.</li></ul><h3>2. How We Use Your Information</h3><p>We utilize your personal information exclusively for operational and service excellence:</p><ul><li>Processing, dispatching, and delivering your reserved limited-edition items.</li><li>Verifying and maintaining your unique serial number allocation.</li><li>Communicating order updates, delivery statuses, and customer support responses.</li><li>Complying with legal, tax, and regulatory obligations within India.</li></ul><h3>3. Data Sharing &amp; Security</h3><p>We value your trust and never sell, rent, or trade your personal data to third parties. Your information is shared only with trusted third-party service providers (such as logistics partners and our payment gateway, Razorpay) strictly to complete your orders. We enforce stringent technical and organizational measures to safeguard your data against unauthorized access, loss, or disclosure.</p><h3>4. Your Rights &amp; Grievances</h3><p>You have the right to request access to, correction of, or deletion of your personal data stored with us. For any privacy concerns, data inquiries, or grievances, please contact us at <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or reach us directly at <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
 
 <div class="legal-modal" id="terms-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Use of our website and services</div><h2 id="terms-modal-title">Terms of Service</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Terms of Service">×</button></div>
-<p>Welcome to Uncommen. By accessing our website, browsing our collections, or purchasing our products, you agree to be bound by the following Terms of Service. Please read them carefully before making a purchase.</p><h3>1. Business Identity &amp; Exclusivity Promise</h3><p>Uncommen is a sole proprietorship registered in Bengaluru, Karnataka, India. All products listed on our platform are strictly capped at 100 individually numbered pieces worldwide. Once a specific design reaches its 100-piece allocation, it is permanently vaulted and will never be reproduced or restocked.</p><h3>2. Pricing &amp; Payments</h3><p>All prices listed on our platform are in Indian Rupees (INR) and are inclusive of applicable taxes unless stated otherwise. Payments can be made via Cash on Delivery (COD), Credit/Debit Cards, Net Banking, and UPI. Transactions are securely processed through our integrated payment gateway, Razorpay. We reserve the right to accept, decline, or cancel any order in the event of pricing discrepancies, technical errors, or inventory limitations.</p><h3>3. Order Cancellations</h3><p>You may cancel your order free of charge at any time before dispatch. Once an item has been dispatched from our facility and handed over to our courier partners, the order cannot be cancelled mid-transit and must follow our standard Return Policy upon delivery.</p><h3>4. Intellectual Property &amp; Designs</h3><p>All content, product designs, artwork, graphics, logos, and copy on this website are the exclusive intellectual property of Uncommen. Reproduction, copying, or imitation of our vaulted designs or branding without written consent is strictly prohibited.</p><h3>5. Limitation of Liability &amp; Governing Law</h3><p>Uncommen shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our services or products. These terms are governed by and construed in accordance with the laws of India, and any legal disputes shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka.</p></section></div>
+<p>Welcome to Ucommen. By accessing our website, browsing our collections, or purchasing our products, you agree to be bound by the following Terms of Service. Please read them carefully before making a purchase.</p><h3>1. Business Identity &amp; Exclusivity Promise</h3><p>Ucommen is a sole proprietorship registered in Bengaluru, Karnataka, India. All products listed on our platform are strictly capped at 100 individually numbered pieces worldwide. Once a specific design reaches its 100-piece allocation, it is permanently vaulted and will never be reproduced or restocked.</p><h3>2. Pricing &amp; Payments</h3><p>All prices listed on our platform are in Indian Rupees (INR) and are inclusive of applicable taxes unless stated otherwise. Payments can be made via Cash on Delivery (COD), Credit/Debit Cards, Net Banking, and UPI. Transactions are securely processed through our integrated payment gateway, Razorpay. We reserve the right to accept, decline, or cancel any order in the event of pricing discrepancies, technical errors, or inventory limitations.</p><h3>3. Order Cancellations</h3><p>You may cancel your order free of charge at any time before dispatch. Once an item has been dispatched from our facility and handed over to our courier partners, the order cannot be cancelled mid-transit and must follow our standard Return Policy upon delivery.</p><h3>4. Intellectual Property &amp; Designs</h3><p>All content, product designs, artwork, graphics, logos, and copy on this website are the exclusive intellectual property of Ucommen. Reproduction, copying, or imitation of our vaulted designs or branding without written consent is strictly prohibited.</p><h3>5. Limitation of Liability &amp; Governing Law</h3><p>Ucommen shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our services or products. These terms are governed by and construed in accordance with the laws of India, and any legal disputes shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka.</p></section></div>
 
 <div class="legal-modal" id="refund-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Customer-first support</div><h2 id="refund-modal-title">Refund &amp; Return Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Refund and Return Policy">×</button></div>
-<p>At Uncommen, we place our patrons above everything else. While our creations are rare and strictly limited to 100 pieces, our commitment to your satisfaction is infinite. We stand proudly behind the quality of our craftsmanship and offer a customer-first approach to returns and refunds.</p><h3>1. Return &amp; Refund Eligibility</h3><p>Because we value you more than the product itself, we gladly accept returns and process refunds under the following conditions:</p><ul><li>You are unsatisfied with the product, or you receive a damaged, defective, or incorrect item.</li><li>The product must be returned in its original condition, unworn/unused, with all original tags, authentication cards, packaging, and assigned serial number tags intact.</li></ul><h3>2. 2-Day Reporting Window</h3><p>To initiate a return or report a damaged/defective product, you must contact us within 2 business days of receiving your package.</p><p><strong>How to Report:</strong> Email <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or message/call <a href="tel:+917051259897">+91 7051259897</a> with your Order ID, details of the issue, and photos/videos of the item or defect.</p><h3>3. Return Process &amp; Refund Timeline</h3><p>Once your return request is verified and approved, we will arrange a reverse pickup from your delivery address. Upon receiving and inspecting the returned item at our Bengaluru warehouse, we will initiate your refund.</p><ul><li><strong>Prepaid Orders:</strong> Refunds will be credited back to your original payment method via Razorpay within 5 to 7 business days.</li><li><strong>Cash on Delivery (COD) Orders:</strong> Refunds will be transferred directly to your provided bank account/UPI ID within 5 to 7 business days following inspection.</li></ul><h3>4. Order Cancellations</h3><p>If you wish to cancel an order, you can do so anytime before dispatch for a full refund. Simply reach out immediately at <a href="tel:+917051259897">+91 7051259897</a> or <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>.</p></section></div>
+<p>At Ucommen, we place our patrons above everything else. While our creations are rare and strictly limited to 100 pieces, our commitment to your satisfaction is infinite. We stand proudly behind the quality of our craftsmanship and offer a customer-first approach to returns and refunds.</p><h3>1. Return &amp; Refund Eligibility</h3><p>Because we value you more than the product itself, we gladly accept returns and process refunds under the following conditions:</p><ul><li>You are unsatisfied with the product, or you receive a damaged, defective, or incorrect item.</li><li>The product must be returned in its original condition, unworn/unused, with all original tags, authentication cards, packaging, and assigned serial number tags intact.</li></ul><h3>2. 2-Day Reporting Window</h3><p>To initiate a return or report a damaged/defective product, you must contact us within 2 business days of receiving your package.</p><p><strong>How to Report:</strong> Email <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or message/call <a href="tel:+917051259897">+91 7051259897</a> with your Order ID, details of the issue, and photos/videos of the item or defect.</p><h3>3. Return Process &amp; Refund Timeline</h3><p>Once your return request is verified and approved, we will arrange a reverse pickup from your delivery address. Upon receiving and inspecting the returned item at our Bengaluru warehouse, we will initiate your refund.</p><ul><li><strong>Prepaid Orders:</strong> Refunds will be credited back to your original payment method via Razorpay within 5 to 7 business days.</li><li><strong>Cash on Delivery (COD) Orders:</strong> Refunds will be transferred directly to your provided bank account/UPI ID within 5 to 7 business days following inspection.</li></ul><h3>4. Order Cancellations</h3><p>If you wish to cancel an order, you can do so anytime before dispatch for a full refund. Simply reach out immediately at <a href="tel:+917051259897">+91 7051259897</a> or <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>.</p></section></div>
 
 <div class="legal-modal" id="shipping-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="shipping-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">From our house to yours</div><h2 id="shipping-modal-title">Shipping &amp; Delivery Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Shipping and Delivery Policy">×</button></div>
-<p>We believe that acquiring a rare, 1-of-100 creation should be a seamless and luxurious experience from start to finish. To ensure you can focus entirely on enjoying your piece, Uncommen absorbs all delivery expenses—we take on the full headache of shipping charges so you never have to pay a single extra rupee for delivery across India.</p><h3>1. Craftsmanship &amp; Dispatch Timelines</h3><p>Every item at Uncommen is custom-made and individually handcrafted by skilled artisans across India. Because true art requires patience and dedication:</p><p><strong>Standard Dispatch:</strong> Orders are typically processed and dispatched within 2 to 4 business days.</p><p>In rare instances where intricate handcrafting requires additional attention, dispatch may take slightly longer. We will keep you updated every step of the way.</p><h3>2. Estimated Delivery Timeframes</h3><p>Once dispatched from our Bengaluru facility, the estimated delivery timeframe across India is 5 to 7 business days, depending on your location and regional logistics networks.</p><h3>3. Order Tracking</h3><p>As soon as your order is handed over to our trusted courier partners, you will receive a confirmation message containing your tracking link and shipment details so you can follow your package’s journey in real time.</p><h3>4. Delivery Inquiries</h3><p>For any questions regarding shipping statuses, delivery delays, or special address requests, reach out to <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or call <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
+<p>We believe that acquiring a rare, 1-of-100 creation should be a seamless and luxurious experience from start to finish. To ensure you can focus entirely on enjoying your piece, Ucommen absorbs all delivery expenses—we take on the full headache of shipping charges so you never have to pay a single extra rupee for delivery across India.</p><h3>1. Craftsmanship &amp; Dispatch Timelines</h3><p>Every item at Ucommen is custom-made and individually handcrafted by skilled artisans across India. Because true art requires patience and dedication:</p><p><strong>Standard Dispatch:</strong> Orders are typically processed and dispatched within 2 to 4 business days.</p><p>In rare instances where intricate handcrafting requires additional attention, dispatch may take slightly longer. We will keep you updated every step of the way.</p><h3>2. Estimated Delivery Timeframes</h3><p>Once dispatched from our Bengaluru facility, the estimated delivery timeframe across India is 5 to 7 business days, depending on your location and regional logistics networks.</p><h3>3. Order Tracking</h3><p>As soon as your order is handed over to our trusted courier partners, you will receive a confirmation message containing your tracking link and shipment details so you can follow your package’s journey in real time.</p><h3>4. Delivery Inquiries</h3><p>For any questions regarding shipping statuses, delivery delays, or special address requests, reach out to <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or call <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
 
 <footer>
     <div class="wrap">
         <div class="footer-main">
             <div>
                 <a href="{% url 'customer_home' %}" class="footer-brand" aria-label="UNCOMMEN home"><img id="footerLogoImg" src="{% static 'customer/images/uncommon-logo.png' %}" alt="UNCOMMEN" loading="lazy"></a>
-                <div class="footer-tagline">Made once. Numbered to you.</div>
+                <div class="footer-tagline">ㅤㅤㅤㅤCrafted Once. Inscribed to One.</div>
             </div>
             <div class="footer-columns">
                 <div class="footer-col">
                     <strong>Collections</strong>
                     <a href="{% url 'section_products' 'HIM' %}">For Him</a>
                     <a href="{% url 'section_products' 'HER' %}"> For Her</a>
-                    <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
+                    <a href="{% url 'section_products' 'RARE' %}">The 100 Registry</a>
                 </div>
                 <div class="footer-col">
                     <strong>The House</strong>
-                    <a href="#process">How buying works</a>
+                    <a href="#process">The Allocation Protocol</a>
                     <a href="#services">Services</a>
-                    <a href="#hundred">The Hundred</a>
+                    <a href="#hundred">The 100 Registry</a>
                 </div>
                 <div class="footer-col">
                     <strong>Your account</strong>
@@ -3381,7 +3390,7 @@ body.in-room-view .room-landing-view {
                 </div>
                 <div class="footer-col">
                     <strong>Information</strong>
-                    <a href="#" data-open-legal="about-modal">About Uncommen</a>
+                    <a href="#" data-open-legal="about-modal">About Ucommen</a>
                     <a href="#" data-open-legal="contact-modal">Contact Us</a>
                     <a href="#" data-open-legal="privacy-modal">Privacy Policy</a>
                     <a href="#" data-open-legal="terms-modal">Terms of Service</a>
@@ -3391,7 +3400,7 @@ body.in-room-view .room-landing-view {
             </div>
         </div>
         <div class="footer-bottom">
-            <span>© 2026 UNCOMMON — Made for one.</span>
+            <span>© 2026 UCOMMEN — Crafted Once. Inscribed to One.</span>
             <span>Considered objects. Uncommon details.</span>
         </div>
     </div>
@@ -4151,7 +4160,7 @@ body.in-room-view .room-landing-view {
 })();
 
 
-// ===== Interactive Room Portal Animation & 100% Backend-Driven Products Catalogue (Him / Her / The Hundred) =====
+// ===== Interactive Room Portal Animation & 100% Backend-Driven Products Catalogue (Him / Her / The 100 Registry) =====
 (() => {
     const siteHeader = document.querySelector('.site-header');
     const portalOverlay = document.getElementById('room-portal-overlay');
@@ -4216,10 +4225,10 @@ body.in-room-view .room-landing-view {
     const ROOM_CONFIG = {
         HIM: {
             num: '01',
-            portalKicker: 'ROOM 01 · UNCOMMON FOR HIM',
+            portalKicker: 'ROOM 01 · UCOMMEN FOR HIM',
             portalTitle: 'Him.',
             portalSubtitle: 'Stepping into Room 01 · Considered objects for one man',
-            heroKicker: 'Room 01 · UNCOMMON Archive for Him',
+            heroKicker: 'Room 01 · UCOMMEN Archive for Him',
             heroTitle: 'Objects with weight, patina, and a point of view.',
             heroDesc: 'Distinctive objects, considered details, and everyday essentials with a point of view. Priced plainly on every shelf and numbered to one name.',
             heroImg: 'https://picsum.photos/seed/uncommon-him/900/700',
@@ -4257,14 +4266,14 @@ body.in-room-view .room-landing-view {
         RARE: {
             num: '03',
             portalKicker: 'ROOM 03 · THE HUNDRED VAULT',
-            portalTitle: 'The Hundred.',
+            portalTitle: 'The 100 Registry.',
             portalSubtitle: 'Unlocking the permanent vault · Rare & limited pieces',
-            heroKicker: 'Room 03 · The Hundred Permanent Vault',
+            heroKicker: 'Room 03 · The 100 Registry Permanent Vault',
             heroTitle: 'Not everything is made to stay available.',
-            heroDesc: 'Discover products marked rare or limited by the UNCOMMON team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.',
+            heroDesc: 'Discover products marked rare or limited by the UCOMMEN team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.',
             heroImg: 'https://picsum.photos/seed/uncommon-hundred/900/700',
             sealTitle: 'Room 03',
-            sealSub: 'The Hundred',
+            sealSub: 'The 100 Registry',
             sectionUrl: getBackendRoomUrl('data-rare-url', 'RARE'),
             backendCount: parseBackendCount('data-rare-count'),
             fetchedFromEndpoint: false,
@@ -4296,7 +4305,7 @@ body.in-room-view .room-landing-view {
             RARE: ['#172116', '#E3BA7C', '#F5F1E6']
         };
         const [bg, accent, fg] = palettes[roomKey] || palettes.HIM;
-        const safeTitle = (title || 'UNCOMMON').replace(/[<>&"']/g, '');
+        const safeTitle = (title || 'UCOMMEN').replace(/[<>&"']/g, '');
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700">
             <rect width="600" height="700" fill="${bg}"/>
             <rect x="28" y="28" width="544" height="644" rx="18" fill="none" stroke="${accent}" stroke-opacity="0.38" stroke-width="1.5"/>
@@ -4304,7 +4313,7 @@ body.in-room-view .room-landing-view {
             <circle cx="300" cy="295" r="78" fill="${accent}" fill-opacity="0.12" stroke="${accent}" stroke-width="1.5"/>
             <text x="300" y="302" text-anchor="middle" fill="${accent}" font-family="Georgia, serif" font-size="22" letter-spacing="3">${badge || '1 OF 100'}</text>
             <text x="300" y="510" text-anchor="middle" fill="${fg}" font-family="Georgia, serif" font-size="21">${safeTitle.slice(0, 32)}</text>
-            <text x="300" y="548" text-anchor="middle" fill="${accent}" font-family="monospace" font-size="12" letter-spacing="4">UNCOMMON ARCHIVE</text>
+            <text x="300" y="548" text-anchor="middle" fill="${accent}" font-family="monospace" font-size="12" letter-spacing="4">UCOMMEN ARCHIVE</text>
         </svg>`;
         return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
     }
@@ -4442,7 +4451,7 @@ body.in-room-view .room-landing-view {
         const gridEl = document.querySelector(`[data-room-grid="${roomKey}"]`);
         room.isLoadingEndpoint = true;
         if (room.products.length === 0 && gridEl) {
-            gridEl.innerHTML = `<div class="empty">Loading products from the UNCOMMON catalogue…</div>`;
+            gridEl.innerHTML = `<div class="empty">Loading products from the UCOMMEN catalogue…</div>`;
         }
 
         try {
@@ -4593,7 +4602,7 @@ body.in-room-view .room-landing-view {
             const empty = document.createElement('div');
             empty.className = 'empty';
             if (room.products.length === 0) {
-                empty.textContent = 'The catalogue for this room is being prepared. Products added by the UNCOMMON team in the backend will appear here.';
+                empty.textContent = 'The catalogue for this room is being prepared. Products added by the UCOMMEN team in the backend will appear here.';
             } else {
                 empty.textContent = 'No products match that filter in this room. Reset your search or explore another category.';
             }
@@ -4806,7 +4815,7 @@ body.in-room-view .room-landing-view {
 
     function exitRoomToHouse(targetHash = '#catalogue') {
         if (!document.body.classList.contains('in-room-view')) return;
-        if (portalKicker) portalKicker.textContent = 'UNCOMMON · THE HOUSE';
+        if (portalKicker) portalKicker.textContent = 'UCOMMEN · THE HOUSE';
         if (portalTitle) portalTitle.textContent = 'The Three Doors.';
         if (portalSubtitle) portalSubtitle.textContent = 'Returning to the main house';
 
@@ -4975,7 +4984,7 @@ body.in-room-view .room-landing-view {
             dossierImg.src = createFallbackSvgDataUri(
                 dossierTitle ? dossierTitle.textContent : 'Product',
                 currentRoom || 'HIM',
-                'UNCOMMON'
+                'UCOMMEN'
             );
             dossierImg.classList.remove('is-changing');
         };
@@ -4999,7 +5008,7 @@ body.in-room-view .room-landing-view {
     }
 
     function buildDossierGallery(product, roomKey) {
-        const fallback = createFallbackSvgDataUri(product.name, roomKey, product.isRare ? 'RARE' : 'UNCOMMON');
+        const fallback = createFallbackSvgDataUri(product.name, roomKey, product.isRare ? 'RARE' : 'UCOMMEN');
         const candidateImages = Array.isArray(product.images) ? product.images : [];
         dossierImages = [...new Set([product.image, ...candidateImages].filter(Boolean))].slice(0, 4);
         if (!dossierImages.length) dossierImages = [fallback];
