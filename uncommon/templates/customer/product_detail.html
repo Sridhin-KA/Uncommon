@@ -739,7 +739,9 @@
                 {% if product_overview %}
                 <div class="overview-block">
                     <div class="overview-heading">Overview</div>
-                    <p class="overview">{{ product_overview|linebreaksbr }}</p>
+                    <p class="overview" style="text-align: justify;" >
+                        {{ product_overview|linebreaksbr }}
+                    </p>
                 </div>
                 {% endif %}
                 {% if product_colour %}
@@ -758,7 +760,7 @@
 
             <h3>About this piece</h3>
 
-            <p class="description">
+            <p class="description" style="text-align: justify;" >
                 {{ product.description|default:"A considered addition to the UNCOMMEN collection." }}
             </p>
 
