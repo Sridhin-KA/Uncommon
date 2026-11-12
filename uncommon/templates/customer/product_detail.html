@@ -291,6 +291,67 @@
             line-height: 1.9;
         }
 
+        /* Product attributes extracted from the existing Overview field */
+        .product-attributes {
+            display: grid;
+            gap: 14px;
+            margin: 24px 0 4px;
+        }
+
+        .colour-attribute {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 14px 16px;
+            background: rgba(251, 248, 241, .72);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .colour-marker {
+            width: 25px;
+            height: 25px;
+            flex: 0 0 25px;
+            border: 1px solid rgba(36, 30, 20, .18);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #76503A, #B18A63 55%, #4A3024);
+            box-shadow: inset 0 0 0 3px rgba(255,255,255,.22);
+        }
+
+        .attribute-copy { min-width: 0; }
+
+        .attribute-label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font: 9px var(--mono);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .colour-value {
+            display: block;
+            color: var(--ink);
+            font: 15px var(--serif);
+            overflow-wrap: anywhere;
+        }
+
+        .overview-block {
+            padding: 2px 0 0;
+        }
+
+        .overview-heading {
+            margin-bottom: 8px;
+            color: var(--muted);
+            font: 9px var(--mono);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .overview:empty,
+        .colour-attribute[hidden],
+        .overview-block[hidden] { display: none !important; }
+
         .description {
             color: var(--muted);
             font-size: 13px;
@@ -504,6 +565,8 @@
             .main-image-wrap { height: 520px; }
 
             .product-info { padding: 0; }
+            .product-attributes { margin-top: 20px; }
+            .colour-attribute { padding: 12px 13px; }
         }
 
         @media(max-width: 550px) {
@@ -570,8 +633,8 @@
 
         <nav class="nav-links">
             <a href="{% url 'section_products' section %}">Collection</a>
-            <a href="{% url 'wishlist_view' %}">Wishlist</a>
-            <a href="{% url 'bag_view' %}">Bag ({{ bag_count }})</a>
+            <a href="{% url 'wishlist_view' %}">Private Vault</a>
+            <a href="{% url 'bag_view' %}">Acquisition({{ bag_count }})</a>
         </nav>
     </div>
 </header>
@@ -670,8 +733,25 @@
                 ₹{{ product.price|floatformat:2 }}
             </div>
 
-            {% if product.overview %}
-                <p class="overview">{{ product.overview }}</p>
+            {% if product_colour or product_overview %}
+            <div class="product-attributes">
+
+                {% if product_overview %}
+                <div class="overview-block">
+                    <div class="overview-heading">Overview</div>
+                    <p class="overview">{{ product_overview|linebreaksbr }}</p>
+                </div>
+                {% endif %}
+                {% if product_colour %}
+                <div class="colour-attribute">
+                    <span class="colour-marker" aria-hidden="true"></span>
+                    <span class="attribute-copy">
+                        <span class="attribute-label">Colour</span>
+                        <strong class="colour-value">{{ product_colour }}</strong>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
             {% endif %}
 
             <div class="divider"></div>
@@ -704,7 +784,7 @@
             >
                 <span>
                     {% if product.stock > 0 %}
-                        ADD TO BAG
+                        ADD TO ACQUISITION
                     {% else %}
                         SOLD OUT
                     {% endif %}
@@ -716,7 +796,7 @@
                 {% csrf_token %}
                 <button type="submit" class="wishlist-button">
                     <span aria-hidden="true">♡</span>
-                    <span>ADD TO WISHLIST</span>
+                    <span>ADD TO PRIVATE VAULT</span>
                 </button>
             </form>
 
@@ -791,6 +871,8 @@
 <footer>
     UNCOMMEN · A CONSIDERED COLLECTION
 </footer>
+
+
 
 <script>
     // Product image thumbnail switching
@@ -870,10 +952,10 @@
 <div class="bag-toast" id="bag-toast" role="status" aria-live="polite">
     <span class="toast-icon" id="toast-icon">✓</span>
     <div class="toast-copy">
-        <strong id="toast-title">Added to your bag</strong>
+        <strong id="toast-title">Added to your Acquisition</strong>
         <span id="toast-message">Your selection is waiting for you.</span>
     </div>
-    <a href="{% url 'bag_view' %}" class="toast-link">View bag ↗</a>
+    <a href="{% url 'bag_view' %}" class="toast-link">View Acquisition ↗</a>
     <button type="button" class="toast-close" id="toast-close" aria-label="Close notification">×</button>
 </div>
 

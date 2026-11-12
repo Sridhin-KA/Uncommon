@@ -59,10 +59,18 @@
             background: rgba(243, 238, 228, .96);
         }
 
+        /* Match the larger UNCOMMEN header logo used across the other pages */
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            flex: 0 0 auto;
+        }
+
         .brand img {
             display: block;
-            width: 185px;
-            height: 50px;
+            width: 230px;
+            height: 62px;
+            max-width: 100%;
             object-fit: contain;
             opacity: 1;
             transition: opacity .28s ease, visibility .28s ease;
@@ -749,8 +757,8 @@
             }
 
             .brand img {
-                width: 155px;
-                height: 45px;
+                width: 185px;
+                height: 52px;
             }
 
             .nav-links {
@@ -798,6 +806,22 @@
             }
         }
 
+        @media (max-width: 360px) {
+            .navbar {
+                gap: 10px;
+            }
+
+            .brand img {
+                width: 155px;
+                height: 46px;
+            }
+
+            .nav-links a {
+                min-width: 54px;
+                padding: 0 8px;
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation: none !important;
@@ -830,7 +854,46 @@
             border-radius: 0;
         }
 
-    </style>
+    
+
+        /* FINAL BRAND SCALE — keep the checkout logo visually consistent on every screen */
+        .navbar > .brand {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: flex-start;
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+        .navbar > .brand img {
+            width: 270px !important;
+            height: 76px !important;
+            max-width: min(270px, 48vw) !important;
+            object-fit: contain;
+            transform: scale(1.12);
+            transform-origin: left center;
+        }
+        @media (max-width: 520px) {
+            .navbar > .brand img {
+                width: 225px !important;
+                height: 72px !important;
+                max-width: min(225px, 52vw) !important;
+                transform: scale(1.18);
+            }
+        }
+        @media (max-width: 380px) {
+            .navbar {
+                gap: 7px;
+                padding-left: 4%;
+                padding-right: 4%;
+            }
+            .navbar > .brand img {
+                width: 205px !important;
+                height: 68px !important;
+                max-width: min(205px, 53vw) !important;
+                transform: scale(1.16);
+            }
+        }
+</style>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 

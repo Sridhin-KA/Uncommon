@@ -21,7 +21,7 @@ from django.db.models import F
 import json
 import uuid
 from decimal import Decimal, ROUND_HALF_UP
-
+import re
 import razorpay
 
 from django.conf import settings
@@ -312,7 +312,9 @@ def product_detail(request, product_id):
         .prefetch_related(
             Prefetch(
                 "feedbacks",
-                queryset=Feedback.objects.select_related("customer").order_by("-created_at"),
+                queryset=Feedback.objects.select_related(
+                    "customer"
+                ).order_by("-created_at"),
                 to_attr="feedback_list"
             )
         )
@@ -323,33 +325,84 @@ def product_detail(request, product_id):
         pk=product_id
     )
 
-    # Determine the product's collection.
+    # Determine collection
     section = (
         "RARE"
         if product.is_rare or product.is_limited
         else product.category.section
     )
 
+    # Customer
     customer = None
     customer_id = request.session.get("customer_id")
 
     if customer_id:
-        customer = Customer.objects.filter(pk=customer_id).first()
+        customer = Customer.objects.filter(
+            pk=customer_id
+        ).first()
 
+    # Rating breakdown
     reviews = product.feedback_list
     product.rating_breakdown = []
 
     for stars in range(5, 0, -1):
-        count = sum(1 for review in reviews if review.rating == stars)
+        count = sum(
+            1 for review in reviews
+            if review.rating == stars
+        )
+
         total = product.review_count or 0
 
         product.rating_breakdown.append({
             "stars": stars,
             "count": count,
-            "percent": round((count / total) * 100) if total else 0,
+            "percent": round((count / total) * 100)
+            if total else 0,
         })
 
+    # Extract colour from existing overview field
+    raw_overview = (product.overview or "").strip()
+
+    product_colour = ""
+    product_overview = raw_overview
+
+    colour_match = re.match(
+        r"^\s*(?:colour|color)\s*:\s*(.*)$",
+        raw_overview,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+
+    if colour_match:
+        details = colour_match.group(1).strip()
+
+        # Preferred format:
+        # Colour: Smoked Walnut | Crafted from full-grain hide...
+        if "|" in details:
+            product_colour, product_overview = details.split("|", 1)
+
+        else:
+            # Existing format:
+            # Colour: Smoked Walnut Crafted from full-grain hide...
+            legacy_match = re.match(
+                r"^(.*?)\s+(?=crafted\s+from\b)(.*)$",
+                details,
+                flags=re.IGNORECASE | re.DOTALL
+            )
+
+            if legacy_match:
+                product_colour = legacy_match.group(1).strip()
+                product_overview = legacy_match.group(2).strip()
+            else:
+                # No description separator found
+                product_colour = details
+                product_overview = ""
+
+        product_colour = product_colour.strip(" |–—-:")
+        product_overview = product_overview.strip()
+
+    # Bag count
     bag = request.session.get("bag", {})
+
     bag_count = (
         sum(int(qty) for qty in bag.values())
         if isinstance(bag, dict) else 0
@@ -363,9 +416,10 @@ def product_detail(request, product_id):
             "section": section,
             "customer": customer,
             "bag_count": bag_count,
+            "product_colour": product_colour,
+            "product_overview": product_overview,
         }
     )
-
 @require_POST
 def submit_product_feedback(request, product_id):
     """

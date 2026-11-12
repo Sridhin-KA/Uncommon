@@ -48,7 +48,7 @@ class Product(models.Model):
 
     # Short summary for product cards
     overview = models.CharField(
-        max_length=300,
+        max_length=1000,
         blank=True
     )
 

@@ -750,8 +750,8 @@ def _clean_product_form(request):
         raise ValueError("Category and product name are required.")
     if len(product_name) > 150:
         raise ValueError("Product name must be 150 characters or fewer.")
-    if len(overview) > 300:
-        raise ValueError("Overview must be 300 characters or fewer.")
+    if len(overview) > 1000:
+        raise ValueError("Overview must be 1000 characters or fewer.")
     if not price_input or not stock_input:
         raise ValueError("Product price and stock are required.")
 

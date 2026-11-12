@@ -2098,6 +2098,38 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 }
 </style>
 
+
+<style id="uncommen-product-card-nav-refinements">
+/* Product card: one clear primary action, no Quick View control. */
+.product-card .product-actions { display:grid; grid-template-columns:minmax(0,1fr); }
+.product-card .add-to-bag { width:100%; min-height:48px; }
+.product-card .add-to-bag span:first-child { letter-spacing:.12em; }
+.product-card .wishlist-form { top:16px; right:16px; }
+
+/* Larger UNCOMMEN brand mark in the collection topbar. */
+.site-header .nav { min-height:96px; }
+.site-header .logo { width:clamp(190px,21vw,260px); }
+.site-header .logo img { width:100%; height:82px; max-height:82px; object-fit:contain; }
+.site-header .nav-actions .bag-link { padding:11px 14px; }
+@media (max-width:1000px) {
+  .site-header .nav { min-height:88px; }
+  .site-header .logo { width:210px; }
+  .site-header .logo img { height:74px; max-height:74px; }
+}
+@media (max-width:760px) {
+  .site-header .nav { min-height:0; }
+  .site-header .logo { width:190px; }
+  .site-header .logo img { height:70px; max-height:70px; }
+  .site-header .nav-actions .bag-link { padding:9px 10px; }
+}
+@media (max-width:420px) {
+  .site-header .logo { width:165px; }
+  .site-header .logo img { height:62px; max-height:62px; }
+  .site-header .nav-actions { gap:7px; }
+  .site-header .bag-link { font-size:8px !important; letter-spacing:.04em !important; }
+}
+</style>
+
 </head>
 
 <body>
@@ -2151,15 +2183,15 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
             <a href="{% url 'section_products' 'RARE' %}" class="{% if section == 'RARE' %}active{% endif %}"><span class="room-number">ROOM 03</span> THE HUNDRED</a>
         </nav>
         <div class="nav-actions">
-            <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Wishlist" title="Wishlist"><span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Wishlist</span></a>
-            <a class="bag-link" href="{% url 'bag_view' %}" aria-label="Shopping bag"><span>Bag</span><span class="bag-count" id="bag-count">{{ bag_count|default:0 }}</span></a>
+            <a class="wishlist-link" href="{% url 'wishlist_view' %}" aria-label="Saved pieces" title="Saved pieces"><span class="wishlist-symbol" aria-hidden="true">♡</span><span class="wishlist-label">Private Vault</span></a>
+            <a class="bag-link" href="{% url 'bag_view' %}" aria-label="Acquisition"><span>Acquisition</span><span class="bag-count" id="bag-count">{{ bag_count|default:0 }}</span></a>
             <div class="nav-dropdown account-dropdown">
                 
                 <div class="nav-dropdown-menu account-menu">
                     {% if customer %}
                         <div class="account-menu-heading">Signed in as {{ customer.name }}</div>
                         <a href="/my-orders/">My Orders <span aria-hidden="true">↗</span></a>
-                        <a href="{% url 'wishlist_view' %}">Wishlist <span aria-hidden="true">↗</span></a>
+                        <a href="{% url 'wishlist_view' %}">Saved pieces <span aria-hidden="true">↗</span></a>
                         <form action="{% url 'admin_logout' %}" method="POST">{% csrf_token %}<button type="submit" class="dropdown-logout">Logout <span aria-hidden="true">↗</span></button></form>
                     {% else %}
                         <a href="{% url 'login' %}">Sign in <span aria-hidden="true">↗</span></a>
@@ -2273,23 +2305,8 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 
                         <div class="product-actions">
                             <button type="button" class="add-to-bag" data-url="{% url 'add_to_bag' product.id %}" {% if product.stock < 1 %}disabled{% endif %}>
-                                <span>{% if product.stock < 1 %}Sold Out{% else %}Add to Bag{% endif %}</span>
+                                <span>{% if product.stock < 1 %}Sold Out{% else %}Add to Acquisition{% endif %}</span>
                                 <span aria-hidden="true">↗</span>
-                            </button>
-
-                            <button type="button" class="inspect-button"
-                                data-review-template="reviews-template-{{ product.id }}"
-                                data-name="{{ product.product_name|escape }}"
-                                data-category="{{ product.category.category_name|escape }}"
-                                data-price="{{ product.price }}"
-                                data-overview="{{ product.overview|default:''|escape }}"
-                                data-description="{{ product.description|default:'A considered addition to the collection.'|escape }}"
-                                data-stock="{{ product.stock }}"
-                                data-image="{% if product.image %}{{ product.image.url }}{% endif %}"
-                                data-image2="{% if product.image2 %}{{ product.image2.url }}{% endif %}"
-                                data-image3="{% if product.image3 %}{{ product.image3.url }}{% endif %}"
-                                data-image4="{% if product.image4 %}{{ product.image4.url }}{% endif %}">
-                                <span>Quick View</span><span aria-hidden="true">↗</span>
                             </button>
                         </div>
                     </div>

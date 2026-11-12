@@ -1342,6 +1342,34 @@ body.is-loading { overflow: hidden; }
             }
         }
 
+    
+
+        /* PRIVATE VAULT — blend the logo artwork into the page cream.
+           The source PNG has an opaque pale-green background; this filter
+           neutralizes that tint while preserving the dark wordmark. */
+        .navbar .brand {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .navbar .brand img {
+            display: block;
+            background: transparent !important;
+            filter: grayscale(1) contrast(1.65) brightness(1.12);
+            mix-blend-mode: multiply;
+        }
+
+        /* Keep the logo treatment consistent if the header is restyled later. */
+        .navbar.is-floating .brand img {
+            filter: grayscale(1) contrast(1.65) brightness(1.12);
+            mix-blend-mode: multiply;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .navbar .brand img { transition: none !important; }
+        }
+
     </style>
 </head>
 
@@ -1381,7 +1409,7 @@ body.is-loading { overflow: hidden; }
         <div class="site-loader-label">Made with intention</div>
     </div>
 </div>
-    <span class="loader-label">Preparing your collection</span>
+   
 </div>
 
 <!-- NAVBAR -->
@@ -1395,7 +1423,7 @@ body.is-loading { overflow: hidden; }
 
     <div class="nav-links">
         <a href="{% url 'customer_home' %}">Shop</a>
-        <a href="{% url 'bag_view' %}">Bag</a>
+        <a href="{% url 'bag_view' %}">Acquisition</a>
         <a href="{% url 'wishlist_view' %}">
             Private Vault ({{ wishlist_count }})
         </a>
