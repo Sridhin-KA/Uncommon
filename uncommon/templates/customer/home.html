@@ -2657,7 +2657,7 @@ body.in-room-view .room-landing-view {
             <a href="#catalogue">The Rooms</a>
             <a href="#services">Services</a>
             <a href="#process">The Protocol</a>
-            <a href="#hundred">The 100 Registry</a>
+            <a href="#hundred">The Hundred</a>
         </nav>
 
         <div class="nav-actions">
@@ -2709,8 +2709,15 @@ body.in-room-view .room-landing-view {
                 <div class="hero-note">Select. Secure. Decide in peace. The moment an artifact enters your bag, it vanishes from the world. Yours to hold, invisible to the market, until you are ready.</div>
             </div>
             <div class="hero-art">
-                <img class="hero-image" src="https://picsum.photos/id/91/1000/1100" alt="Editorial still life for the UCOMMEN collection" fetchpriority="high">
-                <img class="hero-inset" src="https://picsum.photos/id/145/500/640" alt="" loading="lazy">
+                <video class="hero-image" autoplay muted loop playsinline preload="metadata"
+                       aria-label="UCOMMEN editorial hero film">
+                    <source src="{% static 'videos/hero-loop.mp4' %}" type="video/mp4">
+                    Your browser does not support the video element.
+                </video>
+                <img class="hero-inset"
+                     src="{% static 'images/hero-inset.jpg' %}"
+                     alt="Brushed metal pen and binder clip on a keyboard"
+                     loading="eager">
                 <div class="number-seal"><strong>No. 001</strong><span>Yours alone</span></div>
                 <div class="art-caption">UCOMMEN — Objects beyond the ordinary</div>
             </div>
@@ -2723,9 +2730,9 @@ body.in-room-view .room-landing-view {
             <h2>We do not build for demographic trends. We build for an audience of one.</h2>
             <p>Mass luxury is a contradiction. True distinction cannot be manufactured in volume. We curate the antidote to the expected: essential allocations for men, singular expressions within INSOLO for women, or access to The 100 Registry—our registry of strictly finite creations. The pursuit is never consensus. The pursuit is setting self apart from the ordinary.</p>
             <div class="manifesto-images" aria-label="A glimpse into the collection">
-                <img src="https://picsum.photos/id/838/600/500" alt="Craft and materials" loading="lazy">
-                <img src="https://picsum.photos/id/447/600/500" alt="Details from the collection" loading="lazy">
-                <img src="https://picsum.photos/id/653/600/500" alt="Objects chosen with intention" loading="lazy">
+                <img src="{% static 'images/manifesto-1.jpg' %}" alt="Artisan engraving an intricate copper vessel by hand" loading="lazy">
+                <img src="{% static 'images/manifesto-2.jpg' %}" alt="Traditional metalworking with heated metal in a workshop" loading="lazy">
+                <img src="{% static 'images/manifesto-3.jpg' %}" alt="Handcrafted wooden wristwatch with a natural wood finish" loading="lazy">
             </div>
             <div class="manifesto-note">Crafted for those who refuse to be categorized by the market.</div>
         </div>
@@ -2742,7 +2749,7 @@ body.in-room-view .room-landing-view {
             </div>
             <div class="rooms">
                 <a class="room" href="{% url 'section_products' 'HIM' %}">
-                    <img src="https://picsum.photos/seed/uncommon-him/700/900" alt="Explore the UCOMMEN collection for him" loading="lazy">
+                    <img src="{% static 'images/room-him.jpg' %}" alt="Explore the UCOMMEN collection for him" loading="lazy">
                     <div class="room-shade"></div>
                     <div class="room-copy">
                         <div class="room-count">Room 01 · {{ him_count }} available</div>
@@ -2752,7 +2759,7 @@ body.in-room-view .room-landing-view {
                     </div>
                 </a>
                 <a class="room" href="{% url 'section_products' 'HER' %}">
-                    <img src="https://picsum.photos/seed/insolo-her/700/900" alt="Explore INSOLO for her" loading="lazy">
+                    <img src="{% static 'images/room-her.jpg' %}" alt="Explore INSOLO for her" loading="lazy">
                     <div class="room-shade"></div>
                     <div class="room-copy">
                         <div class="room-count">Room 02 · {{ her_count }} available</div>
@@ -2762,11 +2769,11 @@ body.in-room-view .room-landing-view {
                     </div>
                 </a>
                 <a class="room" href="{% url 'section_products' 'RARE' %}">
-                    <img src="https://picsum.photos/seed/uncommon-hundred/700/900" alt="Explore rare and limited pieces in The 100 Registry" loading="lazy">
+                    <img src="{% static 'images/room-hundred.jpg' %}" alt="Explore rare and limited pieces in The 100 Registry" loading="lazy">
                     <div class="room-shade"></div>
                     <div class="room-copy">
                         <div class="room-count">Room 03 · {{ rare_count }} available</div>
-                        <h3>The 100 Registry.</h3>
+                        <h3>The Hundred.</h3>
                         <p>Rare finds and limited pieces, gathered in one carefully selected collection.</p>
                         <span class="room-link">Discover the rare →</span>
                     </div>
