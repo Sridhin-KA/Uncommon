@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My Account — UNCOMMON</title>
+<title>My Account | UNCOMMEN</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -258,7 +258,7 @@ body.is-loading {
     z-index: 130;
 }
 
-/* UNCOMMON — Larger navbar logo moving down in sync with transparent navbar (no box/capsule) */
+/* UNCOMMEN — Larger navbar logo moving down in sync with transparent navbar (no box/capsule) */
 .topbar .logo {
     width: clamp(180px, 19vw, 245px);
     flex: 0 0 auto;
@@ -1340,7 +1340,7 @@ td {
 <body class="is-loading">
 
 <!-- NEW HOMEPAGE-STYLE SVG REVEAL LOADER -->
-<div class="site-loader" id="siteLoader" role="status" aria-live="polite" aria-label="Loading INSOLO UNCOMMON">
+<div class="site-loader" id="siteLoader" role="status" aria-live="polite" aria-label="Loading UNCOMMEN">
   <div class="preloader-content">
     <svg viewBox="115 42 282 200" class="preloader-logo" aria-label="UNCOMMEN">
       <!-- 1. Large C + Lower Swash -->
@@ -1376,11 +1376,11 @@ td {
 
 <!-- HEADER -->
 <header class="topbar">
-    <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMON home">
+    <a href="{% url 'customer_home' %}" class="logo" aria-label="UNCOMMEN home">
         <img
             id="navLogoImg"
             src="{% static 'customer/images/uncommon-logo.png' %}"
-            alt="UNCOMMON"
+            alt="UNCOMMEN"
         >
     </a>
 
@@ -1421,7 +1421,7 @@ td {
                 <nav class="side-nav">
                     <a href="#overview">Account overview</a>
                     <a href="#address">Delivery address</a>
-                    <a href="#orders">My orders</a>
+                    <a href="#orders">Your orders</a>
                     <a href="{% url 'edit_customer_profile' %}">
                         Edit profile &rarr;
                     </a>
@@ -1445,11 +1445,6 @@ td {
                 <div class="stat">
                     <strong id="statDeliveredOrders">{{ delivered_orders }}</strong>
                     <span>Delivered</span>
-                </div>
-
-                <div class="stat">
-                    <strong id="statUsernameLength">{{ customer.username|length }}</strong>
-                    <span>Username length</span>
                 </div>
             </div>
 
@@ -1691,7 +1686,7 @@ td {
                 {% else %}
                 <div class="empty" id="emptyOrdersBox">
                     <p>No orders just yet.</p>
-                    <p>Your next uncommon find is waiting.</p>
+                    <p>Your next UNCOMMEN find is waiting.</p>
 
                     <a
                         href="{% url 'customer_home' %}"
@@ -1713,11 +1708,11 @@ td {
     <div class="footer-main">
 
         <div class="footer-brand">
-            <a href="{% url 'customer_home' %}" aria-label="UNCOMMON home">
+            <a href="{% url 'customer_home' %}" aria-label="UNCOMMEN home">
                 <img
                     id="footerLogoImg"
                     src="{% static 'customer/images/uncommon-logo.png' %}"
-                    alt="UNCOMMON"
+                    alt="UNCOMMEN"
                     loading="lazy"
                 >
             </a>
@@ -1731,11 +1726,11 @@ td {
         <div>
             <h3 class="footer-heading">EXPLORE</h3>
             <div class="footer-links">
-                <a href="{% url 'customer_home' %}">Home</a>
+                <a href="{% url 'customer_home' %}">Collection</a>
                 <a href="{% url 'section_products' 'HIM' %}">For Him</a>
                 <a href="{% url 'section_products' 'HER' %}">For Her</a>
-                <a href="{% url 'section_products' 'RARE' %}">Rare Collection</a>
-                <a href="{% url 'bag_view' %}">My Bag</a>
+                <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
+                <a href="{% url 'bag_view' %}">Acquisition</a>
             </div>
         </div>
 
@@ -2061,9 +2056,6 @@ td {
 
             const stDel = document.getElementById('statDeliveredOrders');
             if (stDel) stDel.textContent = '2';
-
-                        const stLen = document.getElementById('statUsernameLength');
-            if (stLen) stLen.textContent = '11';
 
             // Populate sample address in preview mode (all details displayed upfront)
             const fieldAddr = document.getElementById('fieldAddressOverview');

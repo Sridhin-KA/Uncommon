@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders |  UNCOMMEN</title>
+    <title>Order History | UNCOMMEN</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,7 +125,7 @@
         /* HEADER */
         .site-header {
             background: var(--bg);
-            min-height: 88px;
+            min-height: 108px;
             padding: 16px 7%;
             display: flex;
             align-items: center;
@@ -142,8 +142,8 @@
 
         .brand img {
             display: block;
-            width: 155px;
-            max-height: 58px;
+            width: 225px;
+            max-height: 82px;
             object-fit: contain;
             background-color: var(--bg);
         }
@@ -536,8 +536,8 @@
         }
 
         .footer-brand img {
-            width: 155px;
-            max-height: 65px;
+            width: 190px;
+            max-height: 78px;
             object-fit: contain;
             background-color: var(--bg);
             margin-bottom: 14px;
@@ -712,7 +712,8 @@
             }
 
             .brand img {
-                width: 135px;
+                width: 190px;
+                max-height: 70px;
             }
 
             .site-nav {
@@ -821,13 +822,57 @@ body.is-loading{overflow:hidden}
 @media(max-width:600px){@keyframes orderLogoToTopLeft{0%{transform:translate(0,0) scale(1);opacity:1}70%{opacity:1}100%{transform:translate(calc(-37vw + 12px),calc(-42vh + 8px)) scale(.2);opacity:.98}}}
 @media(prefers-reduced-motion:reduce){.site-loader .uc-group-c,.site-loader .uc-group-u,.site-loader .uc-cutout-band,.site-loader .uc-bars,.site-loader .uc-wordmark,.site-loader .preloader-progress{animation:none!important}}
 
+    /* UNCOMMEN brand sizing and navigation refinements */
+    .site-header { min-height: 112px; }
+
+    .brand img {
+        width: clamp(190px, 19vw, 235px);
+        max-height: 84px;
+    }
+
+    .footer-brand img {
+        width: 195px;
+        max-height: 82px;
+    }
+
+    .site-nav a[aria-current="page"] { color: var(--gold); }
+
+    @media (max-width: 600px) {
+        .site-header {
+            min-height: auto;
+            padding: 15px 5%;
+            gap: 13px;
+        }
+        .brand img {
+            width: 190px;
+            max-height: 70px;
+        }
+        .site-nav {
+            width: 100%;
+            gap: 18px;
+        }
+        .site-nav a {
+            font-size: 9px;
+            letter-spacing: 1.1px;
+        }
+        .footer-brand img {
+            width: 175px;
+            max-height: 72px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .brand img { width: 170px; }
+        .site-nav { gap: 12px; }
+    }
+
 </style>
 </head>
 
 <body>
 
 <!-- NEW HOMEPAGE-STYLE SVG REVEAL LOADER -->
-<div class="site-loader" id="siteLoader" role="status" aria-live="polite" aria-label="Loading INSOLO UNCOMMON">
+<div class="site-loader" id="siteLoader" role="status" aria-live="polite" aria-label="Loading UNCOMMEN">
   <div class="preloader-content">
     <svg viewBox="115 42 282 200" class="preloader-logo" aria-label="UNCOMMEN">
       <!-- 1. Large C + Lower Swash -->
@@ -863,26 +908,26 @@ body.is-loading{overflow:hidden}
 
 <!-- HEADER -->
 <header class="site-header">
-    <a href="{% url 'customer_home' %}" class="brand" aria-label="INSOLO UNCOMMON home">
+    <a href="{% url 'customer_home' %}" class="brand" aria-label="UNCOMMEN home">
         <img
             src="{% static 'customer/images/uncommon-logo.png' %}"
-            alt="INSOLO UNCOMMON"
+            alt="UNCOMMEN"
         >
     </a>
 
     <nav class="site-nav" aria-label="Main navigation">
-        <a href="{% url 'customer_home' %}">HOME</a>
-        <a href="{% url 'my_orders' %}">MY ORDERS</a>
-        <a href="{% url 'bag_view' %}">MY BAG</a>
+        <a href="{% url 'customer_home' %}">COLLECTION</a>
+        <a href="{% url 'my_orders' %}" aria-current="page">ORDERS</a>
+        <a href="{% url 'bag_view' %}">ACQUISITION</a>
     </nav>
 </header>
 
 <!-- MAIN CONTENT -->
 <main class="container">
-    <p class="eyebrow">YOUR ACCOUNT / PURCHASE HISTORY</p>
-    <h1>My Orders</h1>
+    <p class="eyebrow">YOUR ACCOUNT / ORDER HISTORY</p>
+    <h1>Your Orders</h1>
     <p class="subtitle">
-        Track your purchases and manage your orders.
+        Every piece, every order — all in one place.
     </p>
 
     {% if messages %}
@@ -1072,16 +1117,16 @@ body.is-loading{overflow:hidden}
     <div class="footer-main">
 
         <div class="footer-brand">
-            <a href="{% url 'customer_home' %}" aria-label="INSOLO UNCOMMON home">
+            <a href="{% url 'customer_home' %}" aria-label="UNCOMMEN home">
                 <img
                     src="{% static 'customer/images/uncommon-logo.png' %}"
-                    alt="INSOLO UNCOMMON"
+                    alt="UNCOMMEN"
                     loading="lazy"
                 >
             </a>
             <p>
                 Thoughtfully selected pieces for those who choose to be different.
-                Discover your style with  UNCOMMEN.
+                Discover your style with UNCOMMEN.
             </p>
         </div>
 
@@ -1091,8 +1136,8 @@ body.is-loading{overflow:hidden}
                 <a href="{% url 'customer_home' %}">Home</a>
                 <a href="{% url 'section_products' 'HIM' %}">For Him</a>
                 <a href="{% url 'section_products' 'HER' %}">For Her</a>
-                <a href="{% url 'section_products' 'RARE' %}">Rare Collection</a>
-                <a href="{% url 'bag_view' %}">My Bag</a>
+                <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
+                <a href="{% url 'bag_view' %}">Acquisition</a>
             </div>
         </div>
 
@@ -1112,7 +1157,7 @@ body.is-loading{overflow:hidden}
                 <button type="button" data-open-legal="shipping-modal">Shipping Policy</button>
                 <button type="button" data-open-legal="refund-modal">Returns &amp; Refunds</button>
                 <button type="button" data-open-legal="contact-modal">Get in Touch</button>
-                <a href="{% url 'my_orders' %}">Track My Orders</a>
+                <a href="{% url 'my_orders' %}">Order History</a>
             </div>
         </div>
 

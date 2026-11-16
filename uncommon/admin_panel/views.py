@@ -13,7 +13,7 @@ Sections
     9. Feedback
    10. Purchasing (suppliers, POs, goods receipts, vendor bills, payments)
 """
-
+from django.urls import reverse
 import csv
 import json
 import logging
@@ -736,22 +736,35 @@ def delete_category(request, id):
 IMAGE_FIELDS = ("image", "image2", "image3", "image4")
 
 
+
 def _clean_product_form(request):
-    """Validate the add/edit product form. Returns a dict of cleaned values or raises ValueError."""
+    """Validate add/edit product data, including optional financial fields."""
     post = request.POST
+
     category_id = post.get("category", "").strip()
     product_name = post.get("product_name", "").strip()
     overview = post.get("overview", "").strip()
     description = post.get("description", "").strip()
+
     price_input = post.get("price", "").strip()
     stock_input = post.get("stock", "").strip()
 
+    cost_input = post.get("cost_price", "").strip()
+    gst_input = post.get("gst_rate", "").strip()
+    hsn_code = post.get("hsn_code", "").strip()
+
     if not category_id or not product_name:
         raise ValueError("Category and product name are required.")
+
     if len(product_name) > 150:
         raise ValueError("Product name must be 150 characters or fewer.")
+
     if len(overview) > 1000:
         raise ValueError("Overview must be 1000 characters or fewer.")
+
+    if len(hsn_code) > 20:
+        raise ValueError("HSN code must be 20 characters or fewer.")
+
     if not price_input or not stock_input:
         raise ValueError("Product price and stock are required.")
 
@@ -765,8 +778,53 @@ def _clean_product_form(request):
         stock = int(stock_input)
     except (InvalidOperation, ValueError, TypeError):
         raise ValueError("Please enter valid price and stock values.")
-    if not price.is_finite() or price < 0 or stock < 0:
+
+    if (
+        not price.is_finite()
+        or price < 0
+        or price > Decimal("99999999.99")
+        or price.as_tuple().exponent < -2
+        or stock < 0
+    ):
         raise ValueError("Please enter valid price and stock values.")
+
+    # Optional cost price
+    cost_price = None
+
+    if cost_input:
+        try:
+            cost_price = Decimal(cost_input)
+        except (InvalidOperation, ValueError, TypeError):
+            raise ValueError("Please enter a valid cost price.")
+
+        if (
+            not cost_price.is_finite()
+            or cost_price < 0
+            or cost_price > Decimal("99999999.99")
+            or cost_price.as_tuple().exponent < -2
+        ):
+            raise ValueError(
+                "Cost price must be non-negative and have at most 2 decimal places."
+            )
+
+    # Optional GST rate
+    gst_rate = None
+
+    if gst_input:
+        try:
+            gst_rate = Decimal(gst_input)
+        except (InvalidOperation, ValueError, TypeError):
+            raise ValueError("Please enter a valid GST rate.")
+
+        if (
+            not gst_rate.is_finite()
+            or gst_rate < 0
+            or gst_rate > 100
+            or gst_rate.as_tuple().exponent < -2
+        ):
+            raise ValueError(
+                "GST rate must be between 0 and 100 with at most 2 decimal places."
+            )
 
     return {
         "category": category,
@@ -774,18 +832,50 @@ def _clean_product_form(request):
         "overview": overview,
         "description": description,
         "price": price,
+        "cost_price": cost_price,
+        "gst_rate": gst_rate,
+        "hsn_code": hsn_code,
         "stock": stock,
         "is_rare": post.get("is_rare") == "on",
         "is_limited": post.get("is_limited") == "on",
     }
 
 
+
 @admin_required
 def view_products(request):
-    categories = Category.objects.all().order_by("section", "category_name")
-    products = Product.objects.select_related("category").order_by("-id")
+    from django.db.models import Q
 
+    categories = Category.objects.all().order_by(
+        "section", "category_name"
+    )
+
+    channel = request.GET.get("channel", "B2C").upper()
+
+    if channel not in ["B2B", "B2C"]:
+        channel = "B2C"
+
+    # Exclude archived products from active product list
+    products = (
+        Product.objects
+        .filter(is_archived=False)
+        .select_related("category")
+        .order_by("-id")
+    )
+
+    # B2B / B2C separation
+    if channel == "B2B":
+        products = products.filter(
+            category__category_name__iexact="Purchase Entries"
+        )
+    else:
+        products = products.exclude(
+            category__category_name__iexact="Purchase Entries"
+        )
+
+    # Search
     search = request.GET.get("search", "").strip()
+
     if search:
         products = products.filter(
             Q(product_name__icontains=search)
@@ -793,25 +883,82 @@ def view_products(request):
             | Q(description__icontains=search)
         )
 
+    # Section filter
     section = request.GET.get("section", "").strip()
+
     if section in SECTIONS:
-        products = products.filter(category__section=section)
+        products = products.filter(
+            category__section=section
+        )
 
+    # Category filter
     category_id = request.GET.get("category", "").strip()
+
     if category_id:
-        products = products.filter(category_id=category_id)
+        products = products.filter(
+            category_id=category_id
+        )
 
-    return render(request, "admin_panel/products.html", {
-        "admin": request.admin_user,
-        "page_obj": _paginate(request, products, 5),
-        "categories": categories,
-        "search": search,
-        "section": section,
-        "category_id": category_id,
-        "low_stock_count": Product.objects.filter(stock__gt=0, stock__lte=5).count(),
-        "out_of_stock_count": Product.objects.filter(stock=0).count(),
-    })
+    # Categories available for inventory filtering
+    filter_categories = categories.exclude(
+        category_name__iexact="Purchase Entries"
+    )
 
+    return render(
+        request,
+        "admin_panel/products.html",
+        {
+            "admin": request.admin_user,
+            "page_obj": _paginate(request, products, 5),
+            "categories": categories,
+            "filter_categories": filter_categories,
+            "search": search,
+            "section": section,
+            "category_id": category_id,
+            "channel": channel,
+
+            "low_stock_count": products.filter(
+                stock__gt=0,
+                stock__lte=5
+            ).count(),
+
+            "out_of_stock_count": products.filter(
+                stock=0
+            ).count(),
+        }
+    )
+@require_POST
+@admin_required
+def move_product_to_inventory(request, id):
+
+    product = get_object_or_404(
+        Product,
+        id=id,
+        category__category_name__iexact="Purchase Entries"
+    )
+
+    category_id = request.POST.get("category")
+
+    if not category_id:
+        messages.error(request, "Please select an inventory category.")
+        return redirect(f"{reverse('view_products')}?channel=B2B")
+
+    category = get_object_or_404(
+        Category.objects.exclude(
+            category_name__iexact="Purchase Entries"
+        ),
+        id=category_id
+    )
+
+    product.category = category
+    product.save(update_fields=["category"])
+
+    messages.success(
+        request,
+        f'"{product.product_name}" moved to your inventory successfully.'
+    )
+
+    return redirect(f"{reverse('view_products')}?channel=B2C")
 
 def _notify_subscribers(request, product):
     """Email upcoming-release subscribers whose interest matches the new product."""
@@ -898,36 +1045,75 @@ def add_product(request):
 def edit_product(request, id):
     product = get_object_or_404(Product, id=id)
 
+    is_b2b = (
+        product.category.category_name.strip().lower()
+        == "purchase entries"
+    )
+
     try:
         data = _clean_product_form(request)
+
+        # B2B products must remain in Purchase Entries
+        # until the separate Move action is used.
+        if is_b2b:
+            data.pop("category", None)
+
+        else:
+            selected_category = data.get("category")
+
+            if (
+                selected_category
+                and selected_category.category_name.strip().lower()
+                == "purchase entries"
+            ):
+                raise ValueError(
+                    "Use the B2B Purchase Entries section "
+                    "to manage purchase products."
+                )
+
     except ValueError as exc:
         messages.error(request, str(exc))
-        return redirect("view_products")
+        return redirect(
+            f"{reverse('view_products')}?channel={'B2B' if is_b2b else 'B2C'}"
+        )
 
     for field, value in data.items():
         setattr(product, field, value)
 
-    # Keep existing images unless a replacement file was uploaded.
+    # Preserve existing images unless replacement files are uploaded.
     for field in IMAGE_FIELDS:
         uploaded = request.FILES.get(field)
+
         if uploaded:
             setattr(product, field, uploaded)
 
     product.save()
-    messages.success(request, f'"{product.product_name}" updated successfully.')
-    return redirect("view_products")
 
+    messages.success(
+        request,
+        f'"{product.product_name}" updated successfully.'
+    )
+
+    return redirect(
+        f"{reverse('view_products')}?channel={'B2B' if is_b2b else 'B2C'}"
+    )
 
 @require_POST
 @admin_required
 def delete_product(request, id):
     product = get_object_or_404(Product, id=id)
+
     name = product.product_name
-    product.delete()
-    messages.success(request, f'"{name}" deleted successfully.')
+
+    product.is_archived = True
+    product.save(update_fields=["is_archived"])
+
+    messages.success(
+        request,
+        f'"{name}" archived successfully.'
+    )
+
     return redirect("view_products")
-
-
 # =============================================================================
 # 7. CUSTOMERS
 # =============================================================================

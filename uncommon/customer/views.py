@@ -118,37 +118,61 @@ def customer_register(request):
         return redirect('login')
 
     return render(request, 'admin_panel/auth_page.html')
-
 def customer_home(request):
-    products = Product.objects.filter(
-        stock__gt=0
-    ).select_related('category').order_by('-created_at')
+    products = (
+        Product.objects
+        .filter(
+            stock__gt=0,
+            is_archived=False
+        )
+        .exclude(
+            category__category_name__iexact="Purchase Entries"
+        )
+        .select_related("category")
+        .order_by("-created_at")
+    )
 
     context = {
-        'customer': None,
-        'featured_products': products[:6],
-        'him_count': Product.objects.filter(
-            category__section='HIM', stock__gt=0
+        "customer": None,
+        "featured_products": products[:6],
+
+        "him_count": Product.objects.filter(
+            category__section="HIM",
+            stock__gt=0,
+            is_archived=False
+        ).exclude(
+            category__category_name__iexact="Purchase Entries"
         ).count(),
-        'her_count': Product.objects.filter(
-            category__section='HER', stock__gt=0
+
+        "her_count": Product.objects.filter(
+            category__section="HER",
+            stock__gt=0,
+            is_archived=False
+        ).exclude(
+            category__category_name__iexact="Purchase Entries"
         ).count(),
-        'rare_count': Product.objects.filter(
+
+        "rare_count": Product.objects.filter(
             Q(is_rare=True) | Q(is_limited=True),
-            stock__gt=0
+            stock__gt=0,
+            is_archived=False
+        ).exclude(
+            category__category_name__iexact="Purchase Entries"
         ).count(),
     }
 
-    customer_id = request.session.get('customer_id')
+    customer_id = request.session.get("customer_id")
 
     if customer_id:
-        context['customer'] = Customer.objects.filter(
+        context["customer"] = Customer.objects.filter(
             id=customer_id
         ).first()
+
     print("SESSION:", request.session.session_key)
     print("CUSTOMER ID:", request.session.get("customer_id"))
     print("CUSTOMER:", context["customer"])
-    return render(request, 'customer/home.html', context)
+
+    return render(request, "customer/home.html", context)
 
 
 def section_products(request, section):
@@ -157,63 +181,104 @@ def section_products(request, section):
     if section not in ("HIM", "HER", "RARE"):
         raise Http404("Section not found")
 
+    # Logged-in customer
     customer = None
     customer_id = request.session.get("customer_id")
-    if customer_id:
-        customer = Customer.objects.filter(pk=customer_id).first()
 
+    if customer_id:
+        customer = Customer.objects.filter(
+            pk=customer_id
+        ).first()
+
+    # Feedback queryset
     feedback_queryset = (
         Feedback.objects
         .select_related("customer")
         .order_by("-created_at")
     )
 
+    # Base product queryset
     products_queryset = (
         Product.objects
         .select_related("category")
         .prefetch_related(
-            Prefetch("feedbacks", queryset=feedback_queryset, to_attr="feedback_list")
+            Prefetch(
+                "feedbacks",
+                queryset=feedback_queryset,
+                to_attr="feedback_list"
+            )
         )
         .annotate(
             average_rating=Avg("feedbacks__rating"),
             review_count=Count("feedbacks", distinct=True),
         )
-        .filter(stock__gt=0)
+        .filter(
+            stock__gt=0,
+            is_archived=False
+        )
+        .exclude(
+            category__category_name__iexact="Purchase Entries"
+        )
     )
 
+    # Section filtering
     if section == "RARE":
+
         products_queryset = products_queryset.filter(
             Q(is_rare=True) | Q(is_limited=True)
         )
+
         title = "The Hundred"
         subtitle = "Rare objects. Limited numbers. Never ordinary."
 
         purchased_rare_items = (
             OrderItem.objects
             .filter(order__status="CONFIRMED")
-            .filter(Q(product__is_rare=True) | Q(product__is_limited=True))
-            .select_related("order", "product", "order__customer")
+            .filter(
+                Q(product__is_rare=True)
+                | Q(product__is_limited=True)
+            )
+            .exclude(
+                product__category__category_name__iexact="Purchase Entries"
+            )
+            .exclude(
+                product__is_archived=True
+            )
+            .select_related(
+                "order",
+                "product",
+                "order__customer"
+            )
             .order_by("order__created_at", "pk")
         )
+
         purchase_customer_names = list(
             purchased_rare_items.values_list(
-                "order__customer__name", flat=True
+                "order__customer__name",
+                flat=True
             ).distinct()
         )
+
     else:
+
         products_queryset = products_queryset.filter(
             category__section=section
         )
+
         title = "Him" if section == "HIM" else "Her"
+
         subtitle = (
             "Objects selected for him."
             if section == "HIM"
             else "A different kind of uncommon."
         )
+
         purchased_rare_items = []
         purchase_customer_names = []
 
+    # Search
     search = request.GET.get("search", "").strip()
+
     if search:
         products_queryset = products_queryset.filter(
             Q(product_name__icontains=search)
@@ -221,13 +286,17 @@ def section_products(request, section):
             | Q(category__category_name__icontains=search)
         )
 
-    products = list(products_queryset.order_by("-created_at"))
+    # Fetch products
+    products = list(
+        products_queryset.order_by("-created_at")
+    )
 
-    # Add delivered orders for the signed-in customer to each product.
-    # The review form is only displayed when an OrderItem exists for this
-    # customer/product pair and the order status is DELIVERED.
+    # Delivered orders for logged-in customer
     if customer:
-        product_ids = [product.pk for product in products]
+
+        product_ids = [
+            product.pk for product in products
+        ]
 
         delivered_items = (
             OrderItem.objects
@@ -249,12 +318,16 @@ def section_products(request, section):
         }
 
         review_orders_by_product = {}
+
         for item in delivered_items:
+
             order_number = item.order.order_number
             key = (item.product_id, order_number)
 
-            review_orders_by_product.setdefault(item.product_id, [])
-            # Avoid duplicate forms if an order has duplicate rows for a product.
+            review_orders_by_product.setdefault(
+                item.product_id, []
+            )
+
             if any(
                 row["order_number"] == order_number
                 for row in review_orders_by_product[item.product_id]
@@ -267,27 +340,51 @@ def section_products(request, section):
             })
 
         for product in products:
-            product.review_orders = review_orders_by_product.get(product.pk, [])
+            product.review_orders = review_orders_by_product.get(
+                product.pk, []
+            )
+
     else:
+
         for product in products:
             product.review_orders = []
 
-    # Build rating distribution for the product review panel.
+    # Rating distribution
     for product in products:
-        feedback_list = list(getattr(product, "feedback_list", []))
+
+        feedback_list = list(
+            getattr(product, "feedback_list", [])
+        )
+
         product.feedback_list = feedback_list
         product.rating_breakdown = []
+
         for stars in range(5, 0, -1):
-            count = sum(1 for review in feedback_list if review.rating == stars)
+
+            count = sum(
+                1 for review in feedback_list
+                if review.rating == stars
+            )
+
             total = product.review_count or 0
+
             product.rating_breakdown.append({
                 "stars": stars,
                 "count": count,
-                "percent": round((count / total) * 100) if total else 0,
+                "percent": (
+                    round((count / total) * 100)
+                    if total else 0
+                ),
             })
 
+    # Bag count
     bag = request.session.get("bag", {})
-    bag_count = sum(int(qty) for qty in bag.values()) if isinstance(bag, dict) else 0
+
+    bag_count = (
+        sum(int(qty) for qty in bag.values())
+        if isinstance(bag, dict)
+        else 0
+    )
 
     return render(
         request,

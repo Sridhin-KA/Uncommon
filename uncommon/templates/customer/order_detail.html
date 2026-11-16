@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details | INSOLO UNCOMMON</title>
+    <title>Order Details | UNCOMMEN</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +69,7 @@
         }
 
         .loader-logo {
-            width: 150px;
+            width: 175px;
             max-width: 45vw;
             max-height: 100px;
             object-fit: contain;
@@ -126,8 +126,8 @@
 
         .brand img {
             display: block;
-            width: 155px;
-            max-height: 58px;
+            width: 175px;
+            max-height: 66px;
             object-fit: contain;
             mix-blend-mode: multiply;
         }
@@ -437,8 +437,8 @@
 
         .footer-brand img {
             display: block;
-            width: 155px;
-            max-height: 65px;
+            width: 175px;
+            max-height: 72px;
             object-fit: contain;
             mix-blend-mode: multiply;
             margin-bottom: 14px;
@@ -630,7 +630,8 @@
             }
 
             .brand img {
-                width: 135px;
+                width: 145px;
+                max-height: 58px;
             }
 
             .site-nav {
@@ -700,10 +701,10 @@
 <body>
 
 <!-- LOADER -->
-<div class="site-loader" id="siteLoader" aria-label="Loading page">
+<div class="site-loader" id="siteLoader" aria-label="Loading UNCOMMEN">
     <img
         src="{% static 'customer/images/uncommon-logo.png' %}"
-        alt="INSOLO UNCOMMON"
+        alt="UNCOMMEN"
         class="loader-logo"
     >
     <div class="loader-track">
@@ -714,17 +715,17 @@
 
 <!-- HEADER -->
 <header class="site-header">
-    <a href="{% url 'customer_home' %}" class="brand" aria-label="INSOLO UNCOMMON home">
+    <a href="{% url 'customer_home' %}" class="brand" aria-label="UNCOMMEN home">
         <img
             src="{% static 'customer/images/uncommon-logo.png' %}"
-            alt="INSOLO UNCOMMON"
+            alt="UNCOMMEN"
         >
     </a>
 
     <nav class="site-nav" aria-label="Main navigation">
-        <a href="{% url 'customer_home' %}">HOME</a>
-        <a href="{% url 'my_orders' %}">MY ORDERS</a>
-        <a href="{% url 'bag_view' %}">MY BAG</a>
+        <a href="{% url 'customer_home' %}">COLLECTION</a>
+        <a href="{% url 'my_orders' %}">YOUR ORDERS</a>
+        <a href="{% url 'bag_view' %}">ACQUISITION</a>
     </nav>
 </header>
 
@@ -732,7 +733,7 @@
 <main class="container">
 
     <a href="{% url 'my_orders' %}" class="back-link">
-        &larr; BACK TO MY ORDERS
+        &larr; BACK TO YOUR ORDERS
     </a>
 
     <p class="eyebrow">ORDER INFORMATION</p>
@@ -907,17 +908,17 @@
     <div class="footer-main">
 
         <div class="footer-brand">
-            <a href="{% url 'customer_home' %}" aria-label="INSOLO UNCOMMON home">
+            <a href="{% url 'customer_home' %}" aria-label="UNCOMMEN home">
                 <img
                     src="{% static 'customer/images/uncommon-logo.png' %}"
-                    alt="INSOLO UNCOMMON"
+                    alt="UNCOMMEN"
                     loading="lazy"
                 >
             </a>
 
             <p>
                 Thoughtfully selected pieces for those who choose to be different.
-                Discover your style with INSOLO UNCOMMON.
+                Discover your style with UNCOMMEN.
             </p>
         </div>
 
@@ -927,8 +928,8 @@
                 <a href="{% url 'customer_home' %}">Home</a>
                 <a href="{% url 'section_products' 'HIM' %}">For Him</a>
                 <a href="{% url 'section_products' 'HER' %}">For Her</a>
-                <a href="{% url 'section_products' 'RARE' %}">Rare Collection</a>
-                <a href="{% url 'bag_view' %}">My Bag</a>
+                <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
+                <a href="{% url 'bag_view' %}">Acquisition</a>
             </div>
         </div>
 
@@ -955,7 +956,7 @@
     </div>
 
     <div class="footer-bottom">
-        <span>&copy; {% now "Y" %} INSOLO UNCOMMON</span>
+        <span>&copy; {% now "Y" %} UNCOMMEN</span>
         <span>DESIGNED TO BE DIFFERENT</span>
     </div>
 </footer>
@@ -965,10 +966,10 @@
     <div class="modal-panel">
         <button type="button" class="modal-close" aria-label="Close dialog">&times;</button>
         <p class="eyebrow">OUR STORY</p>
-        <h2 class="modal-title" id="about-title">About INSOLO UNCOMMON</h2>
+        <h2 class="modal-title" id="about-title">About UNCOMMEN</h2>
         <div class="modal-content">
             <p>
-                INSOLO UNCOMMON is built around individual style and thoughtfully
+                UNCOMMEN is built around individual style and thoughtfully
                 selected pieces. We believe what you wear can express who you are.
             </p>
             <p>

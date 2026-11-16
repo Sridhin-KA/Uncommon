@@ -2217,6 +2217,17 @@
                 Manage the products and inventory used throughout UNCOMMON.
             </p>
 
+            <div class="filters" style="margin-top:20px;">
+                <a href="?channel=B2C"
+                   class="filter {% if channel == 'B2C' %}active{% endif %}">
+                    B2C Products
+                </a>
+                <a href="?channel=B2B"
+                   class="filter {% if channel == 'B2B' %}active{% endif %}">
+                    B2B Purchase Entries
+                </a>
+            </div>
+
         </div>
 
 
@@ -2314,7 +2325,7 @@
             <div class="filters">
 
                 <a
-                    href="?{% if search %}search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                    href="?channel={{ channel }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
                     class="filter {% if not section %}active{% endif %}"
                 >
                     All
@@ -2322,7 +2333,7 @@
 
 
                 <a
-                    href="?section=HIM{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                    href="?channel={{ channel }}&section=HIM{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
                     class="filter {% if section == 'HIM' %}active{% endif %}"
                 >
                     HIM
@@ -2330,7 +2341,7 @@
 
 
                 <a
-                    href="?section=HER{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                    href="?channel={{ channel }}&section=HER{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
                     class="filter {% if section == 'HER' %}active{% endif %}"
                 >
                     HER
@@ -2338,7 +2349,7 @@
 
 
                 <a
-                    href="?section=RARE{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                    href="?channel={{ channel }}&section=RARE{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
                     class="filter {% if section == 'RARE' %}active{% endif %}"
                 >
                     RARE
@@ -2354,6 +2365,7 @@
                     method="GET"
                     class="search-form"
                 >
+                    <input type="hidden" name="channel" value="{{ channel }}">
 
                     {% if section %}
 
@@ -2400,6 +2412,7 @@
                     method="GET"
                     class="search-form"
                 >
+                    <input type="hidden" name="channel" value="{{ channel }}">
 
                     {% if section %}
 
@@ -2434,7 +2447,7 @@
                         </option>
 
 
-                        {% for category in categories %}
+                        {% for category in filter_categories %}
 
                             <option
                                 value="{{ category.id }}"
@@ -2472,7 +2485,11 @@
             <div>
 
                 <h2>
-                    Registered Products
+                    {% if channel == 'B2B' %}
+                        B2B Purchase Entries
+                    {% else %}
+                        B2C Inventory Products
+                    {% endif %}
                 </h2>
 
             </div>
@@ -2761,6 +2778,9 @@
                                             data-description="{{ product.description|default:''|escape }}"
 
                                             data-price="{{ product.price }}"
+                                            data-cost-price="{{ product.cost_price|default_if_none:'' }}"
+                                            data-gst-rate="{{ product.gst_rate|default_if_none:'' }}"
+                                            data-hsn-code="{{ product.hsn_code|default:''|escape }}"
 
                                             data-stock="{{ product.stock }}"
 
@@ -2779,6 +2799,18 @@
                                             Edit
                                         </button>
 
+                                        {% if channel == 'B2B' %}
+                                            <button
+                                                type="button"
+                                                class="action-btn"
+                                                style="background:var(--accent-forest);color:white;"
+                                                data-url="{% url 'move_product_to_inventory' product.id %}"
+                                                data-name="{{ product.product_name|escape }}"
+                                                onclick="openMoveModal(this)"
+                                            >
+                                                Move to Inventory
+                                            </button>
+                                        {% endif %}
 
                                         <button
                                             type="button"
@@ -2827,7 +2859,7 @@
 
             <a
                 class="page-link"
-                href="?page={{ page_obj.previous_page_number }}{% if section %}&section={{ section }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                href="?channel={{ channel }}&page={{ page_obj.previous_page_number }}{% if section %}&section={{ section }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
             >
                 ←
             </a>
@@ -2853,7 +2885,7 @@
 
                 <a
                     class="page-link"
-                    href="?page={{ num }}{% if section %}&section={{ section }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                    href="?channel={{ channel }}&page={{ num }}{% if section %}&section={{ section }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
                 >
                     {{ num }}
                 </a>
@@ -2867,7 +2899,7 @@
 
             <a
                 class="page-link"
-                href="?page={{ page_obj.next_page_number }}{% if section %}&section={{ section }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
+                href="?channel={{ channel }}&page={{ page_obj.next_page_number }}{% if section %}&section={{ section }}{% endif %}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}"
             >
                 →
             </a>
@@ -3103,6 +3135,22 @@
 
                     </div>
 
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cost Price (₹)</label>
+                        <input type="number" name="cost_price" class="form-control" step="0.01" min="0" placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label>GST Rate (%)</label>
+                        <input type="number" name="gst_rate" class="form-control" step="0.01" min="0" max="100" placeholder="e.g. 5 or 18">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>HSN Code</label>
+                    <input type="text" name="hsn_code" class="form-control" maxlength="20" placeholder="Optional HSN code">
                 </div>
 
 
@@ -3399,6 +3447,22 @@
 
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cost Price (₹)</label>
+                        <input type="number" name="cost_price" id="editCostPrice" class="form-control" step="0.01" min="0" placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label>GST Rate (%)</label>
+                        <input type="number" name="gst_rate" id="editGstRate" class="form-control" step="0.01" min="0" max="100" placeholder="e.g. 5 or 18">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>HSN Code</label>
+                    <input type="text" name="hsn_code" id="editHsnCode" class="form-control" maxlength="20" placeholder="Optional HSN code">
+                </div>
+
 
                 <div class="form-group">
 
@@ -3543,6 +3607,51 @@
 
     </div>
 
+</div>
+
+
+<!-- =========================
+     MOVE PRODUCT TO INVENTORY MODAL
+========================== -->
+<div class="modal-overlay" id="moveModal">
+    <div class="modal" style="max-width:480px;">
+        <div class="modal-header">
+            <h3>Move to Our Inventory</h3>
+            <button type="button" class="modal-close" onclick="closeModal('moveModal')">&times;</button>
+        </div>
+
+        <form method="POST" id="moveProductForm">
+            {% csrf_token %}
+            <div class="modal-body">
+                <p style="margin-bottom:18px;line-height:1.6;">
+                    Move <strong id="moveProductName"></strong> from B2B Purchase Entries to your normal inventory.
+                </p>
+
+                <div class="form-group">
+                    <label>Select Final Category</label>
+                    <select name="category" class="form-control" required>
+                        <option value="">Select category</option>
+                        {% for category in categories %}
+                            {% if category.category_name|lower != "purchase entries" %}
+                                <option value="{{ category.id }}">
+                                    {{ category.section }} — {{ category.category_name }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <p style="font-size:11px;color:var(--text-muted);">
+                    This action moves the product into B2C inventory.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeModal('moveModal')">Cancel</button>
+                <button type="submit" class="btn btn-forest">Confirm Move</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 
@@ -3827,6 +3936,10 @@
                 'editStock'
             );
 
+        const costPrice = document.getElementById('editCostPrice');
+        const gstRate = document.getElementById('editGstRate');
+        const hsnCode = document.getElementById('editHsnCode');
+
 
         const rare =
             document.getElementById(
@@ -3872,6 +3985,10 @@
 
         stock.value =
             button.dataset.stock;
+
+        costPrice.value = button.dataset.costPrice || '';
+        gstRate.value = button.dataset.gstRate || '';
+        hsnCode.value = button.dataset.hsnCode || '';
 
 
         rare.checked =
@@ -3928,6 +4045,22 @@
 
         openModal('editModal');
 
+    }
+
+
+    /* =========================
+       MOVE PRODUCT TO INVENTORY
+    ========================= */
+
+    function openMoveModal(button) {
+        const form = document.getElementById('moveProductForm');
+        form.action = button.dataset.url;
+
+        document.getElementById('moveProductName').textContent =
+            '"' + button.dataset.name + '"';
+
+        form.querySelector('select[name="category"]').value = '';
+        openModal('moveModal');
     }
 
 

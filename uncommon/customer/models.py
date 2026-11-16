@@ -92,6 +92,83 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.order.order_number} - {self.product.product_name}"
 
+class ShiprocketShipment(models.Model):
+    
+    STATUS_CHOICES = [
+        ("NOT_CREATED", "Not Created"),
+        ("CREATED", "Created"),
+        ("PICKUP_PENDING", "Pickup Pending"),
+        ("PICKED_UP", "Picked Up"),
+        ("IN_TRANSIT", "In Transit"),
+        ("OUT_FOR_DELIVERY", "Out for Delivery"),
+        ("DELIVERED", "Delivered"),
+        ("CANCELLED", "Cancelled"),
+        ("RTO", "Return to Origin"),
+        ("FAILED", "Failed"),
+    ]
+
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="shipment"
+    )
+
+    shiprocket_order_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    shipment_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    awb_code = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    courier_name = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
+
+    tracking_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default="NOT_CREATED"
+    )
+
+    request_data = models.JSONField(
+        blank=True,
+        null=True
+    )
+
+    response_data = models.JSONField(
+        blank=True,
+        null=True
+    )
+
+    error_message = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Shipment - {self.order.order_number}"
 
 class Payment(models.Model):
     STATUS_CHOICES = [

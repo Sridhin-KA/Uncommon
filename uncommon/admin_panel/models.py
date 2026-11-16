@@ -37,6 +37,7 @@ class Category(models.Model):
     
     
 
+
 class Product(models.Model):
     category = models.ForeignKey(
         Category,
@@ -46,13 +47,7 @@ class Product(models.Model):
 
     product_name = models.CharField(max_length=150)
 
-    # Short summary for product cards
-    overview = models.CharField(
-        max_length=1000,
-        blank=True
-    )
-
-    # Full product details
+    overview = models.CharField(max_length=1000, blank=True)
     description = models.TextField(blank=True)
 
     price = models.DecimalField(
@@ -60,16 +55,38 @@ class Product(models.Model):
         decimal_places=2
     )
 
+    # Financial and GST information
+    cost_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Purchase or manufacturing cost per unit"
+    )
+
+    gst_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="GST percentage, e.g. 5.00 or 18.00"
+    )
+
+    hsn_code = models.CharField(
+        max_length=20,
+        blank=True,
+        default="",
+        help_text="HSN or SAC code for GST reporting"
+    )
+
     stock = models.PositiveIntegerField(default=0)
 
-    # Main image (existing field)
     image = models.ImageField(
         upload_to="products/",
         blank=True,
         null=True
     )
 
-    # Additional product images
     image2 = models.ImageField(
         upload_to="products/",
         blank=True,
@@ -87,7 +104,7 @@ class Product(models.Model):
         blank=True,
         null=True
     )
-
+    is_archived = models.BooleanField(default=False)
     is_rare = models.BooleanField(default=False)
     is_limited = models.BooleanField(default=False)
 

@@ -2954,7 +2954,7 @@ body.in-room-view .room-landing-view {
             <div class="services-copy">
                 <div class="eyebrow">Services · The story, nurtured</div>
                 <h2>A service is not an add-on. It is the next chapter of the story.</h2>
-                <p>Every piece has a story — its material, its making, its details. Thoughtful care and personal touches help that story stay with you. These are ideas for services that can sit alongside the collection as the house grows. Held n reserve. The Gallery will open when perfection is attained.</p>
+                <p>Every piece has a story — its material, its making, its details. Thoughtful care and personal touches help that story stay with you. These are ideas for services that can sit alongside the collection as the house grows.<b> Held in reserve. The Gallery will open when perfection is attained.</b></p>
             </div>
             <div class="service-list">
                 <div class="service-item"><strong>Monogramming</strong><span>Make the piece your own · Personal detail</span></div>
@@ -3453,19 +3453,7 @@ body.in-room-view .room-landing-view {
 </div>
 
 <!-- Success / status alert populated from Django messages -->
-<div class="reserve-success" id="reservation-alert" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="reservation-alert-title">
-    <div class="success-card">
-        <div class="success-tick" id="reservation-alert-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div>
-        <h3 id="reservation-alert-title">Request received.</h3>
-        <p id="reservation-alert-text">Your reservation request has been recorded.</p>
-        <button type="button" class="btn" id="reservation-alert-close">Lovely, thank you</button>
-    </div>
-</div>
-<div class="django-flash" id="django-flash" aria-live="polite">
-    {% if messages %}{% for message in messages %}<div data-level="{{ message.tags|default:'info' }}">{{ message|escape }}</div>{% endfor %}{% endif %}
-    {% if reservation_success %}<div data-level="success">{{ reservation_success|escape }}</div>{% endif %}
-    {% if reservation_error %}<div data-level="error">{{ reservation_error|escape }}</div>{% endif %}
-</div>
+
 
 
 <!-- Each footer information item has its own independent modal -->
