@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
-
+from admin_panel.views import *
 urlpatterns = [
+    path("delivery/webhook/tracking/", views.delivery_tracking_webhook, name="delivery_tracking_webhook"),
     path('register/', views.customer_register, name='customer_register'),
-
+     path('login/', customer_login, name='user_login'),
     path('', views.customer_home, name='customer_home'),
 
     path(
@@ -61,12 +62,6 @@ path(
     views.cancel_order,
     name="cancel_order",
 ),
-path(
-    "my-orders/<str:order_number>/cancel/",
-    views.cancel_order,
-    name="cancel_order",
-),
-
 path('wishlist/', views.wishlist_view, name='wishlist_view'),
 path(
     'wishlist/add/<int:product_id>/',

@@ -45,7 +45,9 @@ class CustomerAddress(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.city}"
+
 class Order(models.Model):
+
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
         ("CONFIRMED", "Confirmed"),
@@ -54,19 +56,51 @@ class Order(models.Model):
         ("CANCELLED", "Cancelled"),
     ]
 
+    PAYMENT_METHOD_CHOICES = [
+        ("PREPAID", "Prepaid"),
+        ("COD", "Cash on Delivery"),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("PAID", "Paid"),
+        ("COD_PENDING", "COD Pending"),
+        ("FAILED", "Failed"),
+    ]
+
     customer = models.ForeignKey(
         Customer,
         on_delete=models.CASCADE,
         related_name="orders",
     )
+
     order_number = models.CharField(max_length=30, unique=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default="PREPAID",
+    )
+
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default="PENDING",
+    )
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="PENDING",
     )
+
     shipping_address = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -163,6 +197,11 @@ class ShiprocketShipment(models.Model):
         blank=True,
         null=True
     )
+
+    # Latest courier label and event history received from Shiprocket.
+    current_status_label = models.CharField(max_length=150, blank=True)
+    estimated_delivery_date = models.CharField(max_length=100, blank=True)
+    tracking_history = models.JSONField(default=list, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -695,6 +695,24 @@
                 transition-duration: .01ms !important;
             }
         }
+    
+        /* SHIPROCKET DELIVERY TRACKING */
+        .shipment-tracking { margin-top: 22px; }
+        .tracking-timeline { list-style: none; margin: 18px 0 0; padding: 0 0 0 8px; }
+        .tracking-event { position: relative; display: flex; gap: 14px; padding: 0 0 22px; }
+        .tracking-event:not(:last-child)::before {
+            content: ""; position: absolute; left: 5px; top: 13px; bottom: -1px;
+            width: 1px; background: #D6CCB5;
+        }
+        .tracking-dot {
+            flex: 0 0 11px; width: 11px; height: 11px; margin-top: 4px;
+            border-radius: 50%; background: var(--gold); position: relative; z-index: 1;
+        }
+        .tracking-event strong { display: block; font-size: 13px; }
+        .tracking-event p { margin: 5px 0; font-size: 12px; color: var(--muted); }
+        .tracking-event small { color: var(--muted); font-size: 10px; }
+        .tracking-link { margin-top: 18px; }
+
     </style>
 </head>
 
@@ -830,6 +848,64 @@
                     {{ order.shipping_address|linebreaksbr }}
                 </p>
             </div>
+
+            <!-- SHIPROCKET DELIVERY TRACKING -->
+            {% if shipment %}
+            <div class="panel shipment-tracking">
+                <div class="status-row">
+                    <h2 class="panel-title" style="margin-bottom: 0;">Delivery Tracking</h2>
+                    <span class="status status-shipped">
+                        {{ shipment.current_status_label|default:shipment.get_status_display|upper }}
+                    </span>
+                </div>
+
+                {% if shipment.courier_name %}
+                <div class="info-row">
+                    <span class="info-label">Courier</span>
+                    <span class="info-value">{{ shipment.courier_name }}</span>
+                </div>
+                {% endif %}
+
+                {% if shipment.awb_code %}
+                <div class="info-row">
+                    <span class="info-label">AWB Number</span>
+                    <span class="info-value">{{ shipment.awb_code }}</span>
+                </div>
+                {% endif %}
+
+                {% if shipment.estimated_delivery_date %}
+                <div class="info-row">
+                    <span class="info-label">Estimated Delivery</span>
+                    <span class="info-value">{{ shipment.estimated_delivery_date }}</span>
+                </div>
+                {% endif %}
+
+                {% if shipment.tracking_url %}
+                <a href="{{ shipment.tracking_url }}" target="_blank" rel="noopener noreferrer"
+                   class="primary-button tracking-link">TRACK WITH COURIER ↗</a>
+                {% endif %}
+
+                <h3 class="panel-title" style="font-size: 23px; margin-top: 25px; margin-bottom: 8px;">Shipment Updates</h3>
+                {% if tracking_history %}
+                    <ol class="tracking-timeline">
+                        {% for event in tracking_history reversed %}
+                        <li class="tracking-event">
+                            <span class="tracking-dot" aria-hidden="true"></span>
+                            <div>
+                                <strong>{{ event.activity|default:event.status|default:"Shipment update" }}</strong>
+                                {% if event.location %}<p>{{ event.location }}</p>{% endif %}
+                                {% if event.date %}<small>{{ event.date }}</small>{% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <p class="muted" style="line-height: 1.8;">
+                        Your shipment has been created. Courier scan updates will appear here once the courier starts processing it.
+                    </p>
+                {% endif %}
+            </div>
+            {% endif %}
 
         </section>
 

@@ -107,7 +107,34 @@ class Product(models.Model):
     is_archived = models.BooleanField(default=False)
     is_rare = models.BooleanField(default=False)
     is_limited = models.BooleanField(default=False)
+        # Shiprocket package information
+    weight = models.DecimalField(
+        max_digits=8,
+        decimal_places=3,
+        default=0.500,
+        help_text="Packed product weight in KG"
+    )
 
+    length = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=20.00,
+        help_text="Packed length in CM"
+    )
+
+    breadth = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=15.00,
+        help_text="Packed breadth in CM"
+    )
+
+    height = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=10.00,
+        help_text="Packed height in CM"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

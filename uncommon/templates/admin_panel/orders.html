@@ -1979,6 +1979,10 @@
                             </th>
 
                             <th>
+                                Payment
+                            </th>
+
+                            <th>
                                 Status
                             </th>
 
@@ -2053,6 +2057,18 @@
                                 </td>
 
 
+                                <!-- PAYMENT -->
+
+                                <td>
+                                    <span class="status-badge {% if order.payment_method == 'COD' %}status-pending{% else %}status-confirmed{% endif %}">
+                                        {{ order.get_payment_method_display }}
+                                    </span>
+                                    <div class="customer-email" style="margin-top:6px;">
+                                        {{ order.get_payment_status_display }}
+                                    </div>
+                                </td>
+
+
                                 <!-- STATUS -->
 
                                 <td>
@@ -2100,6 +2116,8 @@
                                             data-total="{{ order.total_amount }}"
                                             data-status="{{ order.status }}"
                                             data-status-display="{{ order.get_status_display }}"
+                                            data-payment-method="{{ order.get_payment_method_display }}"
+                                            data-payment-status="{{ order.get_payment_status_display }}"
                                             data-address="{{ order.shipping_address }}"
                                             data-date="{{ order.created_at|date:'d M Y, h:i A' }}"
 
@@ -2563,6 +2581,11 @@
                 </div>
 
 
+                <p style="font-size:11px;line-height:1.6;color:var(--text-muted);margin-bottom:16px;">
+                    For COD orders, selecting Confirmed checks stock and deducts it.
+                    Shipped and Delivered statuses are controlled by Shiprocket tracking.
+                </p>
+
                 <label class="form-label">
                     New Status
                 </label>
@@ -2730,6 +2753,12 @@
 
         document.getElementById("viewStatus").textContent =
             button.dataset.statusDisplay;
+
+        document.getElementById("viewPaymentMethod").textContent =
+            button.dataset.paymentMethod || "—";
+
+        document.getElementById("viewPaymentStatus").textContent =
+            button.dataset.paymentStatus || "—";
 
 
         openModal("viewModal");

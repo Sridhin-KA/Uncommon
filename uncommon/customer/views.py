@@ -32,6 +32,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.db.models import F
 import logging
+import hmac
 import uuid
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -1053,9 +1054,16 @@ def checkout(request):
         )
 
         # -----------------------------------------------
-        # RECHECK STOCK AND PRICES, THEN CREATE PAYMENT
+        # RECHECK STOCK AND PRICES, THEN CREATE ORDER
         # -----------------------------------------------
-        # Do NOT reduce stock or clear the bag before payment succeeds.
+        payment_method = request.POST.get(
+            "payment_method", "PREPAID"
+        ).strip().upper()
+
+        if payment_method not in ("PREPAID", "COD"):
+            messages.error(request, "Please select a valid payment method.")
+            return redirect("checkout")
+
         order = None
 
         try:
@@ -1113,6 +1121,11 @@ def checkout(request):
                     order_number=f"INS-{uuid.uuid4().hex[:12].upper()}",
                     total_amount=verified_grand_total,
                     shipping_address=shipping_address,
+                    payment_method=payment_method,
+                    payment_status=(
+                        "COD_PENDING" if payment_method == "COD"
+                        else "PENDING"
+                    ),
                     status="PENDING",
                 )
 
@@ -1126,7 +1139,29 @@ def checkout(request):
                     for product, quantity in verified_items
                 ])
 
-            # Razorpay expects the amount in paise (₹1 = 100 paise).
+            # -------------------------------------------
+            # CASH ON DELIVERY
+            # -------------------------------------------
+            if payment_method == "COD":
+                # COD is not paid yet. Admin confirmation must recheck
+                # stock before accepting/creating the shipment.
+                request.session["bag"] = {}
+                request.session.modified = True
+
+                messages.success(
+                    request,
+                    "Your COD order has been placed. "
+                    "Our team will review and confirm it shortly.",
+                )
+
+                return redirect(
+                    "order_success",
+                    order_number=order.order_number,
+                )
+
+            # -------------------------------------------
+            # PREPAID CHECKOUT - RAZORPAY
+            # -------------------------------------------
             amount_paise = int(verified_grand_total * 100)
             client = get_razorpay_client()
 
@@ -1146,22 +1181,25 @@ def checkout(request):
             )
 
         except Exception:
-            # Keep internal details in server logs, never show secrets to users.
-            logger.exception("Failed to initialize Razorpay checkout")
+            logger.exception("Failed to initialize checkout")
 
             if order is not None:
                 Order.objects.filter(
                     pk=order.pk,
                     status="PENDING",
-                ).update(status="CANCELLED")
+                ).update(
+                    status="CANCELLED",
+                    payment_status="FAILED",
+                )
 
             messages.error(
                 request,
-                "We couldn't start the payment. Please try again.",
+                "We couldn't start checkout. Please try again.",
             )
             return redirect("checkout")
 
         # Data consumed by the Razorpay JavaScript in checkout.html.
+        # This branch is reached only for PREPAID orders.
         razorpay_data = {
             "key": settings.RAZORPAY_KEY_ID,
             "amount": amount_paise,
@@ -1186,6 +1224,7 @@ def checkout(request):
             "grand_total": verified_grand_total,
             "addresses": addresses,
             "selected_address_id": str(selected_address.id),
+            "payment_method": payment_method,
             "razorpay_data": razorpay_data,
         })
 
@@ -1202,6 +1241,8 @@ def checkout(request):
         "addresses": addresses,
         "selected_address_id": selected_address_id,
     })
+    
+    
 def order_success(request, order_number):
     customer = get_logged_in_customer(request)
 
@@ -1219,47 +1260,68 @@ def order_success(request, order_number):
         "order": order,
     })
 
-
 def finalize_captured_payment(payment_record, razorpay_payment_id):
     """
-    Call only after verifying the payment signature and confirming
-    Razorpay reports the payment as captured for the expected amount.
+    Call only after verifying the Razorpay signature and confirming
+    that Razorpay reports the expected payment as captured.
     """
     with transaction.atomic():
         payment = (
-            Payment.objects.select_for_update()
+            Payment.objects
+            .select_for_update()
             .select_related("order")
             .get(pk=payment_record.pk)
         )
-        order = Order.objects.select_for_update().get(
-            pk=payment.order_id
+
+        order = (
+            Order.objects
+            .select_for_update()
+            .get(pk=payment.order_id)
         )
 
-        if order.status == "CONFIRMED":
+        # Prevent COD orders from being processed through Razorpay.
+        if order.payment_method != "PREPAID":
+            return False, "This order is not a prepaid order."
+
+        # Idempotency: do not deduct stock more than once.
+        if order.status == "CONFIRMED" and order.payment_status == "PAID":
             return True, "Payment already confirmed."
 
         order_items = list(
-            OrderItem.objects.filter(order=order).order_by("product_id")
+            OrderItem.objects
+            .filter(order=order)
+            .order_by("product_id")
         )
-        product_ids = sorted({item.product_id for item in order_items})
+
+        product_ids = sorted({
+            item.product_id for item in order_items
+        })
 
         locked_products = {
             product.id: product
-            for product in Product.objects.select_for_update()
+            for product in Product.objects
+            .select_for_update()
             .filter(id__in=product_ids)
             .order_by("id")
         }
 
-        # A captured payment cannot be treated as unpaid just because
-        # inventory changed. Record the payment and flag the order.
+        # Check stock before deducting anything.
         insufficient = []
+
         for item in order_items:
             product = locked_products.get(item.product_id)
+
             if not product or product.stock < item.quantity:
                 insufficient.append(
-                    getattr(product, "product_name", str(item.product_id))
+                    getattr(
+                        product,
+                        "product_name",
+                        f"Product #{item.product_id}"
+                    )
                 )
 
+        # Razorpay has captured the payment.
+        # Record this even if inventory is insufficient.
         payment.razorpay_payment_id = razorpay_payment_id
         payment.status = "PAID"
         payment.save(update_fields=[
@@ -1268,25 +1330,35 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
             "updated_at",
         ])
 
+        order.payment_status = "PAID"
+
         if insufficient:
-            # Payment was captured, but the order cannot be fulfilled.
-            # This needs a refund/manual support workflow.
+            order.save(update_fields=[
+                "payment_status",
+                "updated_at",
+            ])
+
             return False, (
-                "Payment was captured, but stock is insufficient for: "
-                + ", ".join(insufficient)
+                "Payment was captured successfully, but stock is "
+                "insufficient for: " + ", ".join(insufficient)
+                + ". Manual fulfilment or refund is required."
             )
 
-        # Deduct stock once, while product rows are locked.
+        # Deduct stock once, with product rows locked.
         for item in order_items:
-            Product.objects.filter(pk=item.product_id).update(
-                stock=F("stock") - item.quantity
-            )
+            product = locked_products[item.product_id]
+            product.stock -= item.quantity
+            product.save(update_fields=["stock"])
 
         order.status = "CONFIRMED"
-        order.save(update_fields=["status", "updated_at"])
 
-        return True, "Payment confirmed."
+        order.save(update_fields=[
+            "status",
+            "payment_status",
+            "updated_at",
+        ])
 
+        return True, "Payment confirmed successfully."
 
 @require_POST
 def verify_razorpay_payment(request):
@@ -1347,6 +1419,11 @@ def verify_razorpay_payment(request):
         if remote_payment.get("status") != "captured":
             payment.status = "PENDING"
             payment.save(update_fields=["status", "updated_at"])
+
+            Order.objects.filter(
+                pk=payment.order_id,
+                payment_status__in=["PENDING", "FAILED"],
+            ).update(payment_status="PENDING")
             return JsonResponse(
                 {
                     "success": False,
@@ -1400,31 +1477,40 @@ def verify_razorpay_payment(request):
         )
 
 
+
+
 @csrf_exempt
 @require_POST
 def razorpay_webhook(request):
     """
-    Configure this endpoint in the Razorpay Dashboard.
-    Use the webhook secret, which is separate from the API key secret.
+    Handles Razorpay payment.captured and payment.failed events.
+    Webhook secret is separate from the Razorpay API secret.
     """
     signature = request.headers.get("X-Razorpay-Signature", "")
     webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
 
     if not signature or not webhook_secret:
-        return HttpResponseBadRequest("Missing webhook signature or secret.")
+        return HttpResponseBadRequest(
+            "Missing webhook signature or secret."
+        )
 
     try:
         client = get_razorpay_client()
+
         client.utility.verify_webhook_signature(
             request.body.decode("utf-8"),
             signature,
             webhook_secret,
         )
+
         event_data = json.loads(request.body)
+
     except Exception:
+        logger.exception("Razorpay webhook signature verification failed")
         return HttpResponseBadRequest("Invalid webhook.")
 
     event = event_data.get("event")
+
     entity = (
         event_data.get("payload", {})
         .get("payment", {})
@@ -1437,35 +1523,111 @@ def razorpay_webhook(request):
     razorpay_order_id = entity.get("order_id")
     razorpay_payment_id = entity.get("id")
 
-    if not razorpay_order_id:
+    if not razorpay_order_id or not razorpay_payment_id:
         return JsonResponse({"received": True})
 
     try:
-        payment = Payment.objects.select_related("order").get(
+        payment = Payment.objects.get(
             razorpay_order_id=razorpay_order_id
         )
     except Payment.DoesNotExist:
-        # Unknown orders can be retried after the local record is available.
-        return JsonResponse({"received": False}, status=404)
+        return JsonResponse(
+            {"received": False},
+            status=404,
+        )
 
+    # -----------------------------------------
+    # PAYMENT FAILED
+    # -----------------------------------------
     if event == "payment.failed":
-        if payment.status != "PAID":
-            payment.status = "FAILED"
-            payment.save(update_fields=["status", "updated_at"])
+
+        with transaction.atomic():
+            payment = (
+                Payment.objects
+                .select_for_update()
+                .get(pk=payment.pk)
+            )
+
+            order = (
+                Order.objects
+                .select_for_update()
+                .get(pk=payment.order_id)
+            )
+
+            # Never downgrade a successfully captured payment.
+            if payment.status != "PAID":
+                payment.status = "FAILED"
+                payment.save(update_fields=[
+                    "status",
+                    "updated_at",
+                ])
+
+                if order.payment_status != "PAID":
+                    order.payment_status = "FAILED"
+                    order.save(update_fields=[
+                        "payment_status",
+                        "updated_at",
+                    ])
+
         return JsonResponse({"received": True})
 
-    # For payment.captured, validate amount/currency before fulfilment.
-    expected_amount = int(payment.amount * 100)
+    # -----------------------------------------
+    # PAYMENT CAPTURED
+    # -----------------------------------------
+
+    try:
+        expected_amount = int(payment.amount * 100)
+        received_amount = int(entity.get("amount", -1))
+
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest(
+            "Invalid captured payment amount."
+        )
+
     if (
         entity.get("status") != "captured"
-        or int(entity.get("amount", -1)) != expected_amount
+        or received_amount != expected_amount
         or entity.get("currency") != payment.currency
-        or not razorpay_payment_id
     ):
-        return HttpResponseBadRequest("Captured payment details do not match.")
+        return HttpResponseBadRequest(
+            "Captured payment details do not match."
+        )
 
-    finalize_captured_payment(payment, razorpay_payment_id)
-    return JsonResponse({"received": True})
+    try:
+        success, message = finalize_captured_payment(
+            payment,
+            razorpay_payment_id,
+        )
+
+        if not success:
+            # Payment may already be captured, but inventory needs
+            # manual resolution or refund. Acknowledge the valid event
+            # so Razorpay does not repeatedly send it.
+            logger.error(
+                "Razorpay captured payment needs manual resolution. "
+                "Order: %s | Payment: %s | Reason: %s",
+                payment.order.order_number,
+                razorpay_payment_id,
+                message,
+            )
+
+        return JsonResponse({
+            "received": True,
+            "success": success,
+            "message": message,
+        })
+
+    except Exception:
+        logger.exception(
+            "Razorpay webhook processing failed for order %s",
+            razorpay_order_id,
+        )
+
+        # Return an error so Razorpay can retry processing.
+        return JsonResponse(
+            {"received": False},
+            status=500,
+        )
 
 
 def get_razorpay_client():
@@ -1476,6 +1638,161 @@ def get_razorpay_client():
         raise RuntimeError("Razorpay credentials are not configured.")
 
     return razorpay.Client(auth=(key_id, key_secret))
+
+
+
+@csrf_exempt
+@require_POST
+def delivery_tracking_webhook(request):
+    """
+    Receive Shiprocket tracking updates.
+
+    Configure the same token in Shiprocket's webhook settings and
+    Django's SHIPROCKET_WEBHOOK_SECRET setting.
+    """
+    expected_token = getattr(settings, "SHIPROCKET_WEBHOOK_SECRET", "")
+    received_token = request.headers.get("x-api-key", "")
+
+    # Fail closed: never accept unsigned webhook requests.
+    if not expected_token or not received_token or not hmac.compare_digest(
+        str(received_token), str(expected_token)
+    ):
+        return JsonResponse({"received": False, "error": "Unauthorized"}, status=401)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return JsonResponse({"received": False, "error": "Invalid JSON"}, status=400)
+
+    if not isinstance(payload, dict):
+        return JsonResponse({"received": False, "error": "Invalid payload"}, status=400)
+
+    awb = str(payload.get("awb") or payload.get("awb_code") or "").strip()
+    if not awb:
+        return JsonResponse({"received": False, "error": "Missing AWB"}, status=400)
+
+    current_label = str(
+        payload.get("current_status")
+        or payload.get("shipment_status")
+        or payload.get("status")
+        or "Tracking update"
+    ).strip()
+
+    try:
+        current_status_id = int(
+            payload.get("shipment_status_id")
+            or payload.get("current_status_id")
+            or 0
+        )
+    except (TypeError, ValueError):
+        current_status_id = 0
+
+    scans = payload.get("scans") or []
+    if not isinstance(scans, list):
+        scans = []
+
+    # Keep only JSON-serializable scan dictionaries.
+    clean_scans = [scan for scan in scans if isinstance(scan, dict)]
+
+    try:
+        with transaction.atomic():
+            shipment = (
+                ShiprocketShipment.objects
+                .select_for_update()
+                .select_related("order")
+                .get(awb_code=awb)
+            )
+
+            history = shipment.tracking_history or []
+            if not isinstance(history, list):
+                history = []
+
+            # Add each scan only once. Shiprocket can resend the same webhook.
+            known = {
+                (
+                    str(row.get("date", "")),
+                    str(row.get("status", "")),
+                    str(row.get("activity", "")),
+                    str(row.get("location", "")),
+                )
+                for row in history if isinstance(row, dict)
+            }
+
+            for scan in clean_scans:
+                key = (
+                    str(scan.get("date", "")),
+                    str(scan.get("status", "")),
+                    str(scan.get("activity", "")),
+                    str(scan.get("location", "")),
+                )
+                if key not in known:
+                    history.append(scan)
+                    known.add(key)
+
+            shipment.courier_name = (
+                payload.get("courier_name") or shipment.courier_name
+            )
+            shipment.current_status_label = current_label[:150]
+            shipment.tracking_history = history
+            shipment.estimated_delivery_date = (
+                payload.get("etd") or shipment.estimated_delivery_date
+            )
+            # Keep response_data intact: it contains the original order/AWB
+            # API response. Tracking events are stored separately above.
+
+            # Shiprocket status IDs (shipment status codes).
+            if current_status_id in (7, 10):
+                shipment.status = "DELIVERED" if current_status_id == 7 else "RTO"
+                if current_status_id == 7 and shipment.order.status not in ("CANCELLED",):
+                    Order.objects.filter(pk=shipment.order_id).update(
+                        status="DELIVERED"
+                    )
+            elif current_status_id in (8, 45):
+                shipment.status = "CANCELLED"
+            elif current_status_id in (9, 14, 40, 41, 46):
+                shipment.status = "RTO"
+            elif current_status_id == 17:
+                shipment.status = "OUT_FOR_DELIVERY"
+            elif current_status_id in (18, 38, 39, 50, 51, 54, 55, 56, 57):
+                shipment.status = "IN_TRANSIT"
+            elif current_status_id == 42:
+                shipment.status = "PICKED_UP"
+            elif current_status_id in (19, 27, 3, 4, 5):
+                shipment.status = "PICKUP_PENDING"
+            elif current_status_id == 6:
+                shipment.status = "IN_TRANSIT"
+
+            shipment.save(update_fields=[
+                "courier_name",
+                "current_status_label",
+                "tracking_history",
+                "estimated_delivery_date",
+                "status",
+                "updated_at",
+            ])
+
+            # Keep the customer-facing order status in sync for shipment
+            # milestones, without ever resurrecting a cancelled order.
+            if shipment.order.status != "CANCELLED":
+                if shipment.status in (
+                    "PICKED_UP", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED"
+                ):
+                    new_order_status = (
+                        "DELIVERED" if shipment.status == "DELIVERED" else "SHIPPED"
+                    )
+                    Order.objects.filter(
+                        pk=shipment.order_id
+                    ).exclude(status="CANCELLED").update(status=new_order_status)
+
+    except ShiprocketShipment.DoesNotExist:
+        logger.warning("Shiprocket webhook received unknown AWB: %s", awb)
+        # Acknowledge unknown AWBs so Shiprocket does not retry indefinitely.
+        return JsonResponse({"received": True, "matched": False}, status=200)
+    except Exception:
+        logger.exception("Delivery tracking webhook processing failed for AWB %s", awb)
+        return JsonResponse({"received": False}, status=500)
+
+    return JsonResponse({"received": True, "matched": True}, status=200)
 
 
 def my_orders(request):
@@ -1509,9 +1826,17 @@ def order_detail(request, order_number):
         customer=customer,
     )
 
+    shipment = getattr(order, "shipment", None)
+
     return render(request, "customer/order_detail.html", {
         "customer": customer,
         "order": order,
+        "shipment": shipment,
+        "tracking_history": (
+            shipment.tracking_history
+            if shipment and isinstance(shipment.tracking_history, list)
+            else []
+        ),
     })
 
 

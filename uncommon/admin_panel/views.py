@@ -220,6 +220,35 @@ def admin_login(request):
         "admin_panel/admin_login.html"
     )
 
+def customer_login(request):
+    if request.method != "POST":
+        return render(request, "admin_panel/auth_page.html")
+
+    email = request.POST.get("email", "").strip()
+    password = request.POST.get("password", "")
+
+    # Preserve guest bag and intended destination
+    guest_bag = request.session.get("bag", {})
+    next_page = request.session.get("next_after_login", "customer_home")
+
+    customer = Customer.objects.filter(email=email).first()
+
+    if customer and customer.password == password:
+        request.session.flush()
+
+        request.session["customer_id"] = customer.id
+        request.session["bag"] = guest_bag
+
+        return redirect(
+            "checkout" if next_page == "checkout" else "customer_home"
+        )
+
+    return render(
+        request,
+        "admin_panel/auth_page.html",
+        {"error": "Invalid email or password"}
+    )
+
 def admin_logout(request):
     for key in ("admin", "customer_id", "finance_access_until"):
         request.session.pop(key, None)
@@ -738,7 +767,8 @@ IMAGE_FIELDS = ("image", "image2", "image3", "image4")
 
 
 def _clean_product_form(request):
-    """Validate add/edit product data, including optional financial fields."""
+    """Validate product data, financial fields and shipping dimensions."""
+
     post = request.POST
 
     category_id = post.get("category", "").strip()
@@ -752,6 +782,11 @@ def _clean_product_form(request):
     cost_input = post.get("cost_price", "").strip()
     gst_input = post.get("gst_rate", "").strip()
     hsn_code = post.get("hsn_code", "").strip()
+
+    weight_input = post.get("weight", "").strip()
+    length_input = post.get("length", "").strip()
+    breadth_input = post.get("breadth", "").strip()
+    height_input = post.get("height", "").strip()
 
     if not category_id or not product_name:
         raise ValueError("Category and product name are required.")
@@ -788,7 +823,7 @@ def _clean_product_form(request):
     ):
         raise ValueError("Please enter valid price and stock values.")
 
-    # Optional cost price
+    # Cost price
     cost_price = None
 
     if cost_input:
@@ -807,7 +842,7 @@ def _clean_product_form(request):
                 "Cost price must be non-negative and have at most 2 decimal places."
             )
 
-    # Optional GST rate
+    # GST rate
     gst_rate = None
 
     if gst_input:
@@ -826,6 +861,45 @@ def _clean_product_form(request):
                 "GST rate must be between 0 and 100 with at most 2 decimal places."
             )
 
+    # Shiprocket shipping dimensions
+    try:
+        weight = Decimal(weight_input)
+        length = Decimal(length_input)
+        breadth = Decimal(breadth_input)
+        height = Decimal(height_input)
+
+    except (InvalidOperation, ValueError, TypeError):
+        raise ValueError("Please enter valid shipping dimensions.")
+
+    if (
+        not weight.is_finite()
+        or weight <= 0
+        or weight > Decimal("99999.999")
+        or weight.as_tuple().exponent < -3
+    ):
+        raise ValueError(
+            "Weight must be greater than zero and have at most 3 decimal places."
+        )
+
+    dimensions = {
+        "Length": length,
+        "Breadth": breadth,
+        "Height": height,
+    }
+
+    for field, value in dimensions.items():
+
+        if (
+            not value.is_finite()
+            or value <= Decimal("0.50")
+            or value > Decimal("999999.99")
+            or value.as_tuple().exponent < -2
+        ):
+            raise ValueError(
+                f"{field} must be greater than 0.5 CM "
+                "and have at most 2 decimal places."
+            )
+
     return {
         "category": category,
         "product_name": product_name,
@@ -836,10 +910,16 @@ def _clean_product_form(request):
         "gst_rate": gst_rate,
         "hsn_code": hsn_code,
         "stock": stock,
+
+        # Shipping details
+        "weight": weight,
+        "length": length,
+        "breadth": breadth,
+        "height": height,
+
         "is_rare": post.get("is_rare") == "on",
         "is_limited": post.get("is_limited") == "on",
     }
-
 
 
 @admin_required
@@ -1264,29 +1344,457 @@ def _send_brevo_email(to_email, subject, text):
     response.raise_for_status()
 
 
+import logging
+
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from customer.shiprocket_service import (
+    create_shiprocket_order,
+    cancel_shiprocket_order,
+)
+from customer.models import ShiprocketShipment
+logger = logging.getLogger(__name__)
+
 @require_POST
 @admin_required
 def update_order_status(request, id):
-    order = get_object_or_404(Order, id=id)
+    """
+    UNCOMMEN Admin Order Status Workflow
+
+    COD:
+      - Stock deducted when admin confirms.
+      - Payment remains COD_PENDING.
+      - Stock restored when a confirmed COD order is cancelled.
+
+    PREPAID:
+      - Can only be confirmed after payment is PAID.
+      - Stock is deducted by finalize_captured_payment().
+      - Paid prepaid orders cannot be cancelled until refund handling.
+
+    SHIPROCKET:
+      - Shiprocket order created after confirmation.
+      - Existing Shiprocket shipment cancelled when admin cancels.
+      - Shipped and Delivered are controlled by tracking.
+    """
+
     new_status = request.POST.get("status", "").strip()
 
     if new_status not in ORDER_STATUSES:
         messages.error(request, "Invalid order status.")
         return redirect("view_orders")
 
-    if new_status == order.status:
-        messages.info(request, "The order already has this status.")
+    should_create_shipment = False
+    should_cancel_shipment = False
+
+    try:
+        # ==========================================
+        # STEP 1: FETCH ORDER
+        # ==========================================
+
+        order = (
+            Order.objects
+            .select_related("customer")
+            .get(id=id)
+        )
+
+        if new_status == order.status:
+            messages.info(
+                request,
+                "The order already has this status."
+            )
+            return redirect("view_orders")
+
+        # Shipping milestones must come from Shiprocket.
+        if new_status in {"SHIPPED", "DELIVERED"}:
+            messages.error(
+                request,
+                "Shipped and Delivered statuses are updated through Shiprocket tracking."
+            )
+            return redirect("view_orders")
+
+        # Prevent normal cancellation after shipping.
+        if (
+            new_status == "CANCELLED"
+            and order.status in {"SHIPPED", "DELIVERED"}
+        ):
+            messages.error(
+                request,
+                "This order has already been shipped or delivered. "
+                "Use the return/cancellation process instead."
+            )
+            return redirect("view_orders")
+
+        # ==========================================
+        # STEP 2: PREPAID REFUND VALIDATION
+        # ==========================================
+
+        if new_status == "CANCELLED":
+
+            if (
+                order.payment_method == "PREPAID"
+                and order.payment_status == "PAID"
+            ):
+                messages.error(
+                    request,
+                    "This prepaid order has been paid. "
+                    "Process its refund before cancelling it."
+                )
+                return redirect("view_orders")
+
+            should_cancel_shipment = True
+
+        # ==========================================
+        # STEP 3: SHIPROCKET CANCELLATION
+        # ==========================================
+
+        # IMPORTANT:
+        # Call the external API outside transaction.atomic().
+        # This avoids holding database locks during network requests.
+
+        if should_cancel_shipment:
+
+            order.refresh_from_db()
+
+            # Check whether a Shiprocket shipment exists.
+            try:
+                shipment = order.shipment
+            except ShiprocketShipment.DoesNotExist:
+                shipment = None
+
+            if shipment and shipment.shiprocket_order_id:
+
+                cancellation_success = cancel_shiprocket_order(
+                    order
+                )
+
+                if not cancellation_success:
+                    messages.error(
+                        request,
+                        "Shiprocket cancellation failed. "
+                        "The UNCOMMEN order was not cancelled. "
+                        "Please check the Shiprocket dashboard and shipment error."
+                    )
+                    return redirect("view_orders")
+
+        # ==========================================
+        # STEP 4: UPDATE ORDER IN DATABASE
+        # ==========================================
+
+        with transaction.atomic():
+
+            order = (
+                Order.objects
+                .select_for_update()
+                .select_related("customer")
+                .get(id=id)
+            )
+
+            # Recheck status in case another admin changed it.
+            if order.status == new_status:
+                messages.info(
+                    request,
+                    "The order status was already updated."
+                )
+                return redirect("view_orders")
+
+            if order.status in {"SHIPPED", "DELIVERED"}:
+                messages.error(
+                    request,
+                    "This order has already been shipped or delivered."
+                )
+                return redirect("view_orders")
+
+            # ======================================
+            # CONFIRM ORDER
+            # ======================================
+
+            if new_status == "CONFIRMED":
+
+                if order.payment_method == "PREPAID":
+
+                    if order.payment_status != "PAID":
+                        messages.error(
+                            request,
+                            "Prepaid order cannot be confirmed until Razorpay payment is verified."
+                        )
+                        return redirect("view_orders")
+
+                elif order.payment_method == "COD":
+
+                    if order.payment_status not in {
+                        "COD_PENDING",
+                        "PENDING",
+                    }:
+                        messages.error(
+                            request,
+                            "This COD order is not in a confirmable payment state."
+                        )
+                        return redirect("view_orders")
+
+                    # Get order items.
+                    items = list(
+                        order.items
+                        .select_related("product")
+                        .order_by("product_id")
+                    )
+
+                    if not items:
+                        messages.error(
+                            request,
+                            "Cannot confirm an order without products."
+                        )
+                        return redirect("view_orders")
+
+                    product_ids = [
+                        item.product_id
+                        for item in items
+                    ]
+
+                    # Lock products in stable order.
+                    locked_products = {
+                        product.id: product
+                        for product in (
+                            Product.objects
+                            .select_for_update()
+                            .filter(id__in=product_ids)
+                            .order_by("id")
+                        )
+                    }
+
+                    # Aggregate quantities.
+                    required_quantities = {}
+
+                    for item in items:
+
+                        required_quantities[item.product_id] = (
+                            required_quantities.get(
+                                item.product_id, 0
+                            ) + item.quantity
+                        )
+
+                    # Validate stock.
+                    insufficient = []
+
+                    for product_id, required_qty in (
+                        required_quantities.items()
+                    ):
+
+                        product = locked_products.get(product_id)
+
+                        if product is None:
+                            insufficient.append(
+                                f"Product #{product_id} unavailable"
+                            )
+                            continue
+
+                        if product.stock < required_qty:
+                            insufficient.append(
+                                f"{product.product_name}: "
+                                f"only {product.stock} available, "
+                                f"{required_qty} ordered"
+                            )
+
+                    if insufficient:
+                        messages.error(
+                            request,
+                            "Cannot confirm COD order. Insufficient stock: "
+                            + "; ".join(insufficient)
+                        )
+                        return redirect("view_orders")
+
+                    # Deduct stock once.
+                    for product_id, required_qty in (
+                        required_quantities.items()
+                    ):
+
+                        product = locked_products[product_id]
+
+                        product.stock -= required_qty
+
+                        product.save(
+                            update_fields=["stock"]
+                        )
+
+                    order.payment_status = "COD_PENDING"
+
+                should_create_shipment = True
+
+            # ======================================
+            # CANCEL ORDER
+            # ======================================
+
+            if new_status == "CANCELLED":
+
+                if (
+                    order.payment_method == "PREPAID"
+                    and order.payment_status == "PAID"
+                ):
+                    messages.error(
+                        request,
+                        "Process the prepaid refund before cancellation."
+                    )
+                    return redirect("view_orders")
+
+                # Restore stock only for a confirmed COD order.
+                # Pending COD orders have not had stock deducted.
+
+                if (
+                    order.payment_method == "COD"
+                    and order.status == "CONFIRMED"
+                ):
+
+                    items = list(
+                        order.items
+                        .select_related("product")
+                        .order_by("product_id")
+                    )
+
+                    product_ids = [
+                        item.product_id
+                        for item in items
+                    ]
+
+                    locked_products = {
+                        product.id: product
+                        for product in (
+                            Product.objects
+                            .select_for_update()
+                            .filter(id__in=product_ids)
+                            .order_by("id")
+                        )
+                    }
+
+                    restore_quantities = {}
+
+                    for item in items:
+
+                        restore_quantities[item.product_id] = (
+                            restore_quantities.get(
+                                item.product_id, 0
+                            ) + item.quantity
+                        )
+
+                    for product_id, quantity in (
+                        restore_quantities.items()
+                    ):
+
+                        product = locked_products.get(product_id)
+
+                        if product:
+                            product.stock += quantity
+
+                            product.save(
+                                update_fields=["stock"]
+                            )
+
+            # ======================================
+            # SAVE ORDER
+            # ======================================
+
+            order.status = new_status
+
+            update_fields = [
+                "status",
+                "updated_at",
+            ]
+
+            if (
+                new_status == "CONFIRMED"
+                and order.payment_method == "COD"
+            ):
+                update_fields.append("payment_status")
+
+            order.save(update_fields=update_fields)
+
+    except Order.DoesNotExist:
+
+        messages.error(
+            request,
+            "Order not found."
+        )
+
         return redirect("view_orders")
 
-    order.status = new_status
-    order.save(update_fields=["status", "updated_at"])
+    except Exception:
+
+        logger.exception(
+            "Failed to update order status for order id %s",
+            id
+        )
+
+        messages.error(
+            request,
+            "Unable to update order status. Check server logs."
+        )
+
+        return redirect("view_orders")
+
+    # ==========================================
+    # STEP 5: CREATE SHIPROCKET ORDER
+    # ==========================================
+
+    if should_create_shipment:
+
+        try:
+
+            order.refresh_from_db()
+
+            success = create_shiprocket_order(order)
+
+            if success:
+
+                messages.success(
+                    request,
+                    "Order confirmed and Shiprocket order created successfully."
+                )
+
+            else:
+
+                messages.warning(
+                    request,
+                    "Order confirmed, but Shiprocket order creation failed. "
+                    "Check shipment error details."
+                )
+
+        except Exception:
+
+            logger.exception(
+                "Shiprocket creation failed for order %s",
+                order.order_number
+            )
+
+            messages.warning(
+                request,
+                "Order confirmed, but Shiprocket integration failed."
+            )
+
+    # ==========================================
+    # STEP 6: CUSTOMER EMAIL
+    # ==========================================
 
     customer_email = order.customer.email
+
     if not customer_email:
-        messages.warning(request, "Order status updated, but the customer has no email address.")
+
+        messages.warning(
+            request,
+            "Order status updated, but customer has no email address."
+        )
+
         return redirect("view_orders")
 
     subject_text, message_text = ORDER_STATUS_EMAILS[new_status]
+
+    payment_note = (
+        "\nPayment Method: Cash on Delivery"
+        "\nPayment Status: Pay on delivery"
+        if order.payment_method == "COD"
+        else "\nPayment Method: Prepaid"
+        "\nPayment Status: Paid"
+    )
+
     body = f"""
 Hello {getattr(order.customer, 'name', '') or 'Customer'},
 
@@ -1295,6 +1803,7 @@ Hello {getattr(order.customer, 'name', '') or 'Customer'},
 Order Number: {order.order_number}
 Order Total: ₹{order.total_amount}
 Current Status: {order.get_status_display()}
+{payment_note}
 
 Thank you for choosing UNCOMMON.
 
@@ -1303,14 +1812,30 @@ UNCOMMON Team
     """.strip()
 
     try:
-        _send_brevo_email(customer_email, f"UNCOMMON | {subject_text}", body)
-        messages.success(request, f"Order status updated and email submitted to Brevo for {customer_email}.")
+
+        _send_brevo_email(
+            customer_email,
+            f"UNCOMMON | {subject_text}",
+            body
+        )
+
+        messages.success(
+            request,
+            f"Order status updated. Email submitted to Brevo for {customer_email}."
+        )
+
     except Exception:
-        logger.exception("Failed to send order status email through Brevo")
-        messages.warning(request, "Order status updated, but the email could not be sent. Check server logs.")
+
+        logger.exception(
+            "Failed to send order status email through Brevo"
+        )
+
+        messages.warning(
+            request,
+            "Order status updated, but the email could not be sent."
+        )
 
     return redirect("view_orders")
-
 
 @admin_required
 def test_email(request):

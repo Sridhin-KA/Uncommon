@@ -2807,9 +2807,14 @@ body.in-room-view .room-landing-view {
                             {% csrf_token %}
                             <button type="submit" class="dropdown-logout">Logout <span aria-hidden="true">↗</span></button>
                         </form>
-                    {% else %}
-                        <a href="{% url 'login' %}">Sign in <span aria-hidden="true">↗</span></a>
-                        <a href="{% url 'customer_register' %}">Create account <span aria-hidden="true">↗</span></a>
+                   {% else %}
+                        <a href="{% url 'user_login' %}">
+                            Sign in <span aria-hidden="true">↗</span>
+                        </a>
+
+                        <a href="{% url 'customer_register' %}">
+                            Create account <span aria-hidden="true">↗</span>
+                        </a>
                     {% endif %}
                 </div>
             </div>

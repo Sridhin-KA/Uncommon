@@ -136,7 +136,7 @@
 #page-preloader .uc-wordmark { transform-origin:256px 144px; animation:ucWordmarkReveal 2.6s cubic-bezier(.22,1,.36,1) forwards; }
 #page-preloader .preloader-bar { width:140px; height:3px; background:rgba(18,18,18,.10); border-radius:99px; overflow:hidden; }
 #page-preloader .preloader-progress { height:100%; width:40%; background:#8c6d46; border-radius:99px; animation:barProgress 1.4s ease-in-out infinite; }
-#page-preloader #page-preloader-label { color:#6F6350; font:9px var(--mono); letter-spacing:.2em; text-transform:uppercase; }
+#page-preloader .site-loader-label { color:#6F6350; font:9px var(--mono); letter-spacing:.2em; text-transform:uppercase; }
 @keyframes ucSlideC { 0%{opacity:0;transform:translateX(36px)} 16%{opacity:1;transform:translateX(28px)} 68%,100%{opacity:1;transform:translateX(0)} }
 @keyframes ucSlideU { 0%,5%{opacity:0;transform:translateX(-36px)} 20%{opacity:.55;transform:translateX(-26px)} 38%{opacity:1;transform:translateX(-14px)} 68%,100%{opacity:1;transform:translateX(0)} }
 @keyframes ucBandSlice { 0%,14%{transform:scaleY(0) scaleX(.35);opacity:0} 28%,100%{transform:scaleY(1) scaleX(1);opacity:1} }
@@ -672,6 +672,64 @@
             font-family: 'Archivo', sans-serif;
         }
 
+
+        /* Payment method selection */
+        .payment-methods {
+            display: grid;
+            gap: 12px;
+            margin: 18px 0 22px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            background: #FFFDF9;
+            cursor: pointer;
+            transition: border-color .2s, background .2s, box-shadow .2s;
+        }
+
+        .payment-option:has(input:checked) {
+            border-color: var(--forest);
+            background: #F4F5EF;
+            box-shadow: inset 3px 0 var(--forest);
+        }
+
+        .payment-option input {
+            width: 17px;
+            height: 17px;
+            margin-top: 3px;
+            accent-color: var(--forest);
+            flex: 0 0 auto;
+        }
+
+        .payment-option strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .payment-option small {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .payment-recommended {
+            display: inline-block;
+            margin-left: 7px;
+            padding: 3px 6px;
+            background: #E9E3D6;
+            color: var(--gold);
+            font: 8px var(--mono);
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+
         .place-order:disabled {
             opacity: .45;
             cursor: not-allowed;
@@ -1181,6 +1239,41 @@
                         <span class="section-number">02 / ORDER</span>
                     </div>
 
+                    <h3 style="margin: 4px 0 10px;">Payment method</h3>
+                    <p class="section-description" style="margin-bottom: 14px;">
+                        Choose how you would like to pay for your order.
+                    </p>
+
+                    <div class="payment-methods" role="radiogroup" aria-label="Payment method">
+                        <label class="payment-option">
+                            <input
+                                type="radio"
+                                name="payment_method"
+                                value="PREPAID"
+                                {% if payment_method|default:"PREPAID" == "PREPAID" %}checked{% endif %}
+                                required>
+                            <span>
+                                <strong>
+                                    Pay Online
+                                    <span class="payment-recommended">Recommended</span>
+                                </strong>
+                                <small>Secure payment using UPI, cards, net banking and supported wallets.</small>
+                            </span>
+                        </label>
+
+                        <label class="payment-option">
+                            <input
+                                type="radio"
+                                name="payment_method"
+                                value="COD"
+                                {% if payment_method == "COD" %}checked{% endif %}>
+                            <span>
+                                <strong>Cash on Delivery</strong>
+                                <small>Pay the delivery partner when your order is delivered. COD availability may be subject to verification.</small>
+                            </span>
+                        </label>
+                    </div>
+
                     <div class="items-list">
                         {% for item in items %}
                             <article class="order-item">
@@ -1229,6 +1322,14 @@
 
                     
 
+                    <div class="total-row">
+                        <span>Processing fee</span>
+                        <span id="processing-fee"
+                              data-processing-fee="{{ processing_fee|default:0 }}">
+                            ₹{{ processing_fee|default:0|floatformat:2 }}
+                        </span>
+                    </div>
+
                     <div class="total-row grand-total">
                         <span>Order total</span>
                         <span id="grand-total" data-grand-total="{{ grand_total }}">₹{{ grand_total|floatformat:2 }}</span>
@@ -1250,7 +1351,7 @@
                     </button>
 
                     <p class="secure-note">
-                        Your selected address will be attached to this order.
+                        Your selected address and payment preference will be attached to this order.
                     </p>
 
                     <a href="{% url 'bag_view' %}" class="back-link">
@@ -1268,226 +1369,281 @@
 </footer>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("checkout-form");
-    const actionInput = document.getElementById("address-action");
-    const addressForm = document.getElementById("new-address-form");
-    const toggleButton = document.getElementById("toggle-new-address");
-    const toggleSymbol = document.getElementById("toggle-symbol");
-    const useNewButton = document.getElementById("use-new-address");
-    const cancelButton = document.getElementById("cancel-new-address");
-    const placeOrderButton = document.getElementById("place-order");
-    const note = document.getElementById("address-selection-note");
+(function () {
+    function initCheckoutPage() {
+        const form = document.getElementById("checkout-form");
+        if (!form) return;
 
-    // Pricing: product price includes GST, shipping is free, processing fee is 10%.
-    const productPriceElement = document.getElementById("product-price");
-    const processingFeeElement = document.getElementById("processing-fee");
-    const grandTotalElement = document.getElementById("grand-total");
-    const buttonTotalElement = document.getElementById("button-total");
-    const baseProductPrice = Number(productPriceElement.dataset.basePrice || 0);
-    // Use totals calculated by Django so the displayed amount matches the order.
-    const processingFee = Number(processingFeeElement.dataset.processingFee || 0);
-    const payableTotal = Number(grandTotalElement.dataset.grandTotal || baseProductPrice);
+        const actionInput = document.getElementById("address-action");
+        const addressForm = document.getElementById("new-address-form");
+        const toggleButton = document.getElementById("toggle-new-address");
+        const toggleSymbol = document.getElementById("toggle-symbol");
+        const useNewButton = document.getElementById("use-new-address");
+        const cancelButton = document.getElementById("cancel-new-address");
+        const placeOrderButton = document.getElementById("place-order");
+        const note = document.getElementById("address-selection-note");
+        const preloader = document.getElementById("page-preloader");
 
-    function formatINR(amount) {
-        return "₹" + amount.toLocaleString("en-IN", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
+        const productPriceElement = document.getElementById("product-price");
+        const processingFeeElement = document.getElementById("processing-fee");
+        const grandTotalElement = document.getElementById("grand-total");
+        const buttonTotalElement = document.getElementById("button-total");
 
-    processingFeeElement.textContent = formatINR(processingFee);
-    grandTotalElement.textContent = formatINR(payableTotal);
-    buttonTotalElement.textContent = formatINR(payableTotal);
-
-    const newAddressFields = addressForm.querySelectorAll(
-        "input, textarea"
-    );
-
-    const addressRadios = document.querySelectorAll(
-        'input[name="address_id"]'
-    );
-
-    function setNewAddressMode(enabled) {
-        addressForm.hidden = !enabled;
-        actionInput.value = enabled ? "new" : "select";
-
-        toggleButton.setAttribute(
-            "aria-expanded",
-            String(enabled)
+        const addressRadios = Array.from(
+            document.querySelectorAll('input[name="address_id"]')
         );
 
-        toggleSymbol.textContent = enabled ? "−" : "+";
+        const newAddressFields = addressForm
+            ? Array.from(addressForm.querySelectorAll("input, textarea"))
+            : [];
 
-        newAddressFields.forEach(function (field) {
-            field.disabled = !enabled;
-            field.required = enabled;
-        });
+        function formatINR(amount) {
+            const safeAmount = Number.isFinite(amount) ? amount : 0;
+            return "₹" + safeAmount.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
 
-        if (enabled) {
+        // Django remains the source of truth for all checkout totals.
+        const baseProductPrice = productPriceElement
+            ? Number(productPriceElement.dataset.basePrice || 0)
+            : 0;
+
+        const processingFee = processingFeeElement
+            ? Number(processingFeeElement.dataset.processingFee || 0)
+            : 0;
+
+        const payableTotal = grandTotalElement
+            ? Number(grandTotalElement.dataset.grandTotal || baseProductPrice)
+            : baseProductPrice;
+
+        if (processingFeeElement) {
+            processingFeeElement.textContent = formatINR(processingFee);
+        }
+
+        if (grandTotalElement) {
+            grandTotalElement.textContent = formatINR(payableTotal);
+        }
+
+        if (buttonTotalElement) {
+            buttonTotalElement.textContent = formatINR(payableTotal);
+        }
+
+        function updateButtonTotal() {
+            if (!placeOrderButton) return;
+
+            if (placeOrderButton.querySelector("#button-total")) {
+                placeOrderButton.querySelector("#button-total").textContent =
+                    formatINR(payableTotal);
+            } else if (actionInput && actionInput.value === "new") {
+                placeOrderButton.textContent =
+                    "Save address & place order · " + formatINR(payableTotal);
+            } else {
+                placeOrderButton.textContent =
+                    "Place order · " + formatINR(payableTotal);
+            }
+        }
+
+        function updateSelectedAddress() {
             addressRadios.forEach(function (radio) {
-                radio.checked = false;
-                radio.closest("[data-address-card]")
-                    .classList.remove("selected");
+                const card = radio.closest("[data-address-card]");
+                if (card) card.classList.toggle("selected", radio.checked);
             });
 
-            note.classList.remove("visible");
-            placeOrderButton.textContent =
-                "Save address & place order · " + formatINR(payableTotal);
-        } else {
-            const selected = document.querySelector(
-                'input[name="address_id"]:checked'
-            );
+            const selected = addressRadios.some(function (radio) {
+                return radio.checked;
+            });
 
-            placeOrderButton.innerHTML =
-                "Place order · <span id=\"button-total\">" + formatINR(payableTotal) + "</span>";
-
-            if (selected) {
-                note.classList.add("visible");
-            } else {
-                note.classList.remove("visible");
-            }
-        }
-    }
-
-    function updateSelectedAddress() {
-        addressRadios.forEach(function (radio) {
-            const card = radio.closest("[data-address-card]");
-
-            card.classList.toggle(
-                "selected",
-                radio.checked
-            );
-        });
-
-        const selected = document.querySelector(
-            'input[name="address_id"]:checked'
-        );
-
-        if (selected) {
-            note.classList.add("visible");
-        } else {
-            note.classList.remove("visible");
-        }
-    }
-
-    toggleButton.addEventListener("click", function () {
-        setNewAddressMode(addressForm.hidden);
-    });
-
-    addressRadios.forEach(function (radio) {
-        radio.addEventListener("change", function () {
-            setNewAddressMode(false);
-            updateSelectedAddress();
-        });
-    });
-
-    useNewButton.addEventListener("click", function () {
-        setNewAddressMode(true);
-
-        for (const field of newAddressFields) {
-            if (!field.checkValidity()) {
-                field.reportValidity();
-                return;
-            }
+            if (note) note.classList.toggle("visible", selected);
         }
 
-        actionInput.value = "new";
-        form.requestSubmit();
-    });
+        function setNewAddressMode(enabled) {
+            // With no saved addresses, the new-address form must always stay open.
+            const shouldUseNewAddress = enabled || addressRadios.length === 0;
 
-    cancelButton.addEventListener("click", function () {
-        setNewAddressMode(false);
-    });
-
-    form.addEventListener("submit", function (event) {
-        if (actionInput.value === "new") {
-            for (const field of newAddressFields) {
-                if (!field.checkValidity()) {
-                    event.preventDefault();
-                    field.reportValidity();
-                    return;
-                }
+            if (addressForm) {
+                addressForm.hidden = !shouldUseNewAddress;
             }
-        } else {
-            const selected = document.querySelector(
-                'input[name="address_id"]:checked'
-            );
 
-            if (!selected) {
-                event.preventDefault();
-
-                if (addressRadios.length === 0) {
-                    setNewAddressMode(true);
-
-                    const firstField = addressForm.querySelector(
-                        "input, textarea"
-                    );
-
-                    if (firstField) {
-                        firstField.focus();
-                    }
-                } else {
-                    alert("Please select a delivery address or add a new one.");
-                }
+            if (actionInput) {
+                actionInput.value = shouldUseNewAddress ? "new" : "select";
             }
-        }
-    });
 
-    // Restore the correct state after a server-side validation error.
-    const serverWantsNewAddress =
-        actionInput.value === "new";
-
-    setNewAddressMode(serverWantsNewAddress);
-    updateSelectedAddress();
-
-    // Hide the loader when the page is ready; show it again during navigation/submission.
-    const preloader = document.getElementById("page-preloader");
-    function hidePreloader() {
-        if (preloader) {
-            preloader.classList.add("is-hidden");
-            window.setTimeout(function () {
-                preloader.style.display = "none";
-            }, 500);
-        }
-    }
-
-    if (document.readyState === "complete") {
-        hidePreloader();
-    } else {
-        window.addEventListener("load", hidePreloader, { once: true });
-    }
-
-    document.querySelectorAll("a[href]").forEach(function (link) {
-        link.addEventListener("click", function (event) {
-            const href = link.getAttribute("href");
-            if (!href || href.startsWith("#") || link.target === "_blank" ||
-                event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
-                return;
+            if (toggleButton) {
+                toggleButton.setAttribute(
+                    "aria-expanded",
+                    String(shouldUseNewAddress)
+                );
             }
-            if (preloader) {
-                preloader.style.display = "flex";
-                requestAnimationFrame(function () {
-                    preloader.classList.remove("is-hidden");
+
+            if (toggleSymbol) {
+                toggleSymbol.textContent = shouldUseNewAddress ? "−" : "+";
+            }
+
+            newAddressFields.forEach(function (field) {
+                field.disabled = !shouldUseNewAddress;
+                field.required = shouldUseNewAddress;
+            });
+
+            if (shouldUseNewAddress) {
+                addressRadios.forEach(function (radio) {
+                    radio.checked = false;
                 });
-            }
-        });
-    });
+                updateSelectedAddress();
 
-    form.addEventListener("submit", function (event) {
-        if (event.defaultPrevented) {
-            return;
+                if (placeOrderButton) {
+                    placeOrderButton.textContent =
+                        "Save address & place order · " + formatINR(payableTotal);
+                }
+            } else {
+                updateSelectedAddress();
+                updateButtonTotal();
+            }
         }
-        if (preloader) {
+
+        function showPreloader() {
+            if (!preloader) return;
             preloader.style.display = "flex";
-            requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
                 preloader.classList.remove("is-hidden");
             });
         }
-        placeOrderButton.disabled = true;
-        placeOrderButton.setAttribute("aria-busy", "true");
-    });
-});
+
+        function hidePreloader() {
+            if (!preloader) return;
+            preloader.classList.add("is-hidden");
+            window.setTimeout(function () {
+                if (preloader.classList.contains("is-hidden")) {
+                    preloader.style.display = "none";
+                }
+            }, 500);
+        }
+
+        if (toggleButton) {
+            toggleButton.addEventListener("click", function () {
+                const currentlyHidden = addressForm ? addressForm.hidden : true;
+                setNewAddressMode(currentlyHidden);
+            });
+        }
+
+        addressRadios.forEach(function (radio) {
+            radio.addEventListener("change", function () {
+                setNewAddressMode(false);
+                updateSelectedAddress();
+            });
+        });
+
+        if (useNewButton) {
+            useNewButton.addEventListener("click", function () {
+                setNewAddressMode(true);
+
+                for (const field of newAddressFields) {
+                    if (!field.checkValidity()) {
+                        field.reportValidity();
+                        return;
+                    }
+                }
+
+                if (actionInput) actionInput.value = "new";
+                form.requestSubmit();
+            });
+        }
+
+        if (cancelButton) {
+            cancelButton.addEventListener("click", function () {
+                setNewAddressMode(false);
+            });
+        }
+
+        form.addEventListener("submit", function (event) {
+            const addressAction = actionInput ? actionInput.value : "select";
+
+            if (addressAction === "new") {
+                for (const field of newAddressFields) {
+                    if (!field.checkValidity()) {
+                        event.preventDefault();
+                        field.reportValidity();
+                        return;
+                    }
+                }
+            } else {
+                const selectedAddress = addressRadios.some(function (radio) {
+                    return radio.checked;
+                });
+
+                if (!selectedAddress) {
+                    event.preventDefault();
+
+                    if (addressRadios.length === 0) {
+                        setNewAddressMode(true);
+                        const firstField = newAddressFields[0];
+                        if (firstField) firstField.focus();
+                    } else {
+                        window.alert(
+                            "Please select a delivery address or add a new one."
+                        );
+                    }
+                    return;
+                }
+            }
+
+            // Only show the loader after validation has passed.
+            showPreloader();
+
+            if (placeOrderButton) {
+                placeOrderButton.disabled = true;
+                placeOrderButton.setAttribute("aria-busy", "true");
+            }
+        });
+
+        // Restore server-rendered state, including pages with no saved addresses.
+        const serverWantsNewAddress =
+            (actionInput && actionInput.value === "new") ||
+            addressRadios.length === 0;
+
+        setNewAddressMode(serverWantsNewAddress);
+        updateSelectedAddress();
+
+        // Hide the initial loader once the browser finishes loading the page.
+        if (document.readyState === "complete") {
+            hidePreloader();
+        } else {
+            window.addEventListener("load", hidePreloader, { once: true });
+        }
+
+        // Emergency fallback: never leave the checkout covered indefinitely.
+        window.setTimeout(hidePreloader, 8000);
+
+        document.querySelectorAll("a[href]").forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                const href = link.getAttribute("href");
+
+                if (
+                    !href ||
+                    href.startsWith("#") ||
+                    link.target === "_blank" ||
+                    event.ctrlKey ||
+                    event.metaKey ||
+                    event.shiftKey ||
+                    event.altKey
+                ) {
+                    return;
+                }
+
+                showPreloader();
+            });
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initCheckoutPage, {
+            once: true
+        });
+    } else {
+        initCheckoutPage();
+    }
+})();
 </script>
 
 

@@ -552,6 +552,202 @@
             text-align: center;
         }
 
+
+        /* PRODUCT SHARING */
+        .share-product-btn {
+            width: 100%;
+            min-height: 52px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            color: var(--ink);
+            font: 10px var(--mono);
+            letter-spacing: .1em;
+            cursor: pointer;
+            transition: all .3s ease;
+        }
+
+        .share-product-btn:hover {
+            background: var(--forest);
+            color: #fff;
+            border-color: var(--forest);
+            transform: translateY(-2px);
+        }
+
+        .share-product-btn svg { width: 18px; height: 18px; }
+
+        .share-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(20, 18, 14, .58);
+            backdrop-filter: blur(7px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, visibility .25s ease;
+        }
+
+        .share-overlay.active { opacity: 1; visibility: visible; }
+
+        .share-modal {
+            width: min(430px, 100%);
+            padding: 28px;
+            position: relative;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, .25);
+            transform: translateY(18px) scale(.98);
+            transition: transform .25s ease;
+        }
+
+        .share-overlay.active .share-modal { transform: translateY(0) scale(1); }
+
+        .share-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .share-header h3 {
+            margin: 0;
+            font: 25px var(--serif);
+            font-weight: 400;
+        }
+
+        .share-close {
+            width: 35px;
+            height: 35px;
+            flex: 0 0 35px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: transparent;
+            color: var(--ink);
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        .share-product-preview {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px;
+            margin-bottom: 24px;
+            background: #F0EBDF;
+            border-radius: 15px;
+        }
+
+        .share-product-preview img {
+            width: 65px;
+            height: 70px;
+            flex: 0 0 65px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .share-preview-info { min-width: 0; }
+        .share-preview-info strong {
+            display: block;
+            margin-bottom: 6px;
+            font: 15px var(--serif);
+            overflow-wrap: anywhere;
+        }
+        .share-preview-info span { color: var(--muted); font: 10px var(--mono); }
+
+        .share-label {
+            margin-bottom: 15px;
+            color: var(--muted);
+            font: 9px var(--mono);
+            letter-spacing: .13em;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 20px 10px;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: var(--ink);
+            font: 9px var(--mono);
+            cursor: pointer;
+        }
+
+        .share-icon {
+            width: 53px;
+            height: 53px;
+            display: grid;
+            place-items: center;
+            border-radius: 17px;
+            color: #fff;
+            font: 22px Arial, sans-serif;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .share-option:hover .share-icon {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .15);
+        }
+
+        .whatsapp { background: #25D366; }
+        .facebook { background: #1877F2; }
+        .telegram { background: #229ED9; }
+        .twitter { background: #171717; }
+        .instagram { background: linear-gradient(45deg, #FEDA75, #FA7E1E, #D62976, #962FBF, #4F5BD5); }
+        .copy-link { background: var(--forest); }
+
+        .share-copy-btn {
+            width: 100%;
+            min-height: 50px;
+            margin-top: 25px;
+            border: 1px solid var(--forest);
+            border-radius: 14px;
+            background: var(--forest);
+            color: #fff;
+            font: 10px var(--mono);
+            letter-spacing: .1em;
+            cursor: pointer;
+            transition: .25s ease;
+        }
+
+        .share-copy-btn:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--ink);
+        }
+
+        .share-copy-status {
+            min-height: 16px;
+            margin: 10px 0 0;
+            color: var(--muted);
+            text-align: center;
+            font: 10px var(--mono);
+        }
+
+        @media (max-width: 480px) {
+            .share-modal { padding: 22px; }
+            .share-options { gap: 18px 6px; }
+            .share-icon { width: 48px; height: 48px; }
+        }
+
         @media(max-width: 850px) {
             .product-layout {
                 grid-template-columns: 1fr;
@@ -802,6 +998,25 @@
                 </button>
             </form>
 
+            <button
+                type="button"
+                class="share-product-btn"
+                id="shareProductBtn"
+                data-product-name="{{ product.product_name|escapejs }}"
+                data-product-price="₹{{ product.price|floatformat:2 }}"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <path d="M8.7 10.7 15.3 6.3"></path>
+                    <path d="m8.7 13.3 6.6 4.4"></path>
+                </svg>
+                <span>SHARE THIS PIECE</span>
+            </button>
+
             <div class="details-list">
                 <div class="details-row">
                     <span>Collection</span>
@@ -1030,6 +1245,182 @@
             button.disabled = false;
             button.innerHTML = original;
         }
+    });
+})();
+</script>
+
+
+<!-- PRODUCT SHARE MODAL -->
+<div class="share-overlay" id="shareOverlay" aria-hidden="true">
+    <section class="share-modal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+        <div class="share-header">
+            <h3 id="shareModalTitle">Share this piece.</h3>
+            <button type="button" class="share-close" id="closeShareModal" aria-label="Close share dialog">&times;</button>
+        </div>
+
+        <div class="share-product-preview">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.product_name }}">
+            {% endif %}
+            <div class="share-preview-info">
+                <strong>{{ product.product_name }}</strong>
+                <span>₹{{ product.price|floatformat:2 }} · UNCOMMEN</span>
+            </div>
+        </div>
+
+        <div class="share-label">CHOOSE HOW TO SHARE</div>
+
+        <div class="share-options">
+            <button type="button" class="share-option" data-share="whatsapp">
+                <span class="share-icon whatsapp">◉</span>
+                WhatsApp
+            </button>
+            <button type="button" class="share-option" data-share="facebook">
+                <span class="share-icon facebook">f</span>
+                Facebook
+            </button>
+            <button type="button" class="share-option" data-share="instagram">
+                <span class="share-icon instagram">◎</span>
+                Instagram
+            </button>
+            <button type="button" class="share-option" data-share="telegram">
+                <span class="share-icon telegram">➤</span>
+                Telegram
+            </button>
+            <button type="button" class="share-option" data-share="twitter">
+                <span class="share-icon twitter">𝕏</span>
+                X
+            </button>
+            <button type="button" class="share-option" data-share="native">
+                <span class="share-icon copy-link">↗</span>
+                More
+            </button>
+        </div>
+
+        <button type="button" class="share-copy-btn" id="copyProductLink">
+            ⧉ &nbsp; COPY PRODUCT LINK
+        </button>
+        <p class="share-copy-status" id="shareCopyStatus" aria-live="polite"></p>
+    </section>
+</div>
+
+<script>
+(() => {
+    const openButton = document.getElementById("shareProductBtn");
+    const overlay = document.getElementById("shareOverlay");
+    const closeButton = document.getElementById("closeShareModal");
+    const copyButton = document.getElementById("copyProductLink");
+    const status = document.getElementById("shareCopyStatus");
+
+    if (!openButton || !overlay || !closeButton || !copyButton) return;
+
+    const productName = openButton.dataset.productName || "UNCOMMEN product";
+    const productPrice = openButton.dataset.productPrice || "";
+    const productUrl = window.location.href;
+    const shareText = `Check out ${productName} at UNCOMMEN${productPrice ? ` for ${productPrice}` : ""}!`;
+
+    function openShareModal() {
+        overlay.classList.add("active");
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        closeButton.focus();
+    }
+
+    function closeShareModal() {
+        overlay.classList.remove("active");
+        overlay.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        openButton.focus();
+    }
+
+    async function copyProductUrl() {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(productUrl);
+            } else {
+                const temporaryInput = document.createElement("textarea");
+                temporaryInput.value = productUrl;
+                temporaryInput.style.position = "fixed";
+                temporaryInput.style.opacity = "0";
+                document.body.appendChild(temporaryInput);
+                temporaryInput.select();
+                const copied = document.execCommand("copy");
+                temporaryInput.remove();
+                if (!copied) throw new Error("Copy command failed");
+            }
+
+            status.textContent = "Product link copied successfully!";
+            copyButton.textContent = "✓ LINK COPIED";
+            window.setTimeout(() => {
+                copyButton.textContent = "⧉  COPY PRODUCT LINK";
+            }, 2200);
+        } catch (error) {
+            status.textContent = "Unable to copy automatically. Please copy the page URL.";
+        }
+    }
+
+    openButton.addEventListener("click", openShareModal);
+    closeButton.addEventListener("click", closeShareModal);
+    copyButton.addEventListener("click", copyProductUrl);
+
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) closeShareModal();
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && overlay.classList.contains("active")) {
+            closeShareModal();
+        }
+    });
+
+    overlay.querySelectorAll("[data-share]").forEach(button => {
+        button.addEventListener("click", async () => {
+            const platform = button.dataset.share;
+            const encodedUrl = encodeURIComponent(productUrl);
+            const encodedText = encodeURIComponent(`${shareText}\n${productUrl}`);
+            let shareUrl = "";
+
+            switch (platform) {
+                case "whatsapp":
+                    shareUrl = `https://wa.me/?text=${encodedText}`;
+                    break;
+                case "facebook":
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+                    break;
+                case "telegram":
+                    shareUrl = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(shareText)}`;
+                    break;
+                case "twitter":
+                    shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+                    break;
+                case "instagram":
+                    await copyProductUrl();
+                    status.textContent = "Link copied! Open Instagram and paste it into a message or Story link sticker.";
+                    return;
+                case "native":
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                title: `${productName} | UNCOMMEN`,
+                                text: shareText,
+                                url: productUrl
+                            });
+                        } catch (error) {
+                            if (error.name !== "AbortError") {
+                                status.textContent = "Sharing could not be completed.";
+                            }
+                        }
+                    } else {
+                        await copyProductUrl();
+                    }
+                    return;
+            }
+
+            if (shareUrl) {
+                window.open(shareUrl, "_blank", "noopener,noreferrer,width=650,height=550");
+                closeShareModal();
+            }
+        });
     });
 })();
 </script>

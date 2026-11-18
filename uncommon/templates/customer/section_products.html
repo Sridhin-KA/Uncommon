@@ -2130,6 +2130,127 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 }
 </style>
 
+
+<style id="uncommen-product-card-share-styles">
+/* Minimal icon-only share control on each product image */
+.product-card .product-share-icon {
+    position: absolute;
+    top: 68px;
+    right: 16px;
+    z-index: 7;
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,.82);
+    border-radius: 50%;
+    background: rgba(255,255,255,.92);
+    color: #24241f;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(36,30,20,.12);
+    transition: transform .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease;
+}
+.product-card .product-share-icon svg { width: 19px; height: 19px; display:block; }
+.product-card .product-share-icon:hover {
+    transform: scale(1.1);
+    background: var(--forest);
+    color: #fff;
+    box-shadow: 0 7px 18px rgba(0,0,0,.2);
+}
+.product-card .product-share-icon:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+}
+@media(max-width:600px) {
+    .product-card .product-share-icon { top: 53px; right: 10px; width:35px; height:35px; }
+    .product-card .product-share-icon svg { width:16px; height:16px; }
+}
+
+/* Compact marketplace-style share sheet */
+.product-share-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 30000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(15,19,14,.68);
+    backdrop-filter: blur(7px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s ease, visibility .25s ease;
+}
+.product-share-overlay.is-open { opacity:1; visibility:visible; }
+.product-share-dialog {
+    position:relative;
+    width:min(430px,100%);
+    padding:26px;
+    border:1px solid var(--gold);
+    border-radius:18px;
+    background:var(--card);
+    color:var(--ink);
+    box-shadow:0 24px 75px rgba(0,0,0,.28);
+    transform:translateY(14px) scale(.98);
+    transition:transform .25s ease;
+}
+.product-share-overlay.is-open .product-share-dialog { transform:translateY(0) scale(1); }
+.product-share-head { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:20px; }
+.product-share-head h3 { margin:0; font:25px var(--serif); font-weight:400; }
+.product-share-close {
+    width:34px; height:34px; display:grid; place-items:center; padding:0;
+    border:1px solid var(--border); border-radius:50%; background:transparent;
+    color:var(--ink); font-size:22px; cursor:pointer;
+}
+.product-share-preview {
+    display:flex; align-items:center; gap:13px; padding:12px;
+    margin-bottom:22px; border:1px solid var(--border); border-radius:12px;
+    background:#F0EBDF;
+}
+.product-share-preview img {
+    width:62px; height:66px; flex:0 0 62px; object-fit:cover; border-radius:8px;
+}
+.product-share-preview-copy { min-width:0; display:grid; gap:6px; }
+.product-share-preview-copy strong { font:15px var(--serif); overflow-wrap:anywhere; }
+.product-share-preview-copy span { color:var(--muted); font:9px var(--mono); }
+.product-share-label { margin-bottom:14px; color:var(--muted); font:9px var(--mono); letter-spacing:.13em; }
+.product-share-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px 9px; }
+.product-share-option {
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    padding:0; border:0; background:transparent; color:var(--ink);
+    font:9px var(--mono); cursor:pointer;
+}
+.product-share-option .share-platform-icon {
+    width:49px; height:49px; display:grid; place-items:center;
+    border-radius:15px; color:#fff; font:21px Arial,sans-serif;
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+.product-share-option:hover .share-platform-icon { transform:translateY(-3px); box-shadow:0 7px 16px rgba(0,0,0,.16); }
+.product-share-option svg { width:22px; height:22px; }
+.share-whatsapp { background:#25D366; }
+.share-facebook { background:#1877F2; }
+.share-instagram { background:linear-gradient(45deg,#FEDA75,#FA7E1E,#D62976,#962FBF,#4F5BD5); }
+.share-telegram { background:#229ED9; }
+.share-x { background:#171717; }
+.share-more { background:var(--forest); }
+.product-share-copy {
+    width:100%; min-height:47px; margin-top:23px; padding:12px;
+    border:1px solid var(--forest); border-radius:11px;
+    background:var(--forest); color:#fff; font:9px var(--mono);
+    letter-spacing:.1em; cursor:pointer; transition:.2s ease;
+}
+.product-share-copy:hover { background:var(--gold); border-color:var(--gold); color:var(--ink); }
+@media(max-width:420px) {
+    .product-share-dialog { padding:21px; }
+    .product-share-options { gap:16px 5px; }
+    .product-share-option .share-platform-icon { width:44px; height:44px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .product-share-overlay,.product-share-dialog,.product-share-option .share-platform-icon,.product-card .product-share-icon { transition:none !important; }
+}
+</style>
+
 </head>
 
 <body>
@@ -2278,6 +2399,24 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
                         {% csrf_token %}
                         <button type="submit" class="wishlist-heart" title="Add to Wishlist" aria-label="Add {{ product.product_name|escape }} to wishlist">♡</button>
                     </form>
+
+                    <!-- Icon-only product sharing control -->
+                    <button
+                        type="button"
+                        class="product-share-icon"
+                        data-share-url="{% url 'product_detail' product.id %}"
+                        data-share-name="{{ product.product_name|escape }}"
+                        data-share-price="₹{{ product.price|floatformat:2 }}"
+                        aria-label="Share {{ product.product_name|escape }}"
+                        title="Share product">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <path d="M8.7 10.7 15.3 6.3"></path>
+                            <path d="m8.7 13.3 6.6 4.4"></path>
+                        </svg>
+                    </button>
 
                     <div class="product-overlay-content">
                         <div class="product-category">{{ product.category.category_name }}</div>
@@ -3337,6 +3476,181 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
             image.style.setProperty('--zoom-x', '50%');
             image.style.setProperty('--zoom-y', '50%');
         });
+    });
+})();
+</script>
+
+
+<!-- Shared modal for all product-card share icons -->
+<div class="product-share-overlay" id="productShareOverlay" aria-hidden="true">
+    <section class="product-share-dialog" role="dialog" aria-modal="true" aria-labelledby="productShareTitle">
+        <div class="product-share-head">
+            <h3 id="productShareTitle">Share this piece.</h3>
+            <button type="button" class="product-share-close" id="productShareClose" aria-label="Close share options">&times;</button>
+        </div>
+        <div class="product-share-preview">
+            <img id="productShareImage" src="" alt="" hidden>
+            <div class="product-share-preview-copy">
+                <strong id="productShareName">UNCOMMEN product</strong>
+                <span id="productSharePrice">UNCOMMEN · COLLECTION</span>
+            </div>
+        </div>
+        <div class="product-share-label">CHOOSE HOW TO SHARE</div>
+        <div class="product-share-options">
+            <button type="button" class="product-share-option" data-platform="whatsapp">
+                <span class="share-platform-icon share-whatsapp">☏</span><span>WhatsApp</span>
+            </button>
+            <button type="button" class="product-share-option" data-platform="facebook">
+                <span class="share-platform-icon share-facebook">f</span><span>Facebook</span>
+            </button>
+            <button type="button" class="product-share-option" data-platform="instagram">
+                <span class="share-platform-icon share-instagram">◎</span><span>Instagram</span>
+            </button>
+            <button type="button" class="product-share-option" data-platform="telegram">
+                <span class="share-platform-icon share-telegram">➤</span><span>Telegram</span>
+            </button>
+            <button type="button" class="product-share-option" data-platform="x">
+                <span class="share-platform-icon share-x">𝕏</span><span>X</span>
+            </button>
+            <button type="button" class="product-share-option" data-platform="native">
+                <span class="share-platform-icon share-more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M10 14 21 3M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg></span><span>More</span>
+            </button>
+        </div>
+        <button type="button" class="product-share-copy" id="productShareCopy">⧉ &nbsp; COPY PRODUCT LINK</button>
+    </section>
+</div>
+
+<script>
+/* UNCOMMEN product-card sharing: one accessible share sheet for every card */
+(() => {
+    const overlay = document.getElementById('productShareOverlay');
+    const closeButton = document.getElementById('productShareClose');
+    const copyButton = document.getElementById('productShareCopy');
+    const nameElement = document.getElementById('productShareName');
+    const priceElement = document.getElementById('productSharePrice');
+    const imageElement = document.getElementById('productShareImage');
+    if (!overlay || !closeButton || !copyButton) return;
+
+    let activeProduct = null;
+    let previousFocus = null;
+
+    function openShare(button) {
+        const relativeUrl = button.dataset.shareUrl || '';
+        activeProduct = {
+            name: button.dataset.shareName || 'UNCOMMEN product',
+            price: button.dataset.sharePrice || '',
+            url: new URL(relativeUrl, window.location.origin).href,
+            image: button.closest('.product-image-container')?.querySelector('.product-detail-image-link img')?.src || ''
+        };
+        previousFocus = document.activeElement;
+        nameElement.textContent = activeProduct.name;
+        priceElement.textContent = [activeProduct.price, 'UNCOMMEN'].filter(Boolean).join(' · ');
+        if (activeProduct.image) {
+            imageElement.src = activeProduct.image;
+            imageElement.hidden = false;
+        } else {
+            imageElement.removeAttribute('src');
+            imageElement.hidden = true;
+        }
+        copyButton.textContent = '⧉  COPY PRODUCT LINK';
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        closeButton.focus();
+    }
+
+    function closeShare() {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+    }
+
+    async function copyProductLink() {
+        if (!activeProduct) return;
+        try {
+            await navigator.clipboard.writeText(activeProduct.url);
+            copyButton.textContent = '✓  LINK COPIED';
+        } catch (error) {
+            const temporaryInput = document.createElement('textarea');
+            temporaryInput.value = activeProduct.url;
+            temporaryInput.style.position = 'fixed';
+            temporaryInput.style.opacity = '0';
+            document.body.appendChild(temporaryInput);
+            temporaryInput.select();
+            const copied = document.execCommand('copy');
+            temporaryInput.remove();
+            copyButton.textContent = copied ? '✓  LINK COPIED' : 'COPY FAILED — TRY AGAIN';
+        }
+        window.setTimeout(() => {
+            if (copyButton.isConnected) copyButton.textContent = '⧉  COPY PRODUCT LINK';
+        }, 2200);
+    }
+
+    document.addEventListener('click', event => {
+        const shareButton = event.target.closest('.product-share-icon');
+        if (shareButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            openShare(shareButton);
+        }
+    });
+
+    closeButton.addEventListener('click', closeShare);
+    overlay.addEventListener('click', event => {
+        if (event.target === overlay) closeShare();
+    });
+    copyButton.addEventListener('click', copyProductLink);
+
+    overlay.querySelectorAll('[data-platform]').forEach(button => {
+        button.addEventListener('click', async () => {
+            if (!activeProduct) return;
+            const { name, price, url } = activeProduct;
+            const text = `Check out ${name}${price ? ` for ${price}` : ''} at UNCOMMEN!`;
+            const encodedUrl = encodeURIComponent(url);
+            const encodedText = encodeURIComponent(`${text} ${url}`);
+            let shareUrl = '';
+
+            switch (button.dataset.platform) {
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodedText}`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text)}`;
+                    break;
+                case 'x':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodedUrl}`;
+                    break;
+                case 'instagram':
+                    await copyProductLink();
+                    closeShare();
+                    window.alert('Product link copied. Open Instagram and paste it into your Story, bio or message.');
+                    return;
+                case 'native':
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({ title: `${name} | UNCOMMEN`, text, url });
+                        } catch (error) {
+                            if (error.name !== 'AbortError') console.error('Share failed:', error);
+                        }
+                    } else {
+                        await copyProductLink();
+                    }
+                    return;
+            }
+
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'noopener,noreferrer,width=650,height=550');
+                closeShare();
+            }
+        });
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && overlay.classList.contains('is-open')) closeShare();
     });
 })();
 </script>
