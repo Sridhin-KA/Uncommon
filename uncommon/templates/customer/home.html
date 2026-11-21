@@ -2803,7 +2803,7 @@ body.in-room-view .room-landing-view {
                          <a href="{% url 'customer_profile' %}">My Profile<span aria-hidden="true">↗</span></a>
                         <a href="{{ my_orders_url|default:'/my-orders/' }}">My Orders <span aria-hidden="true">↗</span></a>
                         <a href="{% url 'wishlist_view' %}">Private Vault <span aria-hidden="true">↗</span></a>
-                        <form action="{% url 'admin_logout' %}" method="POST">
+                        <form action="{% url 'customer_logout' %}" method="POST">
                             {% csrf_token %}
                             <button type="submit" class="dropdown-logout">Logout <span aria-hidden="true">↗</span></button>
                         </form>

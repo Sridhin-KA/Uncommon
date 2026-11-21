@@ -6,7 +6,7 @@ urlpatterns = [
     # ---- Auth ---------------------------------------------------------------
     path("first", views.home, name="home"),
     path("login", views.login, name="login"),
-    path("logout/", views.admin_logout, name="admin_logout"),
+    path("logout", views.admin_logout, name="admin_logout"),
     path("verify-finance-access/", views.verify_finance_password, name="verify_finance_password"),
 
     # ---- Dashboard ----------------------------------------------------------
@@ -85,6 +85,12 @@ urlpatterns = [
     path("purchases/receipts/create/", views.goods_receipt_create, name="goods_receipt_create"),
     path("purchases/bills/create/", views.vendor_bill_create, name="vendor_bill_create"),
     path("purchases/payments/create/", views.vendor_payment_create, name="vendor_payment_create"),
+
+    # ---- Separate ERP desk data APIs -----------------------------------------
+    path("api/admin/desks/settlement/", views.admin_desk_settlement, name="admin_desk_settlement"),
+    path("api/admin/desks/rto/", views.admin_desk_rto, name="admin_desk_rto"),
+    path("api/admin/desks/sales/", views.admin_desk_sales, name="admin_desk_sales"),
+    path("api/admin/desks/stock/", views.admin_desk_stock, name="admin_desk_stock"),
 
     # ---- Utilities ----------------------------------------------------------
     path("uncommen/", views.admin_login, name="admin_login"),

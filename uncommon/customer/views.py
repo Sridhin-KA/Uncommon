@@ -51,6 +51,13 @@ def get_logged_in_customer(request):
 
     return Customer.objects.filter(id=customer_id).first()
 
+
+def customer_logout(request):
+    request.session.pop("customer_id", None)
+    messages.success(request, "You have been logged out.")
+    return redirect("customer_home")
+
+
 def customer_register(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -119,6 +126,7 @@ def customer_register(request):
         return redirect('login')
 
     return render(request, 'admin_panel/auth_page.html')
+
 def customer_home(request):
     products = (
         Product.objects

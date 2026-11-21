@@ -15,6 +15,7 @@ Sections
 """
 from django.urls import reverse
 import csv
+import re
 import json
 import logging
 import secrets
@@ -252,7 +253,7 @@ def customer_login(request):
 def admin_logout(request):
     for key in ("admin", "customer_id", "finance_access_until"):
         request.session.pop(key, None)
-    return redirect("home")
+    return redirect("uncommen/")
 
 
 @require_POST
@@ -568,9 +569,33 @@ def _tax_data(start_dt, end_dt, period, span):
                 h[0] -= l["taxable"]
                 h[1] -= l["tax"]
 
+    # Posted supplier bills are surfaced as recorded purchase GST. This is NOT
+    # automatically eligible input tax credit; eligibility needs invoice-level review.
+    purchase_tax = {"cgst": ZERO, "sgst": ZERO, "igst": ZERO, "total": ZERO, "bills": 0}
+    if "VendorBill" in globals():
+        bill_rows = VendorBill.objects.filter(
+            invoice_date__gte=start_dt.date(),
+            invoice_date__lt=end_dt.date(),
+            status__in=("posted", "partial", "paid"),
+        ).aggregate(
+            cgst=Sum("cgst_amount"),
+            sgst=Sum("sgst_amount"),
+            igst=Sum("igst_amount"),
+        )
+        purchase_tax["cgst"] = bill_rows["cgst"] or ZERO
+        purchase_tax["sgst"] = bill_rows["sgst"] or ZERO
+        purchase_tax["igst"] = bill_rows["igst"] or ZERO
+        purchase_tax["total"] = purchase_tax["cgst"] + purchase_tax["sgst"] + purchase_tax["igst"]
+        purchase_tax["bills"] = VendorBill.objects.filter(
+            invoice_date__gte=start_dt.date(),
+            invoice_date__lt=end_dt.date(),
+            status__in=("posted", "partial", "paid"),
+        ).count()
+
     return {
         "period": period, "span": span,
         "totals": {k: _f(v) for k, v in totals.items()},
+        "purchase_tax": {k: (_f(v) if isinstance(v, Decimal) else v) for k, v in purchase_tax.items()},
         "b2b": [r for t, r in invoices if t == "b2b"],
         "b2cl": [r for t, r in invoices if t == "b2cl"],
         "b2cs": [dict(state=k[0], rate=float(k[1]), taxable=_f(v[0]), tax=_f(v[1])) for k, v in b2cs.items()],
@@ -2769,3 +2794,293 @@ def vendor_payment_create(request):
         messages.error(request, "Could not record vendor payment. Check the server log.")
 
     return redirect("admin_index")
+
+# =============================================================================
+# 11. ERP DESK APIs — separate datasets for each dashboard
+# =============================================================================
+from django.views.decorators.http import require_GET
+
+
+@require_GET
+def admin_desk_settlement(request):
+    denied = _admin_or_401(request)
+    if denied:
+        return denied
+    qs = Payment.objects.select_related("order").order_by("-created_at")
+    paid = qs.filter(status="PAID")
+    pending = qs.filter(status__in=["CREATED", "PENDING"])
+    failed = qs.filter(status="FAILED")
+    total_paid = paid.aggregate(v=Sum("amount"))["v"] or ZERO
+    total_pending = pending.aggregate(v=Sum("amount"))["v"] or ZERO
+    rows = [{
+        "payment_id": p.razorpay_payment_id or "",
+        "razorpay_order_id": p.razorpay_order_id,
+        "order": p.order.order_number,
+        "date": timezone.localtime(p.created_at).strftime("%d %b %Y"),
+        "amount": _f(p.amount),
+        "status": p.status,
+    } for p in qs[:100]]
+    return JsonResponse({
+        "metrics": {
+            "captured_amount": _f(total_paid),
+            "captured_count": paid.count(),
+            "pending_amount": _f(total_pending),
+            "pending_count": pending.count(),
+            "failed_count": failed.count(),
+        },
+        "settlement_status": "not_recorded",
+        "message": "Razorpay settlement payouts, gateway fees and settlement dates are not stored in the current Payment model.",
+        "payments": rows,
+    })
+
+
+# Indian state/UT names used to recover the delivery state from the current
+# Order.shipping_address text snapshot. Longest names are checked first.
+_INDIA_STATE_ALIASES = {
+    "Andaman and Nicobar Islands": ("andaman and nicobar islands", "andaman & nicobar islands"),
+    "Andhra Pradesh": ("andhra pradesh", "andhra"),
+    "Arunachal Pradesh": ("arunachal pradesh",),
+    "Assam": ("assam",),
+    "Bihar": ("bihar",),
+    "Chandigarh": ("chandigarh",),
+    "Chhattisgarh": ("chhattisgarh", "chattisgarh"),
+    "Dadra and Nagar Haveli and Daman and Diu": (
+        "dadra and nagar haveli and daman and diu", "dadra and nagar haveli", "daman and diu"
+    ),
+    "Delhi": ("delhi", "new delhi"),
+    "Goa": ("goa",),
+    "Gujarat": ("gujarat",),
+    "Haryana": ("haryana",),
+    "Himachal Pradesh": ("himachal pradesh",),
+    "Jammu and Kashmir": ("jammu and kashmir", "jammu & kashmir"),
+    "Jharkhand": ("jharkhand",),
+    "Karnataka": ("karnataka",),
+    "Kerala": ("kerala",),
+    "Ladakh": ("ladakh",),
+    "Lakshadweep": ("lakshadweep",),
+    "Madhya Pradesh": ("madhya pradesh",),
+    "Maharashtra": ("maharashtra",),
+    "Manipur": ("manipur",),
+    "Meghalaya": ("meghalaya",),
+    "Mizoram": ("mizoram",),
+    "Nagaland": ("nagaland",),
+    "Odisha": ("odisha", "orissa"),
+    "Puducherry": ("puducherry", "pondicherry"),
+    "Punjab": ("punjab",),
+    "Rajasthan": ("rajasthan",),
+    "Sikkim": ("sikkim",),
+    "Tamil Nadu": ("tamil nadu",),
+    "Telangana": ("telangana",),
+    "Tripura": ("tripura",),
+    "Uttar Pradesh": ("uttar pradesh",),
+    "Uttarakhand": ("uttarakhand", "uttaranchal"),
+    "West Bengal": ("west bengal",),
+}
+
+
+def _state_from_shipping_address(address):
+    """Best-effort state extraction from the saved shipping-address snapshot."""
+    value = " ".join(str(address or "").lower().replace("&", " and ").split())
+    if not value:
+        return "Unknown"
+    candidates = sorted(
+        ((alias, state) for state, aliases in _INDIA_STATE_ALIASES.items() for alias in aliases),
+        key=lambda item: len(item[0]), reverse=True,
+    )
+    for alias, state in candidates:
+        if re.search(r"(?<![a-z])" + re.escape(alias) + r"(?![a-z])", value):
+            return state
+    return "Unknown"
+
+
+@require_GET
+def admin_desk_rto(request):
+    """List every RTO shipment and rank states by cancelled/returned COD orders."""
+    denied = _admin_or_401(request)
+    if denied:
+        return denied
+
+    shipments = ShiprocketShipment.objects.select_related("order", "order__customer").order_by("-updated_at")
+    rto_shipments = shipments.filter(status__iexact="RTO")
+    delivered = shipments.filter(status__iexact="DELIVERED")
+    cancelled = Order.objects.filter(status__iexact="CANCELLED")
+
+    # COD orders may remain COD_PENDING; Payment.status=PAID is not required.
+    cod_orders = Order.objects.filter(payment_method__iexact="COD").order_by("-created_at")
+    rto_order_ids = set(rto_shipments.values_list("order_id", flat=True))
+    state_totals = defaultdict(lambda: {
+        "state": "", "cod_orders": 0, "cancelled_cod": 0,
+        "rto_cod": 0, "affected_cod": 0, "affected_value": ZERO,
+    })
+    unknown_state_orders = 0
+
+    for order in cod_orders.iterator():
+        state = _state_from_shipping_address(order.shipping_address)
+        if state == "Unknown":
+            unknown_state_orders += 1
+        row = state_totals[state]
+        row["state"] = state
+        row["cod_orders"] += 1
+        is_cancelled = (order.status or "").upper() == "CANCELLED"
+        is_rto = order.id in rto_order_ids
+        if is_cancelled:
+            row["cancelled_cod"] += 1
+        if is_rto:
+            row["rto_cod"] += 1
+        if is_cancelled or is_rto:
+            row["affected_cod"] += 1
+            row["affected_value"] += order.total_amount or ZERO
+
+    state_rows = []
+    for row in state_totals.values():
+        row["affected_rate"] = round(row["affected_cod"] / row["cod_orders"] * 100, 2) if row["cod_orders"] else 0
+        row["affected_value"] = _f(row["affected_value"])
+        state_rows.append(row)
+    state_rows.sort(key=lambda row: (-row["affected_cod"], -row["cod_orders"], row["state"]))
+
+    # No [:100] limit: return the complete RTO shipment list.
+    rto_rows = []
+    for sh in rto_shipments:
+        order = sh.order
+        rto_rows.append({
+            "order": order.order_number,
+            "customer": getattr(order.customer, "name", "") if order.customer else "",
+            "state": _state_from_shipping_address(order.shipping_address),
+            "shipment_status": sh.status,
+            "label": sh.current_status_label or sh.get_status_display(),
+            "awb": sh.awb_code or "",
+            "updated": timezone.localtime(sh.updated_at).strftime("%d %b %Y"),
+            "tracking_url": sh.tracking_url or "",
+            "amount": _f(order.total_amount or ZERO),
+            "payment_method": getattr(order, "payment_method", "") or "",
+        })
+
+    total_shipments = shipments.count()
+    top_state = state_rows[0] if state_rows else None
+    return JsonResponse({
+        "metrics": {
+            "shipments": total_shipments,
+            "rto_count": rto_shipments.count(),
+            "delivered_count": delivered.count(),
+            "cancelled_orders": cancelled.count(),
+            "rto_rate": round(rto_shipments.count() / total_shipments * 100, 2) if total_shipments else 0,
+            "rto_order_value": _f(sum((x.order.total_amount or ZERO for x in rto_shipments.select_related("order")), ZERO)),
+            "cod_orders": cod_orders.count(),
+            "cancelled_or_rto_cod": sum(row["affected_cod"] for row in state_rows),
+            "unknown_state_orders": unknown_state_orders,
+            "top_affected_cod_state": top_state["state"] if top_state else "—",
+            "top_affected_cod_count": top_state["affected_cod"] if top_state else 0,
+        },
+        "state_wise_cod": state_rows,
+        "rto_shipments": rto_rows,
+        "refunds_recorded": False,
+        "state_source": "State is extracted from the saved Order.shipping_address snapshot; unmatched addresses are grouped as Unknown.",
+        "message": "State ranking counts COD orders that are cancelled or have an RTO Shiprocket shipment. The RTO list includes every shipment currently marked RTO.",
+    })
+
+@require_GET
+def admin_desk_sales(request):
+    denied = _admin_or_401(request)
+    if denied:
+        return denied
+    orders = Order.objects.prefetch_related("items__product").order_by("-created_at")
+    paid_orders = orders.filter(payments__status="PAID").distinct()
+    paid_ids = list(paid_orders.values_list("id", flat=True))
+    sales_orders = orders.filter(id__in=paid_ids).distinct()
+    revenue = sales_orders.exclude(status__in=CANCELLED).aggregate(v=Sum("total_amount"))["v"] or ZERO
+    count = sales_orders.exclude(status__in=CANCELLED).count()
+    item_cost = ZERO
+    product_cost_field = _ctx()["cost"]
+    product_rows = []
+    monthly = defaultdict(lambda: {"orders": 0, "revenue": ZERO, "cost": ZERO})
+    for order in sales_orders:
+        cancelled = (order.status or "").upper() in CANCELLED
+        if cancelled:
+            continue
+        key = timezone.localtime(order.created_at).strftime("%Y-%m")
+        monthly[key]["orders"] += 1
+        monthly[key]["revenue"] += order.total_amount or ZERO
+        for item in order.items.all():
+            if product_cost_field:
+                cost = getattr(item.product, product_cost_field, None)
+                if cost is not None:
+                    c = Decimal(str(cost)) * item.quantity
+                    item_cost += c
+                    monthly[key]["cost"] += c
+    gross_profit = revenue - item_cost
+    rows = [{
+        "period": k,
+        "orders": x["orders"],
+        "revenue": _f(x["revenue"]),
+        "cogs": _f(x["cost"]),
+        "gross_profit": _f(x["revenue"] - x["cost"]),
+    } for k, x in sorted(monthly.items())]
+    return JsonResponse({
+        "metrics": {
+            "paid_orders": count,
+            "net_revenue": _f(revenue),
+            "recorded_cogs": _f(item_cost),
+            "gross_profit_before_unrecorded_expenses": _f(gross_profit),
+            "average_order_value": _f(revenue / count) if count else 0,
+        },
+        "monthly": rows,
+        "ad_spend": None,
+        "roas": None,
+        "break_even_roas": None,
+        "cost_field": product_cost_field,
+        "message": "Advertising spend, gateway fees, shipping costs and fixed expenses are not recorded; ROAS and break-even ROAS cannot be calculated yet.",
+    })
+
+
+@require_GET
+def admin_desk_stock(request):
+    denied = _admin_or_401(request)
+    if denied:
+        return denied
+    products = Product.objects.filter(is_archived=False).select_related("category").order_by("product_name")
+    total_units = products.aggregate(v=Sum("stock"))["v"] or 0
+    inventory_cost = ZERO
+    cost_field = _ctx()["cost"]
+    if cost_field:
+        for p in products.only("stock", cost_field):
+            cost = getattr(p, cost_field, None)
+            if cost is not None:
+                inventory_cost += Decimal(str(cost)) * p.stock
+    receipts = GoodsReceipt.objects.select_related("supplier", "purchase_order").prefetch_related("lines__purchase_order_line__product").order_by("-receipt_date", "-id")
+    batch_rows = []
+    for receipt in receipts[:100]:
+        for line in receipt.lines.all():
+            pol = line.purchase_order_line
+            batch_rows.append({
+                "receipt": receipt.receipt_number,
+                "date": receipt.receipt_date.isoformat(),
+                "supplier": receipt.supplier.company_name,
+                "product": pol.product.product_name,
+                "batch": line.batch_number or "Not recorded",
+                "received": _f(line.quantity_received),
+                "accepted": _f(line.quantity_accepted),
+                "rejected": _f(line.quantity_rejected),
+                "unit_cost": _f(pol.unit_price),
+                "batch_cost": _f(pol.unit_price * line.quantity_accepted),
+            })
+    product_rows = [{
+        "product": p.product_name,
+        "category": p.category.category_name,
+        "stock": p.stock,
+        "unit_cost": _f(getattr(p, cost_field)) if cost_field and getattr(p, cost_field, None) is not None else None,
+        "stock_value": _f(Decimal(str(getattr(p, cost_field))) * p.stock) if cost_field and getattr(p, cost_field, None) is not None else None,
+    } for p in products[:200]]
+    return JsonResponse({
+        "metrics": {
+            "products": products.count(),
+            "units_on_hand": total_units,
+            "inventory_cost_value": _f(inventory_cost) if cost_field else None,
+            "low_stock": products.filter(stock__gt=0, stock__lte=5).count(),
+            "out_of_stock": products.filter(stock=0).count(),
+            "goods_receipts": receipts.count(),
+        },
+        "cost_field": cost_field,
+        "products": product_rows,
+        "batches": batch_rows,
+        "message": "Batch profitability is limited to goods-receipt quantities and PO unit prices. Batch-level sales allocation and full landed-cost allocation are not recorded.",
+    })

@@ -5,7 +5,9 @@ urlpatterns = [
     path("delivery/webhook/tracking/", views.delivery_tracking_webhook, name="delivery_tracking_webhook"),
     path('register/', views.customer_register, name='customer_register'),
      path('login/', customer_login, name='user_login'),
+     path('logout/', views.customer_logout, name='customer_logout'),
     path('', views.customer_home, name='customer_home'),
+    
 
     path(
         'collection/<str:section>/',
