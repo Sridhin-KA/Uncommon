@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
      'cloudinary_storage',
     'cloudinary',
+    'django.contrib.sitemaps',
     
 ]
 

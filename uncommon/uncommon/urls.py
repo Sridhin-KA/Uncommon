@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from admin_panel.views import *
-
+from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.contrib.sitemaps.views import sitemap
+from customer.sitemaps import StaticViewSitemap, ProductSitemap
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('admin_panel/',include('admin_panel.urls')),
@@ -31,6 +32,24 @@ urlpatterns = [
         admin_finance_weekly,
         name="admin_finance_weekly",
     ),
+     path(
+        "robots.txt",
+        TemplateView.as_view(
+            template_name="robots.txt",
+            content_type="text/plain"
+        ),
+    ),
+     path(
+    "sitemap.xml",
+    sitemap,
+    {
+        "sitemaps": {
+            "static": StaticViewSitemap,
+            "products": ProductSitemap,
+        }
+    },
+    name="django.contrib.sitemaps.views.sitemap",
+),
 ]
 urlpatterns += static(
     settings.MEDIA_URL,

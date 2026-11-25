@@ -1534,5 +1534,71 @@ body.is-loading{overflow:hidden}
 })();
 </script>
 
+
+<style id="uncommen-legal-modal-visibility-fix">
+    .legal-modal.is-open {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    body.modal-open { overflow: hidden; }
+</style>
+<script id="uncommen-legal-modal-independent-controller">
+(function () {
+    "use strict";
+
+    if (window.__uncommenLegalModalControllerReady) return;
+    window.__uncommenLegalModalControllerReady = true;
+
+    function openLegalModal(modal) {
+        if (!modal || !modal.classList.contains("legal-modal")) return;
+        document.querySelectorAll(".legal-modal.is-open").forEach(function (item) {
+            if (item !== modal) item.classList.remove("is-open");
+        });
+        modal.classList.add("is-open");
+        document.body.classList.add("modal-open");
+        var closeButton = modal.querySelector(".modal-close");
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeLegalModal(modal) {
+        if (!modal) return;
+        modal.classList.remove("is-open");
+        if (!document.querySelector(".legal-modal.is-open")) {
+            document.body.classList.remove("modal-open");
+        }
+    }
+
+    document.addEventListener("click", function (event) {
+        var trigger = event.target.closest("[data-open-legal]");
+        if (trigger) {
+            var modalId = trigger.getAttribute("data-open-legal");
+            openLegalModal(document.getElementById(modalId));
+            return;
+        }
+
+        var closeButton = event.target.closest(".legal-modal .modal-close");
+        if (closeButton) {
+            closeLegalModal(closeButton.closest(".legal-modal"));
+            return;
+        }
+
+        if (event.target.classList && event.target.classList.contains("legal-modal")) {
+            closeLegalModal(event.target);
+        }
+    }, true);
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            var openModal = document.querySelector(".legal-modal.is-open");
+            if (openModal) closeLegalModal(openModal);
+        }
+    });
+
+    console.info("[UNCOMMEN] Independent legal modal controller ready.");
+})();
+</script>
+
 </body>
 </html>

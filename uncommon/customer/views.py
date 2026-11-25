@@ -23,6 +23,7 @@ import uuid
 from decimal import Decimal, ROUND_HALF_UP
 import re
 import razorpay
+from customer.services.invoice import issue_and_email_invoice
 
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseBadRequest
@@ -848,6 +849,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 
 
+
 def checkout(request):
     customer = get_logged_in_customer(request)
 
@@ -920,19 +922,24 @@ def checkout(request):
         return redirect("bag_view")
 
     # -----------------------------------------------
-    # INITIAL CHECKOUT TOTALS FOR THE TEMPLATE
+    # CHECKOUT TOTALS
+    # No processing fee, no shipping fee.
+    # Product prices are GST-inclusive.
     # -----------------------------------------------
-    processing_fee = (
-        total * Decimal("0.10")
-    ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    total = total.quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP,
+    )
 
+    processing_fee = Decimal("0.00")
     shipping_fee = Decimal("0.00")
-    grand_total = total + processing_fee + shipping_fee
+    grand_total = total
 
     # -----------------------------------------------
     # HANDLE CHECKOUT SUBMISSION
     # -----------------------------------------------
     if request.method == "POST":
+
         address_action = request.POST.get(
             "address_action", "select"
         )
@@ -941,6 +948,7 @@ def checkout(request):
         # OPTION 1: USE A SAVED ADDRESS
         # -------------------------------------------
         if address_action == "select":
+
             selected_address_id = request.POST.get(
                 "address_id", ""
             ).strip()
@@ -950,6 +958,7 @@ def checkout(request):
                     request,
                     "Please select a delivery address."
                 )
+
                 return render(request, "customer/checkout.html", {
                     "customer": customer,
                     "items": items,
@@ -971,11 +980,14 @@ def checkout(request):
         # OPTION 2: ADD AND USE A NEW ADDRESS
         # -------------------------------------------
         elif address_action == "new":
+
             name = request.POST.get("name", "").strip()
             phone = request.POST.get("phone", "").strip()
+
             address_line = request.POST.get(
                 "address_line", ""
             ).strip()
+
             city = request.POST.get("city", "").strip()
             state = request.POST.get("state", "").strip()
             pincode = request.POST.get("pincode", "").strip()
@@ -1000,6 +1012,7 @@ def checkout(request):
                     request,
                     "Please fill in: " + ", ".join(missing_fields)
                 )
+
                 return render(request, "customer/checkout.html", {
                     "customer": customer,
                     "items": items,
@@ -1029,6 +1042,7 @@ def checkout(request):
                 new_address.save()
 
             except ValidationError as exc:
+
                 for field_errors in exc.message_dict.values():
                     for error in field_errors:
                         messages.error(request, error)
@@ -1052,7 +1066,9 @@ def checkout(request):
             messages.error(request, "Invalid address selection.")
             return redirect("checkout")
 
-        # Store an address snapshot with the order.
+        # -------------------------------------------
+        # ADDRESS SNAPSHOT
+        # -------------------------------------------
         shipping_address = (
             f"{selected_address.name}\n"
             f"{selected_address.phone}\n"
@@ -1061,21 +1077,28 @@ def checkout(request):
             f"- {selected_address.pincode}"
         )
 
-        # -----------------------------------------------
-        # RECHECK STOCK AND PRICES, THEN CREATE ORDER
-        # -----------------------------------------------
+        # -------------------------------------------
+        # PAYMENT METHOD
+        # -------------------------------------------
         payment_method = request.POST.get(
             "payment_method", "PREPAID"
         ).strip().upper()
 
         if payment_method not in ("PREPAID", "COD"):
-            messages.error(request, "Please select a valid payment method.")
+            messages.error(
+                request,
+                "Please select a valid payment method."
+            )
             return redirect("checkout")
 
         order = None
 
         try:
+            # ---------------------------------------
+            # RECHECK STOCK AND PRICES
+            # ---------------------------------------
             with transaction.atomic():
+
                 product_ids = sorted(
                     item["product"].id for item in items
                 )
@@ -1091,18 +1114,23 @@ def checkout(request):
                 verified_total = Decimal("0.00")
 
                 for item in items:
-                    product = locked_products.get(item["product"].id)
+
+                    product = locked_products.get(
+                        item["product"].id
+                    )
+
                     quantity = item["quantity"]
 
                     if not product or product.stock < quantity:
                         messages.error(
                             request,
                             f"Insufficient stock for "
-                            f"{item['product'].product_name}.",
+                            f"{item['product'].product_name}."
                         )
                         return redirect("bag_view")
 
                     verified_items.append((product, quantity))
+
                     verified_total += product.price * quantity
 
                 verified_total = verified_total.quantize(
@@ -1110,28 +1138,28 @@ def checkout(request):
                     rounding=ROUND_HALF_UP,
                 )
 
-                verified_processing_fee = (
-                    verified_total * Decimal("0.10")
-                ).quantize(
-                    Decimal("0.01"),
-                    rounding=ROUND_HALF_UP,
-                )
-
+                # -----------------------------------
+                # FINAL TOTAL
+                # ONLY PRODUCT PRICE
+                # -----------------------------------
+                verified_processing_fee = Decimal("0.00")
                 verified_shipping_fee = Decimal("0.00")
-                verified_grand_total = (
-                    verified_total
-                    + verified_processing_fee
-                    + verified_shipping_fee
-                )
+                verified_grand_total = verified_total
 
+                # -----------------------------------
+                # CREATE ORDER
+                # -----------------------------------
                 order = Order.objects.create(
                     customer=customer,
-                    order_number=f"INS-{uuid.uuid4().hex[:12].upper()}",
+                    order_number=(
+                        f"INS-{uuid.uuid4().hex[:12].upper()}"
+                    ),
                     total_amount=verified_grand_total,
                     shipping_address=shipping_address,
                     payment_method=payment_method,
                     payment_status=(
-                        "COD_PENDING" if payment_method == "COD"
+                        "COD_PENDING"
+                        if payment_method == "COD"
                         else "PENDING"
                     ),
                     status="PENDING",
@@ -1151,8 +1179,17 @@ def checkout(request):
             # CASH ON DELIVERY
             # -------------------------------------------
             if payment_method == "COD":
-                # COD is not paid yet. Admin confirmation must recheck
-                # stock before accepting/creating the shipment.
+
+                # Issue the COD invoice after the order
+                # has been successfully saved.
+                # Invoice remains marked as payment due.
+                transaction.on_commit(
+                    lambda order_id=order.pk: issue_and_email_invoice(
+                        order_id
+                    ),
+                    robust=True,
+                )
+
                 request.session["bag"] = {}
                 request.session.modified = True
 
@@ -1170,14 +1207,19 @@ def checkout(request):
             # -------------------------------------------
             # PREPAID CHECKOUT - RAZORPAY
             # -------------------------------------------
+
+            # ₹1 = 100 paise
             amount_paise = int(verified_grand_total * 100)
+
             client = get_razorpay_client()
 
             razorpay_order = client.order.create({
                 "amount": amount_paise,
                 "currency": "INR",
                 "receipt": order.order_number,
-                "notes": {"order_number": order.order_number},
+                "notes": {
+                    "order_number": order.order_number,
+                },
             })
 
             payment = Payment.objects.create(
@@ -1189,6 +1231,7 @@ def checkout(request):
             )
 
         except Exception:
+
             logger.exception("Failed to initialize checkout")
 
             if order is not None:
@@ -1204,10 +1247,12 @@ def checkout(request):
                 request,
                 "We couldn't start checkout. Please try again.",
             )
+
             return redirect("checkout")
 
-        # Data consumed by the Razorpay JavaScript in checkout.html.
-        # This branch is reached only for PREPAID orders.
+        # -------------------------------------------
+        # RAZORPAY DATA
+        # -------------------------------------------
         razorpay_data = {
             "key": settings.RAZORPAY_KEY_ID,
             "amount": amount_paise,
@@ -1249,13 +1294,20 @@ def checkout(request):
         "addresses": addresses,
         "selected_address_id": selected_address_id,
     })
-    
-    
+
+# ===================================================
+# ORDER SUCCESS
+# ===================================================
+
 def order_success(request, order_number):
+
     customer = get_logged_in_customer(request)
 
     if not customer:
-        messages.info(request, "Please log in to view your order.")
+        messages.info(
+            request,
+            "Please log in to view your order."
+        )
         return redirect("login")
 
     order = get_object_or_404(
@@ -1268,12 +1320,19 @@ def order_success(request, order_number):
         "order": order,
     })
 
+
+# ===================================================
+# FINALIZE CAPTURED PAYMENT
+# ===================================================
+
 def finalize_captured_payment(payment_record, razorpay_payment_id):
     """
-    Call only after verifying the Razorpay signature and confirming
+    Call only after verifying the payment signature and confirming
     that Razorpay reports the expected payment as captured.
     """
+
     with transaction.atomic():
+
         payment = (
             Payment.objects
             .select_for_update()
@@ -1292,7 +1351,10 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
             return False, "This order is not a prepaid order."
 
         # Idempotency: do not deduct stock more than once.
-        if order.status == "CONFIRMED" and order.payment_status == "PAID":
+        if (
+            order.status == "CONFIRMED"
+            and order.payment_status == "PAID"
+        ):
             return True, "Payment already confirmed."
 
         order_items = list(
@@ -1317,6 +1379,7 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
         insufficient = []
 
         for item in order_items:
+
             product = locked_products.get(item.product_id)
 
             if not product or product.stock < item.quantity:
@@ -1329,7 +1392,498 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
                 )
 
         # Razorpay has captured the payment.
-        # Record this even if inventory is insufficient.
+        payment.razorpay_payment_id = razorpay_payment_id
+        payment.status = "PAID"
+
+        payment.save(update_fields=[
+            "razorpay_payment_id",
+            "status",
+            "updated_at",
+        ])
+
+        order.payment_status = "PAID"
+
+        if insufficient:
+
+            order.save(update_fields=[
+                "payment_status",
+                "updated_at",
+            ])
+
+            return False, (
+                "Payment was captured successfully, but stock is "
+                "insufficient for: " + ", ".join(insufficient)
+                + ". Manual fulfilment or refund is required."
+            )
+
+        # Deduct stock once, with product rows locked.
+        for item in order_items:
+
+            product = locked_products[item.product_id]
+
+            product.stock -= item.quantity
+
+            product.save(update_fields=["stock"])
+
+        order.status = "CONFIRMED"
+
+        order.save(update_fields=[
+            "status",
+            "payment_status",
+            "updated_at",
+        ])
+
+        transaction.on_commit(
+            lambda order_id=order.pk: issue_and_email_invoice(order_id),
+            robust=True,
+        )
+
+        return True, "Payment confirmed successfully."
+
+
+# ===================================================
+# VERIFY RAZORPAY PAYMENT
+# ===================================================
+
+@require_POST
+def verify_razorpay_payment(request):
+
+    customer = get_logged_in_customer(request)
+
+    if not customer:
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Please log in again."
+            },
+            status=401,
+        )
+
+    try:
+        data = json.loads(request.body)
+
+        order_number = data["order_number"]
+        razorpay_order_id = data["razorpay_order_id"]
+        razorpay_payment_id = data["razorpay_payment_id"]
+        razorpay_signature = data["razorpay_signature"]
+
+    except (ValueError, KeyError, TypeError):
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Invalid payment response."
+            },
+            status=400,
+        )
+
+    try:
+        payment = Payment.objects.select_related("order").get(
+            order__order_number=order_number,
+            order__customer=customer,
+            razorpay_order_id=razorpay_order_id,
+        )
+
+    except Payment.DoesNotExist:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Payment record not found."
+            },
+            status=404,
+        )
+
+    try:
+
+        client = get_razorpay_client()
+
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature,
+        })
+
+        # Signature alone is not enough:
+        # check the payment directly with Razorpay.
+        remote_payment = client.payment.fetch(
+            razorpay_payment_id
+        )
+
+        expected_amount = int(payment.amount * 100)
+
+        if (
+            remote_payment.get("order_id") != payment.razorpay_order_id
+            or int(remote_payment.get("amount", -1)) != expected_amount
+            or remote_payment.get("currency") != payment.currency
+        ):
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Payment details do not match."
+                },
+                status=400,
+            )
+
+        if remote_payment.get("status") != "captured":
+
+            payment.status = "PENDING"
+
+            payment.save(update_fields=[
+                "status",
+                "updated_at",
+            ])
+
+            Order.objects.filter(
+                pk=payment.order_id,
+                payment_status__in=["PENDING", "FAILED"],
+            ).update(payment_status="PENDING")
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": (
+                        "Payment is not captured yet. Please wait before "
+                        "retrying or contact support if money was deducted."
+                    ),
+                },
+                status=409,
+            )
+
+        success, message = finalize_captured_payment(
+            payment,
+            razorpay_payment_id,
+        )
+
+        if not success:
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": message
+                },
+                status=409,
+            )
+
+        # Clear the bag only after successful verification.
+        request.session["bag"] = {}
+        request.session.modified = True
+
+        return JsonResponse({
+            "success": True,
+            "redirect_url": reverse(
+                "order_success",
+                kwargs={
+                    "order_number": payment.order.order_number
+                },
+            ),
+        })
+
+    except razorpay.errors.SignatureVerificationError:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Payment signature verification failed."
+            },
+            status=400,
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Razorpay payment verification failed."
+        )
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": (
+                    "We couldn't confirm the payment status. "
+                    "Do not pay again immediately; contact support "
+                    "if money was deducted."
+                ),
+            },
+            status=502,
+        )
+
+
+# ===================================================
+# RAZORPAY WEBHOOK
+# ===================================================
+
+@csrf_exempt
+@require_POST
+def razorpay_webhook(request):
+    """
+    Handles Razorpay payment.captured and payment.failed events.
+    Webhook secret is separate from the Razorpay API secret.
+    """
+
+    signature = request.headers.get(
+        "X-Razorpay-Signature", ""
+    )
+
+    webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
+
+    if not signature or not webhook_secret:
+        return HttpResponseBadRequest(
+            "Missing webhook signature or secret."
+        )
+
+    try:
+
+        client = get_razorpay_client()
+
+        client.utility.verify_webhook_signature(
+            request.body.decode("utf-8"),
+            signature,
+            webhook_secret,
+        )
+
+        event_data = json.loads(request.body)
+
+    except Exception:
+
+        logger.exception(
+            "Razorpay webhook signature verification failed"
+        )
+
+        return HttpResponseBadRequest("Invalid webhook.")
+
+    event = event_data.get("event")
+
+    entity = (
+        event_data.get("payload", {})
+        .get("payment", {})
+        .get("entity", {})
+    )
+
+    if event not in ("payment.captured", "payment.failed"):
+        return JsonResponse({"received": True})
+
+    razorpay_order_id = entity.get("order_id")
+    razorpay_payment_id = entity.get("id")
+
+    if not razorpay_order_id or not razorpay_payment_id:
+        return JsonResponse({"received": True})
+
+    try:
+
+        payment = Payment.objects.get(
+            razorpay_order_id=razorpay_order_id
+        )
+
+    except Payment.DoesNotExist:
+
+        return JsonResponse(
+            {"received": False},
+            status=404,
+        )
+
+    # -----------------------------------------
+    # PAYMENT FAILED
+    # -----------------------------------------
+    if event == "payment.failed":
+
+        with transaction.atomic():
+
+            payment = (
+                Payment.objects
+                .select_for_update()
+                .get(pk=payment.pk)
+            )
+
+            order = (
+                Order.objects
+                .select_for_update()
+                .get(pk=payment.order_id)
+            )
+
+            # Never downgrade a successfully captured payment.
+            if payment.status != "PAID":
+
+                payment.status = "FAILED"
+
+                payment.save(update_fields=[
+                    "status",
+                    "updated_at",
+                ])
+
+                if order.payment_status != "PAID":
+
+                    order.payment_status = "FAILED"
+
+                    order.save(update_fields=[
+                        "payment_status",
+                        "updated_at",
+                    ])
+
+        return JsonResponse({"received": True})
+
+    # -----------------------------------------
+    # PAYMENT CAPTURED
+    # -----------------------------------------
+
+    try:
+
+        expected_amount = int(payment.amount * 100)
+
+        received_amount = int(
+            entity.get("amount", -1)
+        )
+
+    except (TypeError, ValueError):
+
+        return HttpResponseBadRequest(
+            "Invalid captured payment amount."
+        )
+
+    if (
+        entity.get("status") != "captured"
+        or received_amount != expected_amount
+        or entity.get("currency") != payment.currency
+    ):
+
+        return HttpResponseBadRequest(
+            "Captured payment details do not match."
+        )
+
+    try:
+
+        success, message = finalize_captured_payment(
+            payment,
+            razorpay_payment_id,
+        )
+
+        if not success:
+
+            logger.error(
+                "Razorpay captured payment needs manual resolution. "
+                "Order: %s | Payment: %s | Reason: %s",
+                payment.order.order_number,
+                razorpay_payment_id,
+                message,
+            )
+
+        return JsonResponse({
+            "received": True,
+            "success": success,
+            "message": message,
+        })
+
+    except Exception:
+
+        logger.exception(
+            "Razorpay webhook processing failed for order %s",
+            razorpay_order_id,
+        )
+
+        return JsonResponse(
+            {"received": False},
+            status=500,
+        )
+
+
+# ===================================================
+# RAZORPAY CLIENT
+# ===================================================
+
+def get_razorpay_client():
+
+    key_id = settings.RAZORPAY_KEY_ID
+    key_secret = settings.RAZORPAY_KEY_SECRET
+
+    if not key_id or not key_secret:
+        raise RuntimeError(
+            "Razorpay credentials are not configured."
+        )
+
+    return razorpay.Client(
+        auth=(key_id, key_secret)
+    )
+ 
+    
+def order_success(request, order_number):
+    customer = get_logged_in_customer(request)
+
+    if not customer:
+        messages.info(request, "Please log in to view your order.")
+        return redirect("login")
+
+    order = get_object_or_404(
+        Order.objects.prefetch_related("items__product"),
+        order_number=order_number,
+        customer=customer,
+    )
+
+    return render(request, "customer/order_success.html", {
+        "order": order,
+    })
+def finalize_captured_payment(payment_record, razorpay_payment_id):
+    """
+    Call only after verifying the payment signature and confirming
+    that Razorpay reports the expected payment as captured.
+    """
+
+    with transaction.atomic():
+        payment = (
+            Payment.objects
+            .select_for_update()
+            .select_related("order")
+            .get(pk=payment_record.pk)
+        )
+
+        order = (
+            Order.objects
+            .select_for_update()
+            .get(pk=payment.order_id)
+        )
+
+        # Razorpay must not process COD orders.
+        if order.payment_method != "PREPAID":
+            return False, "This order is not a prepaid order."
+
+        # Idempotency: avoid deducting stock again on retries.
+        if order.status == "CONFIRMED" and order.payment_status == "PAID":
+            return True, "Payment already confirmed."
+
+        order_items = list(
+            OrderItem.objects
+            .filter(order=order)
+            .order_by("product_id")
+        )
+
+        product_ids = sorted({
+            item.product_id for item in order_items
+        })
+
+        locked_products = {
+            product.id: product
+            for product in (
+                Product.objects
+                .select_for_update()
+                .filter(id__in=product_ids)
+                .order_by("id")
+            )
+        }
+
+        insufficient = []
+
+        for item in order_items:
+            product = locked_products.get(item.product_id)
+
+            if not product or product.stock < item.quantity:
+                insufficient.append(
+                    getattr(
+                        product,
+                        "product_name",
+                        f"Product #{item.product_id}",
+                    )
+                )
+
+        # Razorpay captured the money; record that even if stock is short.
         payment.razorpay_payment_id = razorpay_payment_id
         payment.status = "PAID"
         payment.save(update_fields=[
@@ -1347,27 +1901,31 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
             ])
 
             return False, (
-                "Payment was captured successfully, but stock is "
-                "insufficient for: " + ", ".join(insufficient)
+                "Payment was captured, but stock is insufficient for: "
+                + ", ".join(insufficient)
                 + ". Manual fulfilment or refund is required."
             )
 
-        # Deduct stock once, with product rows locked.
+        # Deduct stock while the product rows are locked.
         for item in order_items:
             product = locked_products[item.product_id]
             product.stock -= item.quantity
             product.save(update_fields=["stock"])
 
         order.status = "CONFIRMED"
-
         order.save(update_fields=[
             "status",
             "payment_status",
             "updated_at",
         ])
 
-        return True, "Payment confirmed successfully."
+        # Issue the prepaid invoice only after the payment/order transaction commits.
+        transaction.on_commit(
+            lambda order_id=order.pk: issue_and_email_invoice(order_id),
+            robust=True,
+        )
 
+        return True, "Payment confirmed successfully."
 @require_POST
 def verify_razorpay_payment(request):
     customer = get_logged_in_customer(request)

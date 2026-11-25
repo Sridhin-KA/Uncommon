@@ -259,3 +259,17 @@ class UpcomingReservation(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Upcoming Reservation"
         verbose_name_plural = "Upcoming Reservations"
+        
+class TaxInvoice(models.Model):
+    order = models.OneToOneField(
+        "Order",
+        on_delete=models.PROTECT,
+        related_name="tax_invoice"
+    )
+    invoice_number = models.CharField(max_length=40, unique=True)
+    pdf = models.FileField(upload_to="invoices/%Y/%m/", blank=True)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.invoice_number

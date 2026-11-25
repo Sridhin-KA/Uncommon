@@ -1313,6 +1313,18 @@ td {
         transition-duration: .01ms !important;
     }
 }
+
+/* Legal modal visibility safeguard */
+.legal-modal.is-open {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+.legal-modal:not(.is-open) {
+    pointer-events: none;
+}
+
 </style>
 </head>
 
@@ -2571,6 +2583,76 @@ td {
         open: (id) => openModal(document.getElementById(id)),
         closeAll: () => modals.forEach(closeModal)
     };
+})();
+</script>
+
+
+<!-- Independent legal modal click controller -->
+<script>
+(() => {
+    if (window.__uncommenLegalModalController) return;
+    window.__uncommenLegalModalController = true;
+
+    let lastTrigger = null;
+
+    function openLegalModal(modal) {
+        if (!modal || !modal.classList.contains("legal-modal")) return;
+        if (modal.classList.contains("is-open")) return;
+
+        lastTrigger = document.activeElement;
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+
+        const closeButton = modal.querySelector(".modal-close");
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeLegalModal(modal) {
+        if (!modal || !modal.classList.contains("legal-modal")) return;
+
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+
+        if (!document.querySelector(".legal-modal.is-open")) {
+            document.body.classList.remove("modal-open");
+            if (lastTrigger && typeof lastTrigger.focus === "function") {
+                lastTrigger.focus();
+            }
+        }
+    }
+
+    document.addEventListener("click", event => {
+        const trigger = event.target.closest("[data-open-legal]");
+        if (trigger) {
+            const modalId = trigger.getAttribute("data-open-legal");
+            const modal = document.getElementById(modalId);
+            if (modal && !modal.classList.contains("is-open")) {
+                openLegalModal(modal);
+            }
+            return;
+        }
+
+        const closeButton = event.target.closest(".legal-modal .modal-close, .legal-modal [data-close-legal]");
+        if (closeButton) {
+            closeLegalModal(closeButton.closest(".legal-modal"));
+            return;
+        }
+
+        const backdrop = event.target.closest(".legal-modal");
+        if (backdrop && event.target === backdrop) {
+            closeLegalModal(backdrop);
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            const activeModal = document.querySelector(".legal-modal.is-open");
+            if (activeModal) closeLegalModal(activeModal);
+        }
+    });
+
+    console.info("[UNCOMMEN] Account legal modal fallback ready.");
 })();
 </script>
 

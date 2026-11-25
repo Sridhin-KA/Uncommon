@@ -845,3 +845,5 @@ class VendorPaymentAllocation(models.Model):
 
     def __str__(self):
         return f"{self.payment.payment_number} → {self.bill.bill_number}"
+    
+    

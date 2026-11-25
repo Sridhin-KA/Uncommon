@@ -2249,6 +2249,16 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
 @media(prefers-reduced-motion:reduce) {
     .product-share-overlay,.product-share-dialog,.product-share-option .share-platform-icon,.product-card .product-share-icon { transition:none !important; }
 }
+
+/* Reliable legal-modal visibility and stacking safeguard */
+.legal-modal.is-open {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+body.legal-modal-open { overflow: hidden !important; }
+
 </style>
 
 </head>
@@ -2763,7 +2773,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     aria-labelledby="about-title"
 >
     <div class="legal-dialog">
-        <button class="legal-close" type="button" aria-label="Close">×</button>
+        <button class="legal-close" data-close-legal type="button" aria-label="Close">×</button>
 
         <h2 id="about-title">About UNCOMMEN</h2>
 
@@ -2789,7 +2799,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     aria-labelledby="contact-title"
 >
     <div class="legal-dialog">
-        <button class="legal-close" type="button" aria-label="Close">×</button>
+        <button class="legal-close" data-close-legal type="button" aria-label="Close">×</button>
 
         <h2 id="contact-title">Contact Us</h2>
 
@@ -2823,7 +2833,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     aria-labelledby="privacy-title"
 >
     <div class="legal-dialog">
-        <button class="legal-close" type="button" aria-label="Close">×</button>
+        <button class="legal-close" data-close-legal type="button" aria-label="Close">×</button>
 
         <h2 id="privacy-title">Privacy Policy</h2>
 
@@ -2851,7 +2861,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     aria-labelledby="terms-title"
 >
     <div class="legal-dialog">
-        <button class="legal-close" type="button" aria-label="Close">×</button>
+        <button class="legal-close" data-close-legal type="button" aria-label="Close">×</button>
 
         <h2 id="terms-title">Terms &amp; Conditions</h2>
 
@@ -2879,7 +2889,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     aria-labelledby="shipping-title"
 >
     <div class="legal-dialog">
-        <button class="legal-close" type="button" aria-label="Close">×</button>
+        <button class="legal-close" data-close-legal type="button" aria-label="Close">×</button>
 
         <h2 id="shipping-title">Shipping Policy</h2>
 
@@ -2906,7 +2916,7 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     aria-labelledby="refund-title"
 >
     <div class="legal-dialog">
-        <button class="legal-close" type="button" aria-label="Close">×</button>
+        <button class="legal-close" data-close-legal type="button" aria-label="Close">×</button>
 
         <h2 id="refund-title">Returns &amp; Refunds</h2>
 
@@ -3652,6 +3662,88 @@ body::before { content:""; display:block; height:var(--uncommon-header-space); }
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && overlay.classList.contains('is-open')) closeShare();
     });
+})();
+</script>
+
+
+<!-- UNCOMMEN independent legal modal controller -->
+<script>
+(() => {
+    if (window.__uncommenLegalModalControllerInstalled) return;
+    window.__uncommenLegalModalControllerInstalled = true;
+
+    let lastFocusedElement = null;
+
+    function openLegalModal(modal, trigger) {
+        if (!modal) return;
+        const currentlyOpen = document.querySelector('.legal-modal.is-open');
+        if (currentlyOpen && currentlyOpen !== modal) {
+            currentlyOpen.classList.remove('is-open');
+            currentlyOpen.setAttribute('aria-hidden', 'true');
+        }
+
+        lastFocusedElement = trigger || document.activeElement;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('legal-modal-open');
+
+        const closeButton = modal.querySelector('.legal-close, [data-close-legal]');
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeLegalModal(modal) {
+        if (!modal || !modal.classList.contains('legal-modal')) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+
+        if (!document.querySelector('.legal-modal.is-open')) {
+            document.body.classList.remove('legal-modal-open');
+        }
+
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+        }
+    }
+
+    document.addEventListener('click', event => {
+        const trigger = event.target.closest('[data-open-legal]');
+        if (trigger) {
+            const modal = document.getElementById(trigger.getAttribute('data-open-legal'));
+            if (modal && modal.classList.contains('legal-modal')) {
+                event.preventDefault();
+                openLegalModal(modal, trigger);
+            }
+            return;
+        }
+
+        const closeButton = event.target.closest('.legal-close, [data-close-legal]');
+        if (closeButton) {
+            const modal = closeButton.closest('.legal-modal');
+            if (modal) closeLegalModal(modal);
+            return;
+        }
+
+        const backdrop = event.target.closest('.legal-modal');
+        if (backdrop && event.target === backdrop) {
+            closeLegalModal(backdrop);
+        }
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        const modal = document.querySelector('.legal-modal.is-open');
+        if (modal) {
+            event.preventDefault();
+            closeLegalModal(modal);
+        }
+    });
+
+    // Keep initial accessibility state consistent.
+    document.querySelectorAll('.legal-modal').forEach(modal => {
+        if (!modal.classList.contains('is-open')) modal.setAttribute('aria-hidden', 'true');
+    });
+
+    console.info('[UNCOMMEN] Legal modal controller ready.');
 })();
 </script>
 

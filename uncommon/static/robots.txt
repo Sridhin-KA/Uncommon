@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /admin_panel/
+Disallow: /login/
+Disallow: /register/
+Disallow: /checkout/
+Disallow: /my-orders/
+Disallow: /profile/
+Disallow: /addresses/
+
+Sitemap: https://uncommen.in/sitemap.xml

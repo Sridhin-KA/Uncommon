@@ -713,6 +713,16 @@
         .tracking-event small { color: var(--muted); font-size: 10px; }
         .tracking-link { margin-top: 18px; }
 
+    
+
+        /* Independent legal modal visibility safeguard */
+        .legal-modal.is-open {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
     </style>
 </head>
 
@@ -1375,6 +1385,75 @@
     });
 })();
 
+</script>
+
+
+<!-- INDEPENDENT LEGAL MODAL CONTROLLER -->
+<script>
+(function () {
+    "use strict";
+
+    if (window.__uncommenOrderDetailsLegalController) return;
+    window.__uncommenOrderDetailsLegalController = true;
+
+    let lastFocused = null;
+
+    function openLegalModal(modal) {
+        if (!modal) return;
+        lastFocused = document.activeElement;
+        modal.classList.add("is-open");
+        document.body.classList.add("modal-open");
+
+        const closeButton = modal.querySelector(".modal-close, [data-close-legal]");
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeLegalModal(modal) {
+        if (!modal) return;
+        modal.classList.remove("is-open");
+
+        if (!document.querySelector(".legal-modal.is-open")) {
+            document.body.classList.remove("modal-open");
+        }
+
+        if (lastFocused && typeof lastFocused.focus === "function") {
+            lastFocused.focus();
+        }
+    }
+
+    // Delegated handling keeps footer links working even if another script fails.
+    document.addEventListener("click", function (event) {
+        const trigger = event.target.closest("[data-open-legal]");
+        if (trigger) {
+            event.preventDefault();
+            const id = trigger.getAttribute("data-open-legal");
+            openLegalModal(document.getElementById(id));
+            return;
+        }
+
+        const closeButton = event.target.closest(".legal-modal .modal-close, .legal-modal [data-close-legal]");
+        if (closeButton) {
+            event.preventDefault();
+            closeLegalModal(closeButton.closest(".legal-modal"));
+            return;
+        }
+
+        if (event.target.classList && event.target.classList.contains("legal-modal")) {
+            closeLegalModal(event.target);
+        }
+    }, true);
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+        const modal = document.querySelector(".legal-modal.is-open");
+        if (modal) {
+            event.preventDefault();
+            closeLegalModal(modal);
+        }
+    });
+
+    console.info("[UNCOMMEN] Order details legal modal controller ready.");
+})();
 </script>
 
 </body>

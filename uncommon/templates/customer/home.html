@@ -624,6 +624,22 @@
     -webkit-backdrop-filter:blur(10px); opacity:0; transition:opacity .25s ease;
 }
 .legal-modal.is-open { display:flex; opacity:1; }
+
+.legal-modal[aria-hidden="true"] { display:none; }
+.legal-modal.is-open[aria-hidden="false"] {
+    display:flex !important;
+    visibility:visible;
+    opacity:1;
+    pointer-events:auto;
+}
+.legal-modal:not(.is-open) {
+    visibility:hidden;
+    pointer-events:none;
+}
+.legal-modal .legal-dialog {
+    overscroll-behavior:contain;
+}
+
 .legal-dialog {
     position:relative; width:min(820px,100%); max-height:min(86vh,880px); overflow:auto;
     padding:clamp(25px,4.5vw,48px); background:var(--card); color:var(--ink);
@@ -2858,7 +2874,7 @@ body.in-room-view .room-landing-view {
         <div class="wrap manifesto-inner">
             <div class="eyebrow">The UNCOMMEN position</div>
             <h2>We do not build for demographic trends. We build for an audience of one.</h2>
-            <p>Mass luxury is a contradiction. True distinction cannot be manufactured in volume. We curate the antidote to the expected: essential allocations for men, singular expressions within INSOLO for women, or access to The 100 Registry—our registry of strictly finite creations. The pursuit is never consensus. The pursuit is setting self apart from the ordinary.</p>
+            <p>Mass luxury is a contradiction. True distinction cannot be manufactured in volume. We curate the antidote to the expected: essential allocations for men, singular expressions within  for her, or access to The Hundred our registry of strictly finite creations. The pursuit is never consensus. The pursuit is setting self apart from the ordinary.</p>
             <div class="manifesto-images" aria-label="A glimpse into the collection">
                 <img src="{% static 'images/manifesto-1.jpg' %}" alt="Artisan engraving an intricate copper vessel by hand" loading="lazy">
                 <img src="{% static 'images/manifesto-2.jpg' %}" alt="Traditional metalworking with heated metal in a workshop" loading="lazy">
@@ -2998,7 +3014,7 @@ body.in-room-view .room-landing-view {
     <section class="hundred" id="hundred">
         <div class="wrap hundred-grid">
             <div class="hundred-copy">
-                <div class="eyebrow">The 100 Registry — rare & limited</div>
+                <div class="eyebrow">The Hundred - rare & limited</div>
                 <h2>Not everything is made to stay available.</h2>
                 <p>Discover products marked rare or limited by the UNCOMMEN team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
                 <div class="hundred-actions">
@@ -3008,7 +3024,7 @@ body.in-room-view .room-landing-view {
             </div>
             <div>
                 <div class="hundred-card">
-                    <div class="hundred-stat"><span>Collection</span><span>The 100 Registry</span></div>
+                    <div class="hundred-stat"><span>Collection</span><span>The Hundred</span></div>
                     <div class="hundred-stat"><span>Rare and limited pieces</span><span>{{ rare_count }} AVAILABLE</span></div>
                     <div class="hundred-stat"><span>Upcoming releases</span><span>RESERVATION REQUESTS</span></div>
                     <div class="hundred-stat"><span>Confirmation</span><span>BY EMAIL</span></div>
@@ -3042,7 +3058,7 @@ body.in-room-view .room-landing-view {
             <div class="room-switcher-pills" role="tablist" aria-label="Switch collection room">
                 <button type="button" class="room-switch-pill is-active" data-switch-room="HIM" role="tab" aria-selected="true" aria-controls="room-section-HIM">Room 01 · Him</button>
                 <button type="button" class="room-switch-pill" data-switch-room="HER" role="tab" aria-selected="false" aria-controls="room-section-HER">Room 02 · Her</button>
-                <button type="button" class="room-switch-pill" data-switch-room="RARE" role="tab" aria-selected="false" aria-controls="room-section-RARE">Room 03 · The 100 Registry</button>
+                <button type="button" class="room-switch-pill" data-switch-room="RARE" role="tab" aria-selected="false" aria-controls="room-section-RARE">Room 03 · The Hundred</button>
             </div>
             <div class="room-subnav-meta">
                 <span class="room-meta-dot" aria-hidden="true"></span>
@@ -3162,7 +3178,7 @@ body.in-room-view .room-landing-view {
         <div class="room-hero">
             <div class="wrap room-hero-grid">
                 <div class="room-hero-copy">
-                    <div class="room-hero-kicker">Room 03 · The 100 Registry Permanent Vault</div>
+                    <div class="room-hero-kicker">Room 03 · The Hundred Permanent Vault</div>
                     <h2 class="room-hero-title">Not everything is made to stay available.</h2>
                     <p class="room-hero-desc">Discover products marked rare or limited by the UNCOMMEN team. The selection is shaped by what is available, with each piece chosen for the character it brings to the collection.</p>
                     <div class="room-hero-stats">
@@ -3186,7 +3202,7 @@ body.in-room-view .room-landing-view {
                     </div>
                     <div class="room-hero-seal">
                         <strong>Room 03</strong>
-                        <span>The 100 Registry</span>
+                        <span>The Hundred</span>
                     </div>
                 </div>
             </div>
@@ -3400,7 +3416,7 @@ body.in-room-view .room-landing-view {
     <section class="reserve-dialog" role="dialog" aria-modal="true" aria-labelledby="reserve-dialog-title">
         <div class="reserve-dialog-head">
             <div>
-                <div class="eyebrow">The 100 Registry · Early interest</div>
+                <div class="eyebrow">The Hundred · Early interest</div>
                 <h3 id="reserve-dialog-title">Be considered for what comes next.</h3>
                 <p class="reserve-dialog-intro">Leave your details for an upcoming release. We’ll email an acknowledgement when your request has been received. This is not a purchase or a guarantee of availability.</p>
             </div>
@@ -3440,7 +3456,7 @@ body.in-room-view .room-landing-view {
                     <label for="reservation-interest">What are you waiting for?</label>
                     <select id="reservation-interest" name="interest" required>
                         <option value="" selected disabled>Select an upcoming collection</option>
-                        <option value="The 100 Registry — next rare release">The 100 Registry — next rare release</option>
+                        <option value="The 100 Registry — next rare release">The Hundred — next rare release</option>
                         <option value="Limited-edition product">A limited-edition piece</option>
                         <option value="New product launch">A new product launch</option>
                         <option value="Any upcoming release">Any upcoming release</option>
@@ -3462,8 +3478,8 @@ body.in-room-view .room-landing-view {
 
 
 <!-- Each footer information item has its own independent modal -->
-<div class="legal-modal" id="about-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="about-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">The story behind the collection</div><h2 id="about-modal-title">About Uncommen</h2><p class="legal-emphasis">Exclusivity Preserved. Restocks Forbidden.</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close About Ucommen">×</button></div>
-<h3>The Luxury of Being One in 100 Out of Millions</h3><p>In an era governed by ubiquitous mass production, true individuality has become the ultimate luxury. Millions move through life enveloped in uniformity—wearing identical silhouettes, carrying repeated products, and surrounding themselves with choices dictated by the masses.</p><p>We forged Ucommen for the discerning few who refuse to conform.</p><p>Uncommen stands as a manifesto against the ordinary: dedicated to those who embody what is singular, rare, and un-repeatable.</p>
+<div class="legal-modal" id="about-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="about-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">The story behind the collection</div><h2 id="about-modal-title">About Uncommen</h2><p class="legal-emphasis">Exclusivity Preserved. Restocks Forbidden.</p></div><button class="legal-close" type="button" data-close-legal aria-label="Close About Uncommen">×</button></div>
+<h3>The Luxury of Being One in 100 Out of Millions</h3><p>In an era governed by ubiquitous mass production, true individuality has become the ultimate luxury. Millions move through life enveloped in uniformity—wearing identical silhouettes, carrying repeated products, and surrounding themselves with choices dictated by the masses.</p><p>We forged Uncommen for the discerning few who refuse to conform.</p><p>Uncommen stands as a manifesto against the ordinary: dedicated to those who embody what is singular, rare, and un-repeatable.</p>
 <h3>Journeys Across India for the Unobtainable</h3><p>To bring this vision to life, our specialized sourcing team travels to remote corners, heritage ateliers, and hidden artisanal hubs across India. They seek out master craftsmen and rare design methodologies that cannot be replicated by modern factories.</p><p>We curate these exceptional, obscure creations under an unyielding mandate: a maximum of 100 individually numbered pieces are ever brought into existence.</p>
 <h3>Our Absolute Promise</h3><p>When you acquire a piece from us, that specific edition number is indelibly reserved for you. Once claimed, it transcends ordinary retail and enters the realm of the permanent vault.</p><p>While a product category or physical item type may eventually return to our store in a new form, a design once vaulted will NEVER be restocked or reproduced.</p><p class="legal-emphasis">No reprints. No duplicates. No exceptions.</p><p>Some things in life—once gone—cannot be bought, regardless of price. By capping our releases so strictly, we guarantee that your acquisition remains a personal archetype, exclusively aligned with your journey.</p><p>We do not merely sell products; we are cultivating an elite community of connoisseurs who value true rarity, deep heritage, and unrepeatable sophistication.</p>
 <h3>The Uncommen Ethos</h3><ul><li><strong>The Century Limit:</strong> Every design or artefact we unveil is strictly capped at precisely 100 iterations globally.</li><li><strong>Exclusive Ownership:</strong> The moment your order is sealed, your unique serial number is permanently locked to your identity.</li><li><strong>Vaulted in Perpetuity:</strong> Once the 100th piece of a design is claimed, it is archived forever—preserving your exclusivity for a lifetime.</li></ul></section></div>
@@ -3475,7 +3491,7 @@ body.in-room-view .room-landing-view {
 <p>Uncommen ("we," "us," or "our"), a sole proprietorship based in Bengaluru, Karnataka, is committed to safeguarding your privacy and personal data. This Privacy Policy outlines how we collect, use, process, and protect your information when you visit our website or purchase our limited-edition creations.</p><h3>1. Information We Collect</h3><p>To fulfill your orders and deliver an exceptional experience, we collect personal information you provide directly to us, including:</p><ul><li><strong>Contact &amp; Identity Information:</strong> Full name, phone number, email address, and delivery address.</li><li><strong>Order &amp; Serial Details:</strong> Purchases made, reserved edition/serial numbers assigned to your identity, and transaction history.</li><li><strong>Payment Processing Data:</strong> Financial transactions are processed securely through our authorized payment partner, Razorpay. We do not store or process your credit/debit card details, UPI PINs, or net banking credentials on our servers.</li></ul><h3>2. How We Use Your Information</h3><p>We utilize your personal information exclusively for operational and service excellence:</p><ul><li>Processing, dispatching, and delivering your reserved limited-edition items.</li><li>Verifying and maintaining your unique serial number allocation.</li><li>Communicating order updates, delivery statuses, and customer support responses.</li><li>Complying with legal, tax, and regulatory obligations within India.</li></ul><h3>3. Data Sharing &amp; Security</h3><p>We value your trust and never sell, rent, or trade your personal data to third parties. Your information is shared only with trusted third-party service providers (such as logistics partners and our payment gateway, Razorpay) strictly to complete your orders. We enforce stringent technical and organizational measures to safeguard your data against unauthorized access, loss, or disclosure.</p><h3>4. Your Rights &amp; Grievances</h3><p>You have the right to request access to, correction of, or deletion of your personal data stored with us. For any privacy concerns, data inquiries, or grievances, please contact us at <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or reach us directly at <a href="tel:+917051259897">+91 7051259897</a>.</p></section></div>
 
 <div class="legal-modal" id="terms-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Use of our website and services</div><h2 id="terms-modal-title">Terms of Service</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Terms of Service">×</button></div>
-<p>Welcome to Uncommen. By accessing our website, browsing our collections, or purchasing our products, you agree to be bound by the following Terms of Service. Please read them carefully before making a purchase.</p><h3>1. Business Identity &amp; Exclusivity Promise</h3><p>Ucommen is a sole proprietorship registered in Bengaluru, Karnataka, India. All products listed on our platform are strictly capped at 100 individually numbered pieces worldwide. Once a specific design reaches its 100-piece allocation, it is permanently vaulted and will never be reproduced or restocked.</p><h3>2. Pricing &amp; Payments</h3><p>All prices listed on our platform are in Indian Rupees (INR) and are inclusive of applicable taxes unless stated otherwise. Payments can be made via Cash on Delivery (COD), Credit/Debit Cards, Net Banking, and UPI. Transactions are securely processed through our integrated payment gateway, Razorpay. We reserve the right to accept, decline, or cancel any order in the event of pricing discrepancies, technical errors, or inventory limitations.</p><h3>3. Order Cancellations</h3><p>You may cancel your order free of charge at any time before dispatch. Once an item has been dispatched from our facility and handed over to our courier partners, the order cannot be cancelled mid-transit and must follow our standard Return Policy upon delivery.</p><h3>4. Intellectual Property &amp; Designs</h3><p>All content, product designs, artwork, graphics, logos, and copy on this website are the exclusive intellectual property of Ucommen. Reproduction, copying, or imitation of our vaulted designs or branding without written consent is strictly prohibited.</p><h3>5. Limitation of Liability &amp; Governing Law</h3><p>Ucommen shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our services or products. These terms are governed by and construed in accordance with the laws of India, and any legal disputes shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka.</p></section></div>
+<p>Welcome to Uncommen. By accessing our website, browsing our collections, or purchasing our products, you agree to be bound by the following Terms of Service. Please read them carefully before making a purchase.</p><h3>1. Business Identity &amp; Exclusivity Promise</h3><p>Uncommen is a sole proprietorship registered in Bengaluru, Karnataka, India. All products listed on our platform are strictly capped at 100 individually numbered pieces worldwide. Once a specific design reaches its 100-piece allocation, it is permanently vaulted and will never be reproduced or restocked.</p><h3>2. Pricing &amp; Payments</h3><p>All prices listed on our platform are in Indian Rupees (INR) and are inclusive of applicable taxes unless stated otherwise. Payments can be made via Cash on Delivery (COD), Credit/Debit Cards, Net Banking, and UPI. Transactions are securely processed through our integrated payment gateway, Razorpay. We reserve the right to accept, decline, or cancel any order in the event of pricing discrepancies, technical errors, or inventory limitations.</p><h3>3. Order Cancellations</h3><p>You may cancel your order free of charge at any time before dispatch. Once an item has been dispatched from our facility and handed over to our courier partners, the order cannot be cancelled mid-transit and must follow our standard Return Policy upon delivery.</p><h3>4. Intellectual Property &amp; Designs</h3><p>All content, product designs, artwork, graphics, logos, and copy on this website are the exclusive intellectual property of Uncommen. Reproduction, copying, or imitation of our vaulted designs or branding without written consent is strictly prohibited.</p><h3>5. Limitation of Liability &amp; Governing Law</h3><p>Uncommen shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our services or products. These terms are governed by and construed in accordance with the laws of India, and any legal disputes shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka.</p></section></div>
 
 <div class="legal-modal" id="refund-modal" aria-hidden="true"><section class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title"><div class="legal-dialog-head"><div><div class="legal-kicker">Customer-first support</div><h2 id="refund-modal-title">Refund &amp; Return Policy</h2></div><button class="legal-close" type="button" data-close-legal aria-label="Close Refund and Return Policy">×</button></div>
 <p>At Uncommen, we place our patrons above everything else. While our creations are rare and strictly limited to 100 pieces, our commitment to your satisfaction is infinite. We stand proudly behind the quality of our craftsmanship and offer a customer-first approach to returns and refunds.</p><h3>1. Return &amp; Refund Eligibility</h3><p>Because we value you more than the product itself, we gladly accept returns and process refunds under the following conditions:</p><ul><li>You are unsatisfied with the product, or you receive a damaged, defective, or incorrect item.</li><li>The product must be returned in its original condition, unworn/unused, with all original tags, authentication cards, packaging, and assigned serial number tags intact.</li></ul><h3>2. 2-Day Reporting Window</h3><p>To initiate a return or report a damaged/defective product, you must contact us within 2 business days of receiving your package.</p><p><strong>How to Report:</strong> Email <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a> or message/call <a href="tel:+917051259897">+91 7051259897</a> with your Order ID, details of the issue, and photos/videos of the item or defect.</p><h3>3. Return Process &amp; Refund Timeline</h3><p>Once your return request is verified and approved, we will arrange a reverse pickup from your delivery address. Upon receiving and inspecting the returned item at our Bengaluru warehouse, we will initiate your refund.</p><ul><li><strong>Prepaid Orders:</strong> Refunds will be credited back to your original payment method via Razorpay within 5 to 7 business days.</li><li><strong>Cash on Delivery (COD) Orders:</strong> Refunds will be transferred directly to your provided bank account/UPI ID within 5 to 7 business days following inspection.</li></ul><h3>4. Order Cancellations</h3><p>If you wish to cancel an order, you can do so anytime before dispatch for a full refund. Simply reach out immediately at <a href="tel:+917051259897">+91 7051259897</a> or <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>.</p></section></div>
@@ -3495,13 +3511,13 @@ body.in-room-view .room-landing-view {
                     <strong>Collections</strong>
                     <a href="{% url 'section_products' 'HIM' %}">For Him</a>
                     <a href="{% url 'section_products' 'HER' %}"> For Her</a>
-                    <a href="{% url 'section_products' 'RARE' %}">The 100 Registry</a>
+                    <a href="{% url 'section_products' 'RARE' %}">The Hundred</a>
                 </div>
                 <div class="footer-col">
                     <strong>The House</strong>
                     <a href="#process">The Allocation Protocol</a>
                     <a href="#services">Services</a>
-                    <a href="#hundred">The 100 Registry</a>
+                    <a href="#hundred">The Hundred</a>
                 </div>
                 <div class="footer-col">
                     <strong>Your account</strong>
@@ -3515,12 +3531,12 @@ body.in-room-view .room-landing-view {
                 </div>
                 <div class="footer-col">
                     <strong>Information</strong>
-                    <a href="#" data-open-legal="about-modal">About Uncommen</a>
-                    <a href="#" data-open-legal="contact-modal">Contact Us</a>
-                    <a href="#" data-open-legal="privacy-modal">Privacy Policy</a>
-                    <a href="#" data-open-legal="terms-modal">Terms of Service</a>
-                    <a href="#" data-open-legal="refund-modal">Refund &amp; Return Policy</a>
-                    <a href="#" data-open-legal="shipping-modal">Shipping &amp; Delivery Policy</a>
+                    <a href="javascript:void(0)" data-open-legal="about-modal" aria-haspopup="dialog">About Uncommen</a>
+                    <a href="javascript:void(0)" data-open-legal="contact-modal" aria-haspopup="dialog">Contact Us</a>
+                    <a href="javascript:void(0)" data-open-legal="privacy-modal" aria-haspopup="dialog">Privacy Policy</a>
+                    <a href="javascript:void(0)" data-open-legal="terms-modal" aria-haspopup="dialog">Terms of Service</a>
+                    <a href="javascript:void(0)" data-open-legal="refund-modal" aria-haspopup="dialog">Refund &amp; Return Policy</a>
+                    <a href="javascript:void(0)" data-open-legal="shipping-modal" aria-haspopup="dialog">Shipping &amp; Delivery Policy</a>
                 </div>
             </div>
         </div>
@@ -4169,120 +4185,7 @@ body.in-room-view .room-landing-view {
         }
     })();
 
-    // Independent footer information modals: each link opens only its matching policy.
-    (() => {
-        let activeLegalModal = null;
-        let legalReturnFocus = null;
-        function openLegalModal(id) {
-            const modal = document.getElementById(id);
-            if (!modal) return;
-            if (activeLegalModal) closeLegalModal(activeLegalModal, false);
-            legalReturnFocus = document.activeElement;
-            activeLegalModal = modal;
-            modal.classList.add('is-open');
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            modal.querySelector('.legal-close')?.focus();
-        }
-        function closeLegalModal(modal, restoreFocus = true) {
-            if (!modal) return;
-            modal.classList.remove('is-open');
-            modal.setAttribute('aria-hidden', 'true');
-            activeLegalModal = null;
-            document.body.style.overflow = '';
-            if (restoreFocus && legalReturnFocus) legalReturnFocus.focus();
-        }
-        document.querySelectorAll('[data-open-legal]').forEach(link => {
-            link.addEventListener('click', event => {
-                event.preventDefault();
-                openLegalModal(link.dataset.openLegal);
-            });
-        });
-        document.querySelectorAll('[data-close-legal]').forEach(button => {
-            button.addEventListener('click', () => closeLegalModal(button.closest('.legal-modal')));
-        });
-        document.querySelectorAll('.legal-modal').forEach(modal => {
-            modal.addEventListener('click', event => {
-                if (event.target === modal) closeLegalModal(modal);
-            });
-        });
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape' && activeLegalModal) closeLegalModal(activeLegalModal);
-        });
-    })();
 
-(() => {
-    let modalHistoryOpen = false;
-    let closingFromPopstate = false;
-
-    function getOpenModal() {
-        return document.querySelector(
-            '.legal-modal.is-open, #reservation-modal.is-open, #reservation-alert.is-open'
-        );
-    }
-
-    function openModalHistory() {
-        if (modalHistoryOpen) return;
-
-        history.pushState({ uncommonModal: true }, '', location.href);
-        modalHistoryOpen = true;
-    }
-
-    function closeOpenModal() {
-        const modal = getOpenModal();
-        if (!modal) return false;
-
-        if (modal.matches('.legal-modal')) {
-            modal.querySelector('[data-close-legal]')?.click();
-        } else if (modal.id === 'reservation-modal') {
-            modal.querySelector('[data-close-reservation]')?.click();
-        } else if (modal.id === 'reservation-alert') {
-            document.getElementById('reservation-alert-close')?.click();
-        }
-
-        return true;
-    }
-
-    // Track modal openings, including existing click handlers.
-    document.addEventListener('click', event => {
-        if (
-            event.target.closest(
-                '[data-open-legal], [data-open-reservation]'
-            )
-        ) {
-            setTimeout(() => {
-                if (getOpenModal()) openModalHistory();
-            }, 0);
-        }
-    });
-
-    window.addEventListener('popstate', () => {
-        modalHistoryOpen = false;
-        closingFromPopstate = true;
-
-        closeOpenModal();
-
-        closingFromPopstate = false;
-    });
-
-    // When a modal is closed using its X or backdrop,
-    // remove its temporary history entry as well.
-    document.addEventListener('click', event => {
-        if (!modalHistoryOpen || closingFromPopstate) return;
-
-        if (
-            event.target.closest(
-                '[data-close-legal], [data-close-reservation], #reservation-alert-close'
-            ) ||
-            event.target.classList.contains('legal-modal') ||
-            event.target.id === 'reservation-modal' ||
-            event.target.id === 'reservation-alert'
-        ) {
-            modalHistoryOpen = false;
-            history.back();
-        }
-    });
-})();
 
 
 // ===== Interactive Room Portal Animation & 100% Backend-Driven Products Catalogue (Him / Her / The 100 Registry) =====
@@ -5270,5 +5173,113 @@ body.in-room-view .room-landing-view {
 })();
 
 </script>
+
+<script>
+/* UNCOMMEN FOOTER MODALS — standalone controller */
+(function () {
+    "use strict";
+
+    function initUncommenLegalModals() {
+        var modalSelector = ".legal-modal";
+        var activeModal = null;
+        var previousFocus = null;
+        var previousOverflow = "";
+
+        function openModal(id, trigger) {
+            var modal = document.getElementById(id);
+            if (!modal || !modal.matches(modalSelector)) {
+                console.error("[UNCOMMEN] Modal not found:", id);
+                return;
+            }
+
+            if (activeModal && activeModal !== modal) {
+                activeModal.classList.remove("is-open");
+                activeModal.setAttribute("aria-hidden", "true");
+            }
+
+            if (!activeModal) {
+                previousFocus = trigger || document.activeElement;
+                previousOverflow = document.body.style.overflow;
+            }
+
+            activeModal = modal;
+            modal.setAttribute("aria-hidden", "false");
+            modal.classList.add("is-open");
+            document.body.style.overflow = "hidden";
+
+            var closeButton = modal.querySelector("[data-close-legal]");
+            if (closeButton) {
+                window.setTimeout(function () {
+                    closeButton.focus();
+                }, 30);
+            }
+        }
+
+        function closeModal() {
+            if (!activeModal) return;
+
+            var closing = activeModal;
+            activeModal = null;
+            closing.classList.remove("is-open");
+            closing.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = previousOverflow;
+
+            if (previousFocus && typeof previousFocus.focus === "function") {
+                previousFocus.focus();
+            }
+            previousFocus = null;
+        }
+
+        // Capture phase ensures this works even if another homepage click listener interferes.
+        document.addEventListener("click", function (event) {
+            var target = event.target;
+            if (!target || !target.closest) return;
+
+            var trigger = target.closest("[data-open-legal]");
+            if (trigger) {
+                event.preventDefault();
+                event.stopPropagation();
+                openModal(trigger.getAttribute("data-open-legal"), trigger);
+                return;
+            }
+
+            var closeButton = target.closest("[data-close-legal]");
+            if (closeButton && closeButton.closest(modalSelector)) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeModal();
+                return;
+            }
+
+            if (activeModal && target === activeModal) {
+                closeModal();
+            }
+        }, true);
+
+        document.addEventListener("keydown", function (event) {
+            if (!activeModal) return;
+
+            if (event.key === "Escape") {
+                event.preventDefault();
+                closeModal();
+            }
+        });
+
+        document.querySelectorAll(modalSelector).forEach(function (modal) {
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+        });
+
+        console.info("[UNCOMMEN] Footer modal controller ready.");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initUncommenLegalModals);
+    } else {
+        initUncommenLegalModals();
+    }
+})();
+</script>
+
 </body>
 </html>

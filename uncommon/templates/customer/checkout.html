@@ -951,6 +951,111 @@
                 transform: scale(1.16);
             }
         }
+
+/* UNCOMMEN shared footer legal modals */
+.footer-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 22px;
+    margin-top: 16px;
+}
+.footer-legal-links button {
+    border: 0;
+    padding: 5px 2px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font: 9px var(--mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+.footer-legal-links button:hover { color: var(--gold); }
+.legal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(24,20,14,.72);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+.legal-modal.is-open { display: flex !important; }
+.legal-modal[aria-hidden="true"] { visibility: hidden; }
+.legal-modal.is-open[aria-hidden="false"] { visibility: visible; }
+.legal-dialog {
+    position: relative;
+    width: min(720px,100%);
+    max-height: min(82vh,850px);
+    overflow-y: auto;
+    padding: 38px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 25px 90px #00000030;
+    animation: legal-modal-enter .25s ease-out;
+}
+@keyframes legal-modal-enter {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.legal-close {
+    position: sticky;
+    top: 0;
+    float: right;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    margin: -10px -10px 0 15px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 23px;
+    line-height: 1;
+}
+.legal-eyebrow {
+    margin: 8px 0 12px;
+    color: var(--gold);
+    font: 9px var(--mono);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+.legal-title {
+    margin: 0 0 22px;
+    font: 400 clamp(32px,5vw,44px)/1.1 var(--serif);
+}
+.legal-content {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.95;
+}
+.legal-content h3 {
+    margin: 25px 0 8px;
+    color: var(--ink);
+    font: 400 21px/1.4 var(--serif);
+}
+.legal-content p { margin: 0 0 13px; }
+.legal-content ul { padding-left: 20px; margin: 8px 0 18px; }
+.legal-content li { margin-bottom: 7px; }
+.legal-content a {
+    color: var(--red);
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+.legal-divider { height: 1px; margin: 25px 0; background: var(--line); }
+body.modal-open { overflow: hidden; }
+@media (max-width: 580px) {
+    .legal-modal { padding: 10px; }
+    .legal-dialog { max-height: 90vh; padding: 25px 20px; }
+}
+
 </style>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
@@ -1322,14 +1427,6 @@
 
                     
 
-                    <div class="total-row">
-                        <span>Processing fee</span>
-                        <span id="processing-fee"
-                              data-processing-fee="{{ processing_fee|default:0 }}">
-                            ₹{{ processing_fee|default:0|floatformat:2 }}
-                        </span>
-                    </div>
-
                     <div class="total-row grand-total">
                         <span>Order total</span>
                         <span id="grand-total" data-grand-total="{{ grand_total }}">₹{{ grand_total|floatformat:2 }}</span>
@@ -1366,6 +1463,14 @@
 
 <footer class="footer">
     UNCOMMEN · LESS, BUT BETTER.
+    <nav class="footer-legal-links" aria-label="Legal and support information">
+        <button type="button" data-open-legal="about-modal">About Us</button>
+        <button type="button" data-open-legal="contact-modal">Contact Us</button>
+        <button type="button" data-open-legal="privacy-modal">Privacy Policy</button>
+        <button type="button" data-open-legal="terms-modal">Terms of Service</button>
+        <button type="button" data-open-legal="refund-modal">Refund &amp; Returns</button>
+        <button type="button" data-open-legal="shipping-modal">Shipping &amp; Delivery</button>
+    </nav>
 </footer>
 
 <script>
@@ -1385,7 +1490,6 @@
         const preloader = document.getElementById("page-preloader");
 
         const productPriceElement = document.getElementById("product-price");
-        const processingFeeElement = document.getElementById("processing-fee");
         const grandTotalElement = document.getElementById("grand-total");
         const buttonTotalElement = document.getElementById("button-total");
 
@@ -1410,17 +1514,9 @@
             ? Number(productPriceElement.dataset.basePrice || 0)
             : 0;
 
-        const processingFee = processingFeeElement
-            ? Number(processingFeeElement.dataset.processingFee || 0)
-            : 0;
-
         const payableTotal = grandTotalElement
             ? Number(grandTotalElement.dataset.grandTotal || baseProductPrice)
             : baseProductPrice;
-
-        if (processingFeeElement) {
-            processingFeeElement.textContent = formatINR(processingFee);
-        }
 
         if (grandTotalElement) {
             grandTotalElement.textContent = formatINR(payableTotal);
@@ -1752,6 +1848,455 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("scroll", updateLogoVisibility, { passive: true });
     updateLogoVisibility();
+})();
+</script>
+
+    <!-- ABOUT MODAL -->
+    <section class="legal-modal" id="about-modal" role="dialog"
+        aria-modal="true" aria-labelledby="about-title">
+        <div class="legal-dialog">
+            <button class="legal-close" type="button" aria-label="Close dialog">×</button>
+            <div class="legal-eyebrow">The story behind the selection</div>
+            <h2 class="legal-title" id="about-title">About Us</h2>
+
+            <div class="legal-content">
+                <p>
+                     UNCOMMEN is built around a simple idea: personal
+                    style should feel personal. We curate distinctive pieces
+                    for people who value individuality over following every trend.
+                </p>
+
+                <h3>Made for the individual</h3>
+                <p>
+                    Our collections are selected with care, with an emphasis on
+                    design, character and pieces that feel different from the ordinary.
+                </p>
+
+                <h3>The Hundred</h3>
+                <p>
+                    Selected products may be offered in limited quantities.
+                    Availability depends on the individual product and its
+                    remaining stock. Please check each product listing for
+                    its specific details.
+                </p>
+
+                <h3>Our promise</h3>
+                <p>
+                    We aim to provide a thoughtful shopping experience, clear
+                    product information and responsive customer support. If
+                    you have a question about an item, our policies or an order,
+                    please contact our support team.
+                </p>
+
+                <div class="legal-divider"></div>
+                <p><strong>UNCOMMEN</strong> — choose differently.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT MODAL -->
+    <section class="legal-modal" id="contact-modal" role="dialog"
+        aria-modal="true" aria-labelledby="contact-title">
+        <div class="legal-dialog">
+            <button class="legal-close" type="button" aria-label="Close dialog">×</button>
+            <div class="legal-eyebrow">We're here to help</div>
+            <h2 class="legal-title" id="contact-title">Contact Us</h2>
+
+            <div class="legal-content">
+                <p>
+                    Need help with a product, order, delivery or return?
+                    Contact us using the details below.
+                </p>
+
+                <h3>Customer support</h3>
+                <p>
+                    Email:
+                    <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+                </p>
+                <p>
+                    Phone:
+                    <a href="tel:+917051259897">+91 7051259897</a>
+                </p>
+
+                <h3>Support hours and response</h3>
+                <p>
+                    Please include your order number, where applicable, so we
+                    can assist you more efficiently. We aim to respond within
+                    24–48 business hours. Response times may vary during busy
+                    periods or public holidays.
+                </p>
+
+                <h3>Grievances</h3>
+                <p>
+                    For unresolved complaints, email
+                    <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+                    with the subject line “Grievance” and include your order
+                    reference and a description of the issue.
+                </p>
+
+                <div class="legal-divider"></div>
+                <p>
+                    Please verify that the contact details above are current
+                    and monitored before publishing this page.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRIVACY POLICY MODAL -->
+    <section class="legal-modal" id="privacy-modal" role="dialog"
+        aria-modal="true" aria-labelledby="privacy-title">
+        <div class="legal-dialog">
+            <button class="legal-close" type="button" aria-label="Close dialog">×</button>
+            <div class="legal-eyebrow">Your information matters</div>
+            <h2 class="legal-title" id="privacy-title">Privacy Policy</h2>
+
+            <div class="legal-content">
+                <p><strong>Last updated: October 2026</strong></p>
+
+                <p>
+                    This policy explains how UNCOMMEN collects, uses
+                    and protects information when you use our website or place
+                    an order.
+                </p>
+
+                <h3>Information we collect</h3>
+                <ul>
+                    <li>Contact details such as your name, email address and phone number.</li>
+                    <li>Delivery and billing information needed to process orders.</li>
+                    <li>Order details, product selections and customer support messages.</li>
+                    <li>Technical information such as browser, device and basic website usage data where collected.</li>
+                </ul>
+
+                <h3>How we use information</h3>
+                <ul>
+                    <li>To process orders, payments and deliveries.</li>
+                    <li>To communicate order updates and respond to requests.</li>
+                    <li>To maintain website security and improve the shopping experience.</li>
+                    <li>To meet applicable legal and accounting obligations.</li>
+                </ul>
+
+                <h3>Payments and service providers</h3>
+                <p>
+                    Payments may be processed by third-party payment providers
+                    such as Razorpay, if enabled at checkout. Payment providers
+                    handle payment information under their own policies. We do
+                    not intend to store full card details on our own website.
+                </p>
+
+                <h3>Sharing and security</h3>
+                <p>
+                    We do not sell personal information. Information may be
+                    shared with service providers who help operate the store,
+                    fulfil orders, process payments or meet legal requirements.
+                    We use reasonable safeguards, but no online system can
+                    guarantee absolute security.
+                </p>
+
+                <h3>Your choices</h3>
+                <p>
+                    You may contact us to request access to, correction of or
+                    deletion of eligible personal information, subject to
+                    applicable law and legitimate record-keeping requirements.
+                </p>
+
+                <h3>Contact</h3>
+                <p>
+                    Privacy questions can be sent to
+                    <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>.
+                </p>
+
+                <p>
+                    This is a general policy template. Ensure it accurately
+                    reflects your actual data collection, hosting, analytics,
+                    payment providers and applicable legal obligations before
+                    publishing.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TERMS MODAL -->
+    <section class="legal-modal" id="terms-modal" role="dialog"
+        aria-modal="true" aria-labelledby="terms-title">
+        <div class="legal-dialog">
+            <button class="legal-close" type="button" aria-label="Close dialog">×</button>
+            <div class="legal-eyebrow">Using our store</div>
+            <h2 class="legal-title" id="terms-title">Terms of Service</h2>
+
+            <div class="legal-content">
+                <p><strong>Last updated: October 2026</strong></p>
+
+                <p>
+                    By browsing or purchasing from UNCOMMEN, you agree
+                    to these terms. Please review the terms before placing an order.
+                </p>
+
+                <h3>Products and availability</h3>
+                <p>
+                    We aim to display product descriptions, images, prices and
+                    availability accurately. Colours may look different across
+                    screens. Products are subject to stock availability, and
+                    an item in your acquisition is not reserved until an order is accepted.
+                </p>
+
+                <h3>Orders and payment</h3>
+                <p>
+                    Orders are subject to acceptance and stock confirmation.
+                    We may contact you if an order needs clarification or cannot
+                    be fulfilled. Applicable taxes, if any, and the final amount should be shown
+                    before you confirm payment.
+                </p>
+
+                <h3>Cancellations, returns and refunds</h3>
+                <p>
+                    Cancellation, return and refund requests are governed by
+                    the Refund & Returns Policy shown on this website.
+                </p>
+
+                <h3>Intellectual property</h3>
+                <p>
+                    Website text, graphics, branding, images and other content
+                    may be protected by intellectual property laws. Do not
+                    reproduce or use them commercially without permission.
+                </p>
+
+                <h3>Website use</h3>
+                <p>
+                    You agree not to misuse the website, attempt unauthorised
+                    access, interfere with its operation or provide false
+                    information when placing an order.
+                </p>
+
+                <h3>Liability and changes</h3>
+                <p>
+                    To the extent permitted by law, we are not responsible for
+                    indirect losses arising from temporary website interruptions.
+                    Nothing in these terms limits rights that cannot lawfully
+                    be excluded. We may update these terms when needed.
+                </p>
+
+                <h3>Governing law</h3>
+                <p>
+                    These terms are subject to applicable Indian law. Any
+                    jurisdiction clause should be confirmed against the actual
+                    business registration and applicable legal requirements.
+                </p>
+
+                <h3>Contact</h3>
+                <p>
+                    <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- REFUND & RETURNS MODAL -->
+    <section class="legal-modal" id="refund-modal" role="dialog"
+        aria-modal="true" aria-labelledby="refund-title">
+        <div class="legal-dialog">
+            <button class="legal-close" type="button" aria-label="Close dialog">×</button>
+            <div class="legal-eyebrow">Shopping with confidence</div>
+            <h2 class="legal-title" id="refund-title">Refund & Returns</h2>
+
+            <div class="legal-content">
+                <p><strong>Last updated: October 2026</strong></p>
+
+                <h3>Damaged, defective or incorrect items</h3>
+                <p>
+                    If your order arrives damaged, defective or different from
+                    what you ordered, contact us within 2 business days of
+                    delivery. Include your order number, a description of the
+                    issue and clear photographs of the item and packaging.
+                </p>
+
+                <h3>Return eligibility</h3>
+                <p>
+                    Return requests are reviewed according to the product's
+                    condition and the applicable policy. Items should generally
+                    be unused, with original tags and packaging where applicable.
+                    Certain products may not be returnable where permitted by law.
+                    Please contact us before sending an item back.
+                </p>
+
+                <h3>How to request a return</h3>
+                <ul>
+                    <li>Email <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>.</li>
+                    <li>Include your order number and reason for the request.</li>
+                    <li>Wait for return instructions before shipping an item.</li>
+                </ul>
+
+                <h3>Refunds</h3>
+                <p>
+                    Once an approved return is received and inspected, we will
+                    notify you of the outcome. Approved refunds are processed
+                    to the original payment method where possible. Allow around
+                    5–7 business days after processing for the amount to appear;
+                    bank and payment-provider timelines may differ.
+                </p>
+
+                <h3>Order cancellations</h3>
+                <p>
+                    Contact us as soon as possible if you need to cancel an
+                    order. Cancellation may not be possible after dispatch.
+                    If an order cannot be fulfilled, we will communicate the
+                    next steps and arrange an applicable refund.
+                </p>
+
+                <h3>Contact</h3>
+                <p>
+                    Email
+                    <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+                    or call <a href="tel:+917051259897">+91 7051259897</a>.
+                </p>
+
+                <p>
+                    Confirm these timelines and eligibility conditions against
+                    your actual fulfilment process before publishing.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SHIPPING MODAL -->
+    <section class="legal-modal" id="shipping-modal" role="dialog"
+        aria-modal="true" aria-labelledby="shipping-title">
+        <div class="legal-dialog">
+            <button class="legal-close" type="button" aria-label="Close dialog">×</button>
+            <div class="legal-eyebrow">From our collection to your door</div>
+            <h2 class="legal-title" id="shipping-title">Shipping & Delivery</h2>
+
+            <div class="legal-content">
+                <p><strong>Last updated: October 2026</strong></p>
+
+                <h3>Order processing</h3>
+                <p>
+                    Orders are generally prepared for dispatch within 2–4
+                    business days after order confirmation and payment
+                    verification. Processing may take longer during holidays,
+                    sales or periods of unusually high demand.
+                </p>
+
+                <h3>Delivery estimates</h3>
+                <p>
+                    Delivery is generally estimated at 5–7 business days after
+                    dispatch, depending on the destination, courier service and
+                    local conditions. Remote areas may require additional time.
+                    These are estimates, not guaranteed delivery dates.
+                </p>
+
+                <h3>Shipping charges</h3>
+                <p>
+                    Any applicable shipping charge should be displayed at
+                    checkout before payment. If free shipping is offered for
+                    your order, the checkout page will reflect that offer.
+                </p>
+
+                <h3>Tracking your order</h3>
+                <p>
+                    When tracking information is available, it will be shared
+                    through the contact details provided with your order.
+                    Tracking updates may take time to appear after dispatch.
+                </p>
+
+                <h3>Delivery issues</h3>
+                <p>
+                    If your shipment appears delayed or the tracking information
+                    has not updated, contact us with your order number. Please
+                    also check that your delivery address and phone number were
+                    entered correctly.
+                </p>
+
+                <h3>Contact</h3>
+                <p>
+                    Email
+                    <a href="mailto:Contact@uncommen.in">Contact@uncommen.in</a>
+                    for delivery assistance.
+                </p>
+
+                <p>
+                    Only publish delivery estimates and free-shipping claims
+                    that match your actual courier arrangements.
+                </p>
+            </div>
+        </div>
+    </section>
+
+<!-- UNCOMMEN FOOTER LEGAL MODAL CONTROLLER -->
+<script>
+(() => {
+    const selector = '.legal-modal';
+    let lastFocused = null;
+
+    function openModal(id, trigger) {
+        const modal = document.getElementById(id);
+        if (!modal || !modal.matches(selector)) return;
+
+        lastFocused = trigger || document.activeElement;
+        document.querySelectorAll(selector).forEach(item => {
+            item.classList.remove('is-open');
+            item.setAttribute('aria-hidden', 'true');
+        });
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        const closeButton = modal.querySelector('.legal-close');
+        if (closeButton) closeButton.focus();
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+
+        if (!document.querySelector(selector + '.is-open')) {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+        }
+    }
+
+    document.addEventListener('click', event => {
+        const trigger = event.target.closest('[data-open-legal]');
+        if (trigger) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            openModal(trigger.getAttribute('data-open-legal'), trigger);
+            return;
+        }
+
+        const closeButton = event.target.closest('.legal-modal .legal-close');
+        if (closeButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeModal(closeButton.closest(selector));
+            return;
+        }
+
+        if (event.target.matches(selector) && event.target.classList.contains('is-open')) {
+            closeModal(event.target);
+        }
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            const modal = document.querySelector(selector + '.is-open');
+            if (modal) {
+                event.preventDefault();
+                closeModal(modal);
+            }
+        }
+    });
+
+    document.querySelectorAll(selector).forEach(modal => {
+        if (!modal.classList.contains('is-open')) modal.setAttribute('aria-hidden', 'true');
+    });
+
+    console.info('[UNCOMMEN] Checkout legal modal controller ready.');
 })();
 </script>
 

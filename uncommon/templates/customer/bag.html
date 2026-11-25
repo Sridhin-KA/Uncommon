@@ -2414,5 +2414,96 @@
     updateNavbar();
 })();
 </script>
+
+<!-- UNCOMMEN FOOTER LEGAL MODAL FALLBACK CONTROLLER -->
+<style>
+    .legal-modal { display: none; }
+    .legal-modal.is-open { display: flex !important; }
+    .legal-modal[aria-hidden="true"] { visibility: hidden; }
+    .legal-modal.is-open[aria-hidden="false"] { visibility: visible; }
+</style>
+<script>
+(() => {
+    const modalSelector = '.legal-modal';
+    let lastFocused = null;
+
+    function openLegalModal(id, trigger) {
+        const modal = document.getElementById(id);
+        if (!modal || !modal.matches(modalSelector)) return;
+
+        lastFocused = trigger || document.activeElement;
+
+        document.querySelectorAll(modalSelector).forEach(item => {
+            item.classList.remove('is-open');
+            item.setAttribute('aria-hidden', 'true');
+        });
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        const close = modal.querySelector('.legal-close');
+        if (close) close.focus();
+    }
+
+    function closeLegalModal(modal) {
+        if (!modal) return;
+
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+
+        if (!document.querySelector(modalSelector + '.is-open')) {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            if (lastFocused && typeof lastFocused.focus === 'function') {
+                lastFocused.focus();
+            }
+        }
+    }
+
+    // Capture clicks before other page-level handlers can interfere.
+    document.addEventListener('click', event => {
+        const trigger = event.target.closest('[data-open-legal]');
+        if (trigger) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            openLegalModal(trigger.getAttribute('data-open-legal'), trigger);
+            return;
+        }
+
+        const closeButton = event.target.closest('.legal-modal .legal-close');
+        if (closeButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeLegalModal(closeButton.closest(modalSelector));
+            return;
+        }
+
+        if (event.target.matches(modalSelector) && event.target.classList.contains('is-open')) {
+            closeLegalModal(event.target);
+        }
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        const modal = document.querySelector(modalSelector + '.is-open');
+        if (modal) {
+            event.preventDefault();
+            closeLegalModal(modal);
+        }
+    });
+
+    document.querySelectorAll(modalSelector).forEach(modal => {
+        if (!modal.classList.contains('is-open')) {
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    });
+
+    console.info('[UNCOMMEN] Independent legal modal controller ready.');
+})();
+</script>
+
 </body>
 </html>
