@@ -46,6 +46,13 @@ class CustomerAddress(models.Model):
     def __str__(self):
         return f"{self.name} - {self.city}"
 
+class OrderDailySequence(models.Model):
+    date = models.DateField(unique=True)
+    last_sequence = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.date}: {self.last_sequence}"
+
 class Order(models.Model):
 
     STATUS_CHOICES = [

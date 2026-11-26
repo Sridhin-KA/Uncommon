@@ -283,6 +283,13 @@
         .price {
             font: 25px var(--serif);
             margin: 22px 0;
+            
+            
+        }
+        .gst-text {
+            font-size: 11px; /* Smaller GST text */
+           font-weight: bold;
+            color: #000000;
         }
 
         .divider {
@@ -1038,7 +1045,8 @@ body.modal-open { overflow: hidden; }
             </div>
 
             <div class="price">
-                ₹{{ product.price|floatformat:2 }}(incl. GST)
+                ₹{{ product.price|floatformat:2 }}
+                <span class="gst-text">(incl. GST)</span>
             </div>
 
             {% if product_colour or product_overview %}

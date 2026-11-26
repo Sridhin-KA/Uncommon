@@ -847,8 +847,35 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.db import transaction
+from .models import OrderDailySequence
 
+def generate_order_number():
+    """
+    Generate order numbers like UN-261127-0001.
+    The sequence resets each day.
+    Call this only inside transaction.atomic().
+    """
+    today = timezone.localdate()
 
+    # Create today's counter if it doesn't exist yet.
+    OrderDailySequence.objects.get_or_create(
+        date=today,
+        defaults={"last_sequence": 0},
+    )
+
+    # Lock the counter row to prevent duplicate sequence numbers.
+    sequence = (
+        OrderDailySequence.objects
+        .select_for_update()
+        .get(date=today)
+    )
+
+    sequence.last_sequence += 1
+    sequence.save(update_fields=["last_sequence"])
+
+    return f"UN-{today:%y%m%d}-{sequence.last_sequence:04d}"
 
 def checkout(request):
     customer = get_logged_in_customer(request)
@@ -1149,11 +1176,11 @@ def checkout(request):
                 # -----------------------------------
                 # CREATE ORDER
                 # -----------------------------------
+                order_number = generate_order_number()
+
                 order = Order.objects.create(
                     customer=customer,
-                    order_number=(
-                        f"INS-{uuid.uuid4().hex[:12].upper()}"
-                    ),
+                    order_number=order_number,
                     total_amount=verified_grand_total,
                     shipping_address=shipping_address,
                     payment_method=payment_method,
