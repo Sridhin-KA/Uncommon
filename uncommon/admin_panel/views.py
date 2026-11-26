@@ -41,7 +41,7 @@ from django.db.models import Avg, Count
 from customer.views import get_logged_in_customer
 from customer.models import *  # noqa: F401,F403  (Customer, Order, OrderItem, Payment, Feedback, ...)
 from .models import *  # noqa: F401,F403  (Admin, Category, Product, Supplier, PurchaseOrder, ...)
-
+from customer.services.brevo import _send_brevo_email
 logger = logging.getLogger(__name__)
 
 
@@ -1345,29 +1345,29 @@ def view_orders(request):
     })
 
 
-def _send_brevo_email(to_email, subject, text):
-    """Send a plain-text email through the Brevo HTTPS API. Raises on any failure."""
-    api_key = settings.BREVO_API_KEY
-    sender_email = settings.BREVO_SENDER_EMAIL
-    if not api_key or not sender_email:
-        raise ValueError("Brevo API key or sender email is not configured.")
+# def _send_brevo_email(to_email, subject, text):
+#     """Send a plain-text email through the Brevo HTTPS API. Raises on any failure."""
+#     api_key = settings.BREVO_API_KEY
+#     sender_email = settings.BREVO_SENDER_EMAIL
+#     if not api_key or not sender_email:
+#         raise ValueError("Brevo API key or sender email is not configured.")
 
-    response = requests.post(
-        "https://api.brevo.com/v3/smtp/email",
-        headers={
-            "accept": "application/json",
-            "api-key": api_key,
-            "content-type": "application/json",
-        },
-        json={
-            "sender": {"name": "UNCOMMON Team", "email": sender_email},
-            "to": [{"email": to_email}],
-            "subject": subject,
-            "textContent": text,
-        },
-        timeout=15,
-    )
-    response.raise_for_status()
+#     response = requests.post(
+#         "https://api.brevo.com/v3/smtp/email",
+#         headers={
+#             "accept": "application/json",
+#             "api-key": api_key,
+#             "content-type": "application/json",
+#         },
+#         json={
+#             "sender": {"name": "UNCOMMON Team", "email": sender_email},
+#             "to": [{"email": to_email}],
+#             "subject": subject,
+#             "textContent": text,
+#         },
+#         timeout=15,
+#     )
+#     response.raise_for_status()
 
 
 import logging

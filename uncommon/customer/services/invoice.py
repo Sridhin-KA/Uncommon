@@ -7,7 +7,7 @@ import re
 import fitz
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.core.mail import EmailMessage
+from customer.services.brevo import _send_brevo_email
 from django.db import transaction
 from django.utils import timezone
 
@@ -235,29 +235,44 @@ def create_invoice_pdf(order, invoice):
 
     return doc.tobytes(deflate=True, garbage=4)
 
-
 def issue_and_email_invoice(order_id):
     """
-    Idempotent invoice issuance. Prepaid orders should call this only after
-    confirmed Razorpay capture; COD orders may call it once the COD order is placed.
+    Idempotent invoice issuance.
+
+    Prepaid orders should call this only after confirmed Razorpay capture.
+    COD orders may call it once the COD order is placed.
     """
     with transaction.atomic():
-        order = Order.objects.select_for_update().select_related("customer").get(pk=order_id)
-        if order.payment_method == "PREPAID" and order.payment_status != "PAID":
+        order = (
+            Order.objects
+            .select_for_update()
+            .select_related("customer")
+            .get(pk=order_id)
+        )
+
+        if (
+            order.payment_method == "PREPAID"
+            and order.payment_status != "PAID"
+        ):
             return None
+
         invoice, created = TaxInvoice.objects.get_or_create(
             order=order,
-            defaults={"invoice_number": f"UN-TAX-{timezone.localdate():%Y%m}-{order.pk:06d}"},
+            defaults={
+                "invoice_number": (
+                    f"UN-TAX-{timezone.localdate():%Y%m}-{order.pk:06d}"
+                )
+            },
         )
+
         if invoice.email_sent_at:
             return invoice
 
-        # Generate the PDF bytes for this email attempt. Do not reopen the
-        # Cloudinary file: private/authenticated PDF delivery can return 401.
-        # If the invoice already exists, regenerate the same invoice PDF from
-        # the saved order/invoice data for the email attachment.
+        # Generate the PDF bytes for this email attempt.
+        # This avoids reopening a possibly private Cloudinary file.
         pdf_bytes = create_invoice_pdf(order, invoice)
 
+        # Save the PDF if it has not already been saved.
         if not invoice.pdf:
             invoice.pdf.save(
                 f"{invoice.invoice_number}.pdf",
@@ -265,39 +280,45 @@ def issue_and_email_invoice(order_id):
                 save=True,
             )
 
-    # Email outside the transaction. If email fails, invoice remains saved and
-    # can be retried safely from an admin action/management command.
-    subject = f"Your UNCOMMEN tax invoice — {invoice.invoice_number}"
+    # Send outside the database transaction.
+    # If Brevo fails, the invoice remains saved and can be retried.
+    subject = (
+        f"Your UNCOMMEN tax invoice — {invoice.invoice_number}"
+    )
+
     body = (
         f"Hello {order.customer.name},\n\n"
-        f"Thank you for shopping with UNCOMMEN.\n"
-        f"Please find your tax invoice attached.\n\n"
+        "Thank you for shopping with UNCOMMEN.\n"
+        "Please find your tax invoice attached.\n\n"
         f"Order: {order.order_number}\n"
         f"Invoice: {invoice.invoice_number}\n"
-        f"Payment status: {'PAID' if order.payment_status == 'PAID' else 'PAYMENT DUE — COD'}\n\n"
+        f"Payment status: "
+        f"{'PAID' if order.payment_status == 'PAID' else 'PAYMENT DUE — COD'}\n\n"
         "For assistance, contact contact@uncommen.in.\n\n"
         "UNCOMMEN — The House"
     )
-    email = EmailMessage(
-        subject=subject,
-        body=body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[order.customer.email],
-    )
-    email.attach(
-        f"{invoice.invoice_number}.pdf",
-        pdf_bytes,
-        "application/pdf",
-    )
+
     try:
-        email.send(fail_silently=False)
+        _send_brevo_email(
+            to_email=order.customer.email,
+            subject=subject,
+            text=body,
+            attachments=[
+                {
+                    "name": f"{invoice.invoice_number}.pdf",
+                    "content": pdf_bytes,
+                }
+            ],
+        )
+
     except Exception:
         logger.exception(
-            "Invoice %s was generated but email delivery failed.",
+            "Invoice %s was generated but Brevo email delivery failed.",
             invoice.invoice_number,
         )
         return invoice
 
     invoice.email_sent_at = timezone.now()
     invoice.save(update_fields=["email_sent_at"])
+
     return invoice
