@@ -241,10 +241,26 @@ class Payment(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    REFUND_STATUS_CHOICES = [
+    ("NONE", "No refund"),
+    ("PENDING", "Refund pending"),
+    ("PROCESSED", "Refund processed"),
+    ("FAILED", "Refund failed"),
+    ]
 
+    refund_status = models.CharField(
+        max_length=20,
+        choices=REFUND_STATUS_CHOICES,
+        default="NONE",
+    )
+    razorpay_refund_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
     def __str__(self):
         return f"{self.order.order_number} - {self.status}"
-    
+        
 class UpcomingReservation(models.Model):
     name = models.CharField(max_length=120)
     email = models.EmailField()

@@ -24,7 +24,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import re
 import razorpay
 from customer.services.invoice import issue_and_email_invoice
-
+from .shiprocket_service import create_shiprocket_order
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
@@ -1324,7 +1324,6 @@ def order_success(request, order_number):
 # ===================================================
 # FINALIZE CAPTURED PAYMENT
 # ===================================================
-
 def finalize_captured_payment(payment_record, razorpay_payment_id):
     """
     Call only after verifying the payment signature and confirming
@@ -1332,7 +1331,6 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
     """
 
     with transaction.atomic():
-
         payment = (
             Payment.objects
             .select_for_update()
@@ -1346,15 +1344,12 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
             .get(pk=payment.order_id)
         )
 
-        # Prevent COD orders from being processed through Razorpay.
+        # Razorpay must not process COD orders.
         if order.payment_method != "PREPAID":
             return False, "This order is not a prepaid order."
 
-        # Idempotency: do not deduct stock more than once.
-        if (
-            order.status == "CONFIRMED"
-            and order.payment_status == "PAID"
-        ):
+        # Idempotency: avoid deducting stock again on retries.
+        if order.status == "CONFIRMED" and order.payment_status == "PAID":
             return True, "Payment already confirmed."
 
         order_items = list(
@@ -1369,17 +1364,17 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
 
         locked_products = {
             product.id: product
-            for product in Product.objects
-            .select_for_update()
-            .filter(id__in=product_ids)
-            .order_by("id")
+            for product in (
+                Product.objects
+                .select_for_update()
+                .filter(id__in=product_ids)
+                .order_by("id")
+            )
         }
 
-        # Check stock before deducting anything.
         insufficient = []
 
         for item in order_items:
-
             product = locked_products.get(item.product_id)
 
             if not product or product.stock < item.quantity:
@@ -1387,14 +1382,13 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
                     getattr(
                         product,
                         "product_name",
-                        f"Product #{item.product_id}"
+                        f"Product #{item.product_id}",
                     )
                 )
 
-        # Razorpay has captured the payment.
+        # Razorpay captured the money; record that even if stock is short.
         payment.razorpay_payment_id = razorpay_payment_id
         payment.status = "PAID"
-
         payment.save(update_fields=[
             "razorpay_payment_id",
             "status",
@@ -1404,42 +1398,48 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
         order.payment_status = "PAID"
 
         if insufficient:
-
             order.save(update_fields=[
                 "payment_status",
                 "updated_at",
             ])
 
             return False, (
-                "Payment was captured successfully, but stock is "
-                "insufficient for: " + ", ".join(insufficient)
+                "Payment was captured, but stock is insufficient for: "
+                + ", ".join(insufficient)
                 + ". Manual fulfilment or refund is required."
             )
 
-        # Deduct stock once, with product rows locked.
+        # Deduct stock while the product rows are locked.
         for item in order_items:
-
             product = locked_products[item.product_id]
-
             product.stock -= item.quantity
-
             product.save(update_fields=["stock"])
 
+        # Automatically confirm prepaid orders.
         order.status = "CONFIRMED"
-
         order.save(update_fields=[
             "status",
             "payment_status",
             "updated_at",
         ])
 
+        order_id = order.pk
+
+        # Issue the prepaid invoice only after the payment/order transaction commits.
         transaction.on_commit(
-            lambda order_id=order.pk: issue_and_email_invoice(order_id),
+            lambda order_id=order_id: issue_and_email_invoice(order_id),
             robust=True,
         )
 
-        return True, "Payment confirmed successfully."
+        # Create the Shiprocket order only after the transaction commits.
+        transaction.on_commit(
+            lambda order_id=order_id: create_shiprocket_order(
+                Order.objects.get(pk=order_id)
+            ),
+            robust=True,
+        )
 
+    return True, "Payment confirmed successfully."
 
 # ===================================================
 # VERIFY RAZORPAY PAYMENT

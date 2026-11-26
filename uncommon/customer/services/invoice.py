@@ -249,15 +249,21 @@ def issue_and_email_invoice(order_id):
             order=order,
             defaults={"invoice_number": f"UN-TAX-{timezone.localdate():%Y%m}-{order.pk:06d}"},
         )
+        if invoice.email_sent_at:
+            return invoice
+
+        # Generate the PDF bytes for this email attempt. Do not reopen the
+        # Cloudinary file: private/authenticated PDF delivery can return 401.
+        # If the invoice already exists, regenerate the same invoice PDF from
+        # the saved order/invoice data for the email attachment.
+        pdf_bytes = create_invoice_pdf(order, invoice)
+
         if not invoice.pdf:
-            pdf_bytes = create_invoice_pdf(order, invoice)
             invoice.pdf.save(
                 f"{invoice.invoice_number}.pdf",
                 ContentFile(pdf_bytes),
                 save=True,
             )
-        if invoice.email_sent_at:
-            return invoice
 
     # Email outside the transaction. If email fails, invoice remains saved and
     # can be retried safely from an admin action/management command.
@@ -278,8 +284,11 @@ def issue_and_email_invoice(order_id):
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[order.customer.email],
     )
-    with invoice.pdf.open("rb") as f:
-        email.attach(invoice.pdf.name.split("/")[-1], f.read(), "application/pdf")
+    email.attach(
+        f"{invoice.invoice_number}.pdf",
+        pdf_bytes,
+        "application/pdf",
+    )
     try:
         email.send(fail_silently=False)
     except Exception:

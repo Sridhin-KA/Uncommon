@@ -15,6 +15,7 @@ Sections
 """
 from django.urls import reverse
 import csv
+from customer.views import get_razorpay_client
 import re
 import json
 import logging
@@ -1382,6 +1383,98 @@ from customer.shiprocket_service import (
 from customer.models import ShiprocketShipment
 logger = logging.getLogger(__name__)
 
+from decimal import Decimal, ROUND_HALF_UP
+from django.db import transaction
+
+
+def refund_paid_prepaid_order(order):
+    payment = (
+        Payment.objects
+        .filter(
+            order=order,
+            status="PAID",
+            razorpay_payment_id__isnull=False,
+        )
+        .exclude(razorpay_payment_id="")
+        .order_by("-id")
+        .first()
+    )
+
+    if not payment:
+        return False, "No successful Razorpay payment was found."
+
+    if payment.refund_status == "PROCESSED":
+        return True, "Refund has already been processed."
+
+    if payment.refund_status == "PENDING":
+        return False, (
+            "A refund is already pending. Check Razorpay before retrying."
+        )
+
+    amount_paise = int(
+        (Decimal(str(payment.amount)) * Decimal("100"))
+        .quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+    )
+
+    if amount_paise <= 0:
+        return False, "The payment amount is invalid for a refund."
+
+    # Mark pending before calling Razorpay to reduce duplicate requests.
+    with transaction.atomic():
+        payment = Payment.objects.select_for_update().get(pk=payment.pk)
+
+        if payment.refund_status in {"PENDING", "PROCESSED"}:
+            return False, (
+                "A refund is already pending or processed. "
+                "Check Razorpay before retrying."
+            )
+
+        payment.refund_status = "PENDING"
+        payment.save(update_fields=["refund_status"])
+
+    try:
+        client = get_razorpay_client()
+        refund = client.payment.refund(
+            payment.razorpay_payment_id,
+            {
+                "amount": amount_paise,
+                "notes": {
+                    "order_number": str(order.order_number),
+                    "reason": "Admin cancelled order",
+                },
+            },
+        )
+    except Exception:
+        # Keep PENDING: the request may have reached Razorpay even if
+        # our server did not receive its response. Check Razorpay first.
+        logger.exception(
+            "Razorpay refund result uncertain for order %s",
+            order.order_number,
+        )
+        return False, (
+            "Razorpay returned no clear result. Check its dashboard "
+            "before retrying."
+        )
+
+    payment.refresh_from_db()
+    payment.razorpay_refund_id = refund.get("id")
+
+    refund_api_status = (refund.get("status") or "").lower()
+
+    if refund_api_status == "processed":
+        payment.refund_status = "PROCESSED"
+        message = "Razorpay refund processed."
+    elif refund_api_status == "failed":
+        payment.refund_status = "FAILED"
+        message = "Razorpay refund failed. The order was not cancelled."
+    else:
+        payment.refund_status = "PENDING"
+        message = "Razorpay accepted the refund request; it is pending."
+
+    payment.save(update_fields=["razorpay_refund_id", "refund_status"])
+
+    return refund_api_status != "failed", message
+
 @require_POST
 @admin_required
 def update_order_status(request, id):
@@ -1396,7 +1489,7 @@ def update_order_status(request, id):
     PREPAID:
       - Can only be confirmed after payment is PAID.
       - Stock is deducted by finalize_captured_payment().
-      - Paid prepaid orders cannot be cancelled until refund handling.
+      - Paid prepaid orders are refunded before cancellation.
 
     SHIPROCKET:
       - Shiprocket order created after confirmation.
@@ -1452,34 +1545,20 @@ def update_order_status(request, id):
             return redirect("view_orders")
 
         # ==========================================
-        # STEP 2: PREPAID REFUND VALIDATION
+        # STEP 2: PREPARE SHIPROCKET CANCELLATION
         # ==========================================
 
         if new_status == "CANCELLED":
-
-            if (
-                order.payment_method == "PREPAID"
-                and order.payment_status == "PAID"
-            ):
-                messages.error(
-                    request,
-                    "This prepaid order has been paid. "
-                    "Process its refund before cancelling it."
-                )
-                return redirect("view_orders")
-
             should_cancel_shipment = True
 
         # ==========================================
         # STEP 3: SHIPROCKET CANCELLATION
         # ==========================================
 
-        # IMPORTANT:
         # Call the external API outside transaction.atomic().
         # This avoids holding database locks during network requests.
 
         if should_cancel_shipment:
-
             order.refresh_from_db()
 
             # Check whether a Shiprocket shipment exists.
@@ -1489,10 +1568,7 @@ def update_order_status(request, id):
                 shipment = None
 
             if shipment and shipment.shiprocket_order_id:
-
-                cancellation_success = cancel_shiprocket_order(
-                    order
-                )
+                cancellation_success = cancel_shiprocket_order(order)
 
                 if not cancellation_success:
                     messages.error(
@@ -1504,11 +1580,32 @@ def update_order_status(request, id):
                     return redirect("view_orders")
 
         # ==========================================
+        # STEP 3B: RAZORPAY REFUND
+        # ==========================================
+
+        if (
+            new_status == "CANCELLED"
+            and order.payment_method == "PREPAID"
+            and order.payment_status == "PAID"
+        ):
+            refund_success, refund_message = (
+                refund_paid_prepaid_order(order)
+            )
+
+            if not refund_success:
+                messages.error(
+                    request,
+                    f"Order was not cancelled. {refund_message}"
+                )
+                return redirect("view_orders")
+
+            messages.info(request, refund_message)
+
+        # ==========================================
         # STEP 4: UPDATE ORDER IN DATABASE
         # ==========================================
 
         with transaction.atomic():
-
             order = (
                 Order.objects
                 .select_for_update()
@@ -1538,7 +1635,6 @@ def update_order_status(request, id):
             if new_status == "CONFIRMED":
 
                 if order.payment_method == "PREPAID":
-
                     if order.payment_status != "PAID":
                         messages.error(
                             request,
@@ -1547,7 +1643,6 @@ def update_order_status(request, id):
                         return redirect("view_orders")
 
                 elif order.payment_method == "COD":
-
                     if order.payment_status not in {
                         "COD_PENDING",
                         "PENDING",
@@ -1592,7 +1687,6 @@ def update_order_status(request, id):
                     required_quantities = {}
 
                     for item in items:
-
                         required_quantities[item.product_id] = (
                             required_quantities.get(
                                 item.product_id, 0
@@ -1605,7 +1699,6 @@ def update_order_status(request, id):
                     for product_id, required_qty in (
                         required_quantities.items()
                     ):
-
                         product = locked_products.get(product_id)
 
                         if product is None:
@@ -1633,14 +1726,9 @@ def update_order_status(request, id):
                     for product_id, required_qty in (
                         required_quantities.items()
                     ):
-
                         product = locked_products[product_id]
-
                         product.stock -= required_qty
-
-                        product.save(
-                            update_fields=["stock"]
-                        )
+                        product.save(update_fields=["stock"])
 
                     order.payment_status = "COD_PENDING"
 
@@ -1652,16 +1740,6 @@ def update_order_status(request, id):
 
             if new_status == "CANCELLED":
 
-                if (
-                    order.payment_method == "PREPAID"
-                    and order.payment_status == "PAID"
-                ):
-                    messages.error(
-                        request,
-                        "Process the prepaid refund before cancellation."
-                    )
-                    return redirect("view_orders")
-
                 # Restore stock only for a confirmed COD order.
                 # Pending COD orders have not had stock deducted.
 
@@ -1669,7 +1747,6 @@ def update_order_status(request, id):
                     order.payment_method == "COD"
                     and order.status == "CONFIRMED"
                 ):
-
                     items = list(
                         order.items
                         .select_related("product")
@@ -1694,7 +1771,6 @@ def update_order_status(request, id):
                     restore_quantities = {}
 
                     for item in items:
-
                         restore_quantities[item.product_id] = (
                             restore_quantities.get(
                                 item.product_id, 0
@@ -1704,15 +1780,11 @@ def update_order_status(request, id):
                     for product_id, quantity in (
                         restore_quantities.items()
                     ):
-
                         product = locked_products.get(product_id)
 
                         if product:
                             product.stock += quantity
-
-                            product.save(
-                                update_fields=["stock"]
-                            )
+                            product.save(update_fields=["stock"])
 
             # ======================================
             # SAVE ORDER
@@ -1734,26 +1806,21 @@ def update_order_status(request, id):
             order.save(update_fields=update_fields)
 
     except Order.DoesNotExist:
-
         messages.error(
             request,
             "Order not found."
         )
-
         return redirect("view_orders")
 
     except Exception:
-
         logger.exception(
             "Failed to update order status for order id %s",
             id
         )
-
         messages.error(
             request,
             "Unable to update order status. Check server logs."
         )
-
         return redirect("view_orders")
 
     # ==========================================
@@ -1761,22 +1828,17 @@ def update_order_status(request, id):
     # ==========================================
 
     if should_create_shipment:
-
         try:
-
             order.refresh_from_db()
 
             success = create_shiprocket_order(order)
 
             if success:
-
                 messages.success(
                     request,
                     "Order confirmed and Shiprocket order created successfully."
                 )
-
             else:
-
                 messages.warning(
                     request,
                     "Order confirmed, but Shiprocket order creation failed. "
@@ -1784,12 +1846,10 @@ def update_order_status(request, id):
                 )
 
         except Exception:
-
             logger.exception(
                 "Shiprocket creation failed for order %s",
                 order.order_number
             )
-
             messages.warning(
                 request,
                 "Order confirmed, but Shiprocket integration failed."
@@ -1802,12 +1862,10 @@ def update_order_status(request, id):
     customer_email = order.customer.email
 
     if not customer_email:
-
         messages.warning(
             request,
             "Order status updated, but customer has no email address."
         )
-
         return redirect("view_orders")
 
     subject_text, message_text = ORDER_STATUS_EMAILS[new_status]
@@ -1830,17 +1888,16 @@ Order Total: ₹{order.total_amount}
 Current Status: {order.get_status_display()}
 {payment_note}
 
-Thank you for choosing UNCOMMON.
+Thank you for choosing UNCOMMEN.
 
 Regards,
-UNCOMMON Team
+UNCOMMEN Team
     """.strip()
 
     try:
-
         _send_brevo_email(
             customer_email,
-            f"UNCOMMON | {subject_text}",
+            f"UNCOMMEN | {subject_text}",
             body
         )
 
@@ -1850,17 +1907,16 @@ UNCOMMON Team
         )
 
     except Exception:
-
         logger.exception(
             "Failed to send order status email through Brevo"
         )
-
         messages.warning(
             request,
             "Order status updated, but the email could not be sent."
         )
 
     return redirect("view_orders")
+
 
 @admin_required
 def test_email(request):
