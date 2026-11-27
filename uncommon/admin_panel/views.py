@@ -1740,46 +1740,38 @@ def update_order_status(request, id):
 
             if new_status == "CANCELLED":
 
-                # Restore stock only for a confirmed COD order.
-                # Pending COD orders have not had stock deducted.
-
-                if (
-                    order.payment_method == "COD"
-                    and order.status == "CONFIRMED"
-                ):
+                # Restore stock for any confirmed order.
+                # Stock was already deducted for both COD and prepaid.
+                if order.status == "CONFIRMED":
                     items = list(
                         order.items
                         .select_related("product")
                         .order_by("product_id")
                     )
 
-                    product_ids = [
-                        item.product_id
-                        for item in items
-                    ]
+                    # Aggregate quantities if a product appears
+                    # in multiple order items.
+                    restore_quantities = {}
 
+                    for item in items:
+                        restore_quantities[item.product_id] = (
+                            restore_quantities.get(item.product_id, 0)
+                            + item.quantity
+                        )
+
+                    # Lock products in a stable order.
                     locked_products = {
                         product.id: product
                         for product in (
                             Product.objects
                             .select_for_update()
-                            .filter(id__in=product_ids)
+                            .filter(id__in=restore_quantities.keys())
                             .order_by("id")
                         )
                     }
 
-                    restore_quantities = {}
-
-                    for item in items:
-                        restore_quantities[item.product_id] = (
-                            restore_quantities.get(
-                                item.product_id, 0
-                            ) + item.quantity
-                        )
-
-                    for product_id, quantity in (
-                        restore_quantities.items()
-                    ):
+                    # Restore stock.
+                    for product_id, quantity in restore_quantities.items():
                         product = locked_products.get(product_id)
 
                         if product:
@@ -1916,7 +1908,6 @@ UNCOMMEN Team
         )
 
     return redirect("view_orders")
-
 
 @admin_required
 def test_email(request):
