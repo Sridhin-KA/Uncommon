@@ -1379,10 +1379,15 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
             return False, "This order is not a prepaid order."
 
         # Already confirmed and paid:
-        # Do not deduct stock or issue the invoice again.
-        # Retry Shiprocket creation after the transaction commits.
+        # Don't deduct stock again.
+        # Retry invoice and Shiprocket creation after commit.
         if order.status == "CONFIRMED" and order.payment_status == "PAID":
             order_id = order.pk
+
+            transaction.on_commit(
+                lambda order_id=order_id: issue_and_email_invoice(order_id),
+                robust=True,
+            )
 
             transaction.on_commit(
                 lambda order_id=order_id: create_shiprocket_order(
@@ -1481,7 +1486,6 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
         )
 
     return True, "Payment confirmed successfully."
-
 # ===================================================
 # VERIFY RAZORPAY PAYMENT
 # ===================================================

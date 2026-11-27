@@ -1,6 +1,6 @@
 import base64
-
 import requests
+
 from django.conf import settings
 
 
@@ -18,6 +18,9 @@ def _send_brevo_email(to_email, subject, text, attachments=None):
         raise ValueError(
             "Brevo API key or sender email is not configured."
         )
+
+    if not to_email:
+        raise ValueError("Recipient email address is missing.")
 
     payload = {
         "sender": {
@@ -40,15 +43,28 @@ def _send_brevo_email(to_email, subject, text, attachments=None):
             for attachment in attachments
         ]
 
-    response = requests.post(
-        "https://api.brevo.com/v3/smtp/email",
-        headers={
-            "accept": "application/json",
-            "api-key": api_key,
-            "content-type": "application/json",
-        },
-        json=payload,
-        timeout=30,
-    )
-    response.raise_for_status()
+    try:
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": api_key,
+                "content-type": "application/json",
+            },
+            json=payload,
+            timeout=30,
+        )
+        response.raise_for_status()
+
+    except requests.RequestException as exc:
+        response_text = (
+            exc.response.text
+            if exc.response is not None
+            else "No response received from Brevo."
+        )
+
+        raise RuntimeError(
+            f"Brevo email request failed: {response_text}"
+        ) from exc
+
     return response.json()
