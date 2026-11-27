@@ -242,6 +242,8 @@ def issue_and_email_invoice(order_id):
     Prepaid orders should call this only after confirmed Razorpay capture.
     COD orders may call it once the COD order is placed.
     """
+    logger.info("INVOICE START: order_id=%s", order_id)
+
     with transaction.atomic():
         order = (
             Order.objects
@@ -254,6 +256,11 @@ def issue_and_email_invoice(order_id):
             order.payment_method == "PREPAID"
             and order.payment_status != "PAID"
         ):
+            logger.warning(
+                "INVOICE SKIPPED: order_id=%s payment_status=%s",
+                order_id,
+                order.payment_status,
+            )
             return None
 
         invoice, created = TaxInvoice.objects.get_or_create(
@@ -265,11 +272,22 @@ def issue_and_email_invoice(order_id):
             },
         )
 
+        logger.info(
+            "INVOICE RECORD: order_id=%s invoice_id=%s created=%s",
+            order_id,
+            invoice.pk,
+            created,
+        )
+
         if invoice.email_sent_at:
+            logger.info(
+                "INVOICE ALREADY EMAILED: order_id=%s invoice_id=%s",
+                order_id,
+                invoice.pk,
+            )
             return invoice
 
         # Generate the PDF bytes for this email attempt.
-        # This avoids reopening a possibly private Cloudinary file.
         pdf_bytes = create_invoice_pdf(order, invoice)
 
         # Save the PDF if it has not already been saved.
@@ -281,7 +299,6 @@ def issue_and_email_invoice(order_id):
             )
 
     # Send outside the database transaction.
-    # If Brevo fails, the invoice remains saved and can be retried.
     subject = (
         f"Your UNCOMMEN tax invoice — {invoice.invoice_number}"
     )
@@ -313,12 +330,19 @@ def issue_and_email_invoice(order_id):
 
     except Exception:
         logger.exception(
-            "Invoice %s was generated but Brevo email delivery failed.",
+            "INVOICE EMAIL FAILED: order_id=%s invoice=%s",
+            order_id,
             invoice.invoice_number,
         )
         return invoice
 
     invoice.email_sent_at = timezone.now()
     invoice.save(update_fields=["email_sent_at"])
+
+    logger.info(
+        "INVOICE EMAIL ACCEPTED BY BREVO: order_id=%s invoice=%s",
+        order_id,
+        invoice.invoice_number,
+    )
 
     return invoice

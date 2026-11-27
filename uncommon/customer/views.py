@@ -1354,6 +1354,19 @@ def order_success(request, order_number):
 # ===================================================
 # FINALIZE CAPTURED PAYMENT
 # ===================================================
+def _issue_invoice_callback(order_id):
+    try:
+        logger.info(
+            "INVOICE CALLBACK RUNNING: order_id=%s",
+            order_id,
+        )
+        issue_and_email_invoice(order_id)
+
+    except Exception:
+        logger.exception(
+            "INVOICE CALLBACK FAILED: order_id=%s",
+            order_id,
+        )
 def finalize_captured_payment(payment_record, razorpay_payment_id):
     """
     Call only after verifying the payment signature and confirming
@@ -1379,13 +1392,13 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
             return False, "This order is not a prepaid order."
 
         # Already confirmed and paid:
-        # Don't deduct stock again.
-        # Retry invoice and Shiprocket creation after commit.
+        # Do not deduct stock again.
+        # Retry invoice and Shiprocket callbacks after commit.
         if order.status == "CONFIRMED" and order.payment_status == "PAID":
             order_id = order.pk
 
             transaction.on_commit(
-                lambda order_id=order_id: issue_and_email_invoice(order_id),
+                lambda order_id=order_id: _issue_invoice_callback(order_id),
                 robust=True,
             )
 
@@ -1473,11 +1486,11 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
 
         # Issue the invoice only after the payment/order transaction commits.
         transaction.on_commit(
-            lambda order_id=order_id: issue_and_email_invoice(order_id),
+            lambda order_id=order_id: _issue_invoice_callback(order_id),
             robust=True,
         )
 
-        # Create the Shiprocket order only after the transaction commits.
+        # Create the Shiprocket order only after the payment/order transaction commits.
         transaction.on_commit(
             lambda order_id=order_id: create_shiprocket_order(
                 Order.objects.get(pk=order_id)
