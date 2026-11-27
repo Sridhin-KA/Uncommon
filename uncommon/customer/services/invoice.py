@@ -235,6 +235,22 @@ def create_invoice_pdf(order, invoice):
 
     return doc.tobytes(deflate=True, garbage=4)
 
+def _issue_invoice_callback(order_id):
+    logger.warning(
+        "INVOICE CALLBACK RUNNING: order_id=%s",
+        order_id,
+    )
+
+    try:
+        issue_and_email_invoice(order_id)
+
+    except Exception:
+        logger.exception(
+            "INVOICE CALLBACK FAILED: order_id=%s",
+            order_id,
+        )
+
+
 def issue_and_email_invoice(order_id):
     """
     Idempotent invoice issuance.
@@ -242,8 +258,7 @@ def issue_and_email_invoice(order_id):
     Prepaid orders should call this only after confirmed Razorpay capture.
     COD orders may call it once the COD order is placed.
     """
-    logger.info("INVOICE START: order_id=%s", order_id)
-    logger.warning("INVOICE CALLBACK RUNNING: order_id=%s", order_id)
+    logger.warning("INVOICE START: order_id=%s", order_id)
 
     with transaction.atomic():
         order = (
@@ -251,6 +266,15 @@ def issue_and_email_invoice(order_id):
             .select_for_update()
             .select_related("customer")
             .get(pk=order_id)
+        )
+
+        logger.warning(
+            "INVOICE ORDER STATUS: order_id=%s method=%s "
+            "payment_status=%s order_status=%s",
+            order_id,
+            order.payment_method,
+            order.payment_status,
+            order.status,
         )
 
         if (
@@ -273,36 +297,41 @@ def issue_and_email_invoice(order_id):
             },
         )
 
-        logger.info(
-            "INVOICE RECORD: order_id=%s invoice_id=%s created=%s",
+        logger.warning(
+            "INVOICE RECORD: order_id=%s invoice_id=%s "
+            "invoice_number=%s created=%s",
             order_id,
             invoice.pk,
+            invoice.invoice_number,
             created,
         )
 
         if invoice.email_sent_at:
-            logger.info(
+            logger.warning(
                 "INVOICE ALREADY EMAILED: order_id=%s invoice_id=%s",
                 order_id,
                 invoice.pk,
             )
             return invoice
 
-        # Generate the PDF bytes for this email attempt.
+        logger.warning("INVOICE PDF GENERATION START: order_id=%s", order_id)
         pdf_bytes = create_invoice_pdf(order, invoice)
+        logger.warning(
+            "INVOICE PDF GENERATED: order_id=%s bytes=%s",
+            order_id,
+            len(pdf_bytes),
+        )
 
-        # Save the PDF if it has not already been saved.
         if not invoice.pdf:
+            logger.warning("INVOICE PDF SAVE START: order_id=%s", order_id)
             invoice.pdf.save(
                 f"{invoice.invoice_number}.pdf",
                 ContentFile(pdf_bytes),
                 save=True,
             )
+            logger.warning("INVOICE PDF SAVED: order_id=%s", order_id)
 
-    # Send outside the database transaction.
-    subject = (
-        f"Your UNCOMMEN tax invoice — {invoice.invoice_number}"
-    )
+    subject = f"Your UNCOMMEN tax invoice — {invoice.invoice_number}"
 
     body = (
         f"Hello {order.customer.name},\n\n"
@@ -316,8 +345,15 @@ def issue_and_email_invoice(order_id):
         "UNCOMMEN — The House"
     )
 
+    logger.warning(
+        "INVOICE EMAIL SEND START: order_id=%s invoice=%s recipient=%s",
+        order_id,
+        invoice.invoice_number,
+        order.customer.email,
+    )
+
     try:
-        _send_brevo_email(
+        brevo_response = _send_brevo_email(
             to_email=order.customer.email,
             subject=subject,
             text=body,
@@ -327,6 +363,13 @@ def issue_and_email_invoice(order_id):
                     "content": pdf_bytes,
                 }
             ],
+        )
+
+        logger.warning(
+            "INVOICE BREVO RESPONSE: order_id=%s invoice=%s response=%s",
+            order_id,
+            invoice.invoice_number,
+            brevo_response,
         )
 
     except Exception:
@@ -340,7 +383,7 @@ def issue_and_email_invoice(order_id):
     invoice.email_sent_at = timezone.now()
     invoice.save(update_fields=["email_sent_at"])
 
-    logger.info(
+    logger.warning(
         "INVOICE EMAIL ACCEPTED BY BREVO: order_id=%s invoice=%s",
         order_id,
         invoice.invoice_number,
