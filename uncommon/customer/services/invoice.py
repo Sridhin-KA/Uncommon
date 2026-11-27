@@ -243,6 +243,7 @@ def issue_and_email_invoice(order_id):
     COD orders may call it once the COD order is placed.
     """
     logger.info("INVOICE START: order_id=%s", order_id)
+    logger.warning("INVOICE CALLBACK RUNNING: order_id=%s", order_id)
 
     with transaction.atomic():
         order = (

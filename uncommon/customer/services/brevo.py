@@ -24,7 +24,7 @@ def _send_brevo_email(to_email, subject, text, attachments=None):
 
     payload = {
         "sender": {
-            "name": "UNCOMMON Team",
+            "name": "UNCOMMEN Team",
             "email": sender_email,
         },
         "to": [{"email": to_email}],
