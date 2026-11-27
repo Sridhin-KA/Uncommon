@@ -1862,6 +1862,23 @@ def order_success(request, order_number):
     return render(request, "customer/order_success.html", {
         "order": order,
     })
+    
+def create_shiprocket_after_commit(order_id):
+    try:
+        order = Order.objects.get(pk=order_id)
+        success = create_shiprocket_order(order)
+
+        if not success:
+            logger.error(
+                "Shiprocket creation returned False for order %s",
+                order.order_number,
+            )
+    except Exception:
+        logger.exception(
+            "Shiprocket callback failed for order id %s",
+            order_id,
+        )
+    
 def finalize_captured_payment(payment_record, razorpay_payment_id):
     """
     Call only after verifying the payment signature and confirming
@@ -1888,6 +1905,13 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
 
         # Idempotency: avoid deducting stock again on retries.
         if order.status == "CONFIRMED" and order.payment_status == "PAID":
+            order_id = order.pk
+
+            transaction.on_commit(
+                lambda order_id=order_id: create_shiprocket_after_commit(order_id),
+                robust=True,
+            )
+
             return True, "Payment already confirmed."
 
         order_items = list(
@@ -1961,8 +1985,10 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
         ])
 
         # Issue the prepaid invoice only after the payment/order transaction commits.
+        order_id = order.pk
+
         transaction.on_commit(
-            lambda order_id=order.pk: issue_and_email_invoice(order_id),
+            lambda order_id=order_id: create_shiprocket_after_commit(order_id),
             robust=True,
         )
 
