@@ -1503,16 +1503,38 @@ def finalize_captured_payment(payment_record, razorpay_payment_id):
 # VERIFY RAZORPAY PAYMENT
 # ===================================================
 
+import json
+import logging
+
+from django.conf import settings
+from django.http import (
+    HttpResponseBadRequest,
+    JsonResponse,
+)
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+import razorpay
+
+logger = logging.getLogger(__name__)
+
+
 @require_POST
 def verify_razorpay_payment(request):
+    logger.warning(
+        "PREPAID VERIFY START: method=%s",
+        request.method,
+    )
 
     customer = get_logged_in_customer(request)
 
     if not customer:
+        logger.warning("PREPAID VERIFY STOP: customer not logged in")
         return JsonResponse(
             {
                 "success": False,
-                "error": "Please log in again."
+                "error": "Please log in again.",
             },
             status=401,
         )
@@ -1526,14 +1548,20 @@ def verify_razorpay_payment(request):
         razorpay_signature = data["razorpay_signature"]
 
     except (ValueError, KeyError, TypeError):
-
+        logger.warning("PREPAID VERIFY STOP: invalid payment response")
         return JsonResponse(
             {
                 "success": False,
-                "error": "Invalid payment response."
+                "error": "Invalid payment response.",
             },
             status=400,
         )
+
+    logger.warning(
+        "PREPAID VERIFY REQUEST RECEIVED: order=%s razorpay_order_id=%s",
+        order_number,
+        razorpay_order_id,
+    )
 
     try:
         payment = Payment.objects.select_related("order").get(
@@ -1543,17 +1571,27 @@ def verify_razorpay_payment(request):
         )
 
     except Payment.DoesNotExist:
-
+        logger.warning(
+            "PREPAID VERIFY STOP: payment record not found for order=%s",
+            order_number,
+        )
         return JsonResponse(
             {
                 "success": False,
-                "error": "Payment record not found."
+                "error": "Payment record not found.",
             },
             status=404,
         )
 
-    try:
+    logger.warning(
+        "PREPAID VERIFY PAYMENT FOUND: order=%s payment_id=%s "
+        "stored_status=%s",
+        order_number,
+        payment.pk,
+        payment.status,
+    )
 
+    try:
         client = get_razorpay_client()
 
         client.utility.verify_payment_signature({
@@ -1562,32 +1600,57 @@ def verify_razorpay_payment(request):
             "razorpay_signature": razorpay_signature,
         })
 
+        logger.warning(
+            "PREPAID VERIFY SIGNATURE VALID: order=%s",
+            order_number,
+        )
+
         # Signature alone is not enough:
         # check the payment directly with Razorpay.
-        remote_payment = client.payment.fetch(
-            razorpay_payment_id
+        remote_payment = client.payment.fetch(razorpay_payment_id)
+
+        remote_status = remote_payment.get("status")
+        remote_order_id = remote_payment.get("order_id")
+        remote_amount = remote_payment.get("amount")
+        remote_currency = remote_payment.get("currency")
+
+        logger.warning(
+            "PREPAID VERIFY RAZORPAY FETCH: order=%s status=%s "
+            "remote_order_id=%s amount=%s currency=%s",
+            order_number,
+            remote_status,
+            remote_order_id,
+            remote_amount,
+            remote_currency,
         )
 
         expected_amount = int(payment.amount * 100)
 
         if (
-            remote_payment.get("order_id") != payment.razorpay_order_id
-            or int(remote_payment.get("amount", -1)) != expected_amount
-            or remote_payment.get("currency") != payment.currency
+            remote_order_id != payment.razorpay_order_id
+            or int(remote_amount or -1) != expected_amount
+            or remote_currency != payment.currency
         ):
-
+            logger.warning(
+                "PREPAID VERIFY STOP: payment details mismatch for order=%s",
+                order_number,
+            )
             return JsonResponse(
                 {
                     "success": False,
-                    "error": "Payment details do not match."
+                    "error": "Payment details do not match.",
                 },
                 status=400,
             )
 
-        if remote_payment.get("status") != "captured":
+        if remote_status != "captured":
+            logger.warning(
+                "PREPAID VERIFY NOT CAPTURED: order=%s status=%s",
+                order_number,
+                remote_status,
+            )
 
             payment.status = "PENDING"
-
             payment.save(update_fields=[
                 "status",
                 "updated_at",
@@ -1609,17 +1672,31 @@ def verify_razorpay_payment(request):
                 status=409,
             )
 
+        logger.warning(
+            "PREPAID FINALIZE CALL: source=verify order=%s "
+            "payment_id=%s",
+            order_number,
+            razorpay_payment_id,
+        )
+
         success, message = finalize_captured_payment(
             payment,
             razorpay_payment_id,
         )
 
-        if not success:
+        logger.warning(
+            "PREPAID FINALIZE RETURN: source=verify order=%s "
+            "success=%s message=%s",
+            order_number,
+            success,
+            message,
+        )
 
+        if not success:
             return JsonResponse(
                 {
                     "success": False,
-                    "error": message
+                    "error": message,
                 },
                 status=409,
             )
@@ -1628,30 +1705,40 @@ def verify_razorpay_payment(request):
         request.session["bag"] = {}
         request.session.modified = True
 
+        logger.warning(
+            "PREPAID VERIFY SUCCESS: order=%s",
+            order_number,
+        )
+
         return JsonResponse({
             "success": True,
             "redirect_url": reverse(
                 "order_success",
                 kwargs={
-                    "order_number": payment.order.order_number
+                    "order_number": payment.order.order_number,
                 },
             ),
         })
 
     except razorpay.errors.SignatureVerificationError:
+        logger.warning(
+            "PREPAID VERIFY STOP: signature verification failed "
+            "for order=%s",
+            order_number,
+        )
 
         return JsonResponse(
             {
                 "success": False,
-                "error": "Payment signature verification failed."
+                "error": "Payment signature verification failed.",
             },
             status=400,
         )
 
     except Exception:
-
         logger.exception(
-            "Razorpay payment verification failed."
+            "PREPAID VERIFY EXCEPTION: order=%s",
+            order_number,
         )
 
         return JsonResponse(
@@ -1679,19 +1766,24 @@ def razorpay_webhook(request):
     Webhook secret is separate from the Razorpay API secret.
     """
 
+    logger.warning("RAZORPAY WEBHOOK START")
+
     signature = request.headers.get(
-        "X-Razorpay-Signature", ""
+        "X-Razorpay-Signature",
+        "",
     )
 
     webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
 
     if not signature or not webhook_secret:
+        logger.warning(
+            "RAZORPAY WEBHOOK STOP: missing signature or webhook secret"
+        )
         return HttpResponseBadRequest(
             "Missing webhook signature or secret."
         )
 
     try:
-
         client = get_razorpay_client()
 
         client.utility.verify_webhook_signature(
@@ -1703,11 +1795,9 @@ def razorpay_webhook(request):
         event_data = json.loads(request.body)
 
     except Exception:
-
         logger.exception(
-            "Razorpay webhook signature verification failed"
+            "RAZORPAY WEBHOOK SIGNATURE/PARSE FAILED"
         )
-
         return HttpResponseBadRequest("Invalid webhook.")
 
     event = event_data.get("event")
@@ -1718,35 +1808,64 @@ def razorpay_webhook(request):
         .get("entity", {})
     )
 
-    if event not in ("payment.captured", "payment.failed"):
-        return JsonResponse({"received": True})
-
     razorpay_order_id = entity.get("order_id")
     razorpay_payment_id = entity.get("id")
 
+    logger.warning(
+        "RAZORPAY WEBHOOK VERIFIED: event=%s razorpay_order_id=%s "
+        "payment_id=%s",
+        event,
+        razorpay_order_id,
+        razorpay_payment_id,
+    )
+
+    if event not in ("payment.captured", "payment.failed"):
+        logger.warning(
+            "RAZORPAY WEBHOOK IGNORED: event=%s",
+            event,
+        )
+        return JsonResponse({"received": True})
+
     if not razorpay_order_id or not razorpay_payment_id:
+        logger.warning(
+            "RAZORPAY WEBHOOK STOP: missing order/payment ID"
+        )
         return JsonResponse({"received": True})
 
     try:
-
         payment = Payment.objects.get(
             razorpay_order_id=razorpay_order_id
         )
 
     except Payment.DoesNotExist:
-
+        logger.warning(
+            "RAZORPAY WEBHOOK STOP: payment record not found "
+            "razorpay_order_id=%s",
+            razorpay_order_id,
+        )
         return JsonResponse(
             {"received": False},
             status=404,
         )
 
+    logger.warning(
+        "RAZORPAY WEBHOOK PAYMENT FOUND: order=%s payment_id=%s "
+        "stored_status=%s",
+        payment.order.order_number,
+        payment.pk,
+        payment.status,
+    )
+
     # -----------------------------------------
     # PAYMENT FAILED
     # -----------------------------------------
     if event == "payment.failed":
+        logger.warning(
+            "RAZORPAY WEBHOOK PAYMENT FAILED EVENT: order=%s",
+            payment.order.order_number,
+        )
 
         with transaction.atomic():
-
             payment = (
                 Payment.objects
                 .select_for_update()
@@ -1761,39 +1880,38 @@ def razorpay_webhook(request):
 
             # Never downgrade a successfully captured payment.
             if payment.status != "PAID":
-
                 payment.status = "FAILED"
-
                 payment.save(update_fields=[
                     "status",
                     "updated_at",
                 ])
 
                 if order.payment_status != "PAID":
-
                     order.payment_status = "FAILED"
-
                     order.save(update_fields=[
                         "payment_status",
                         "updated_at",
                     ])
 
+        logger.warning(
+            "RAZORPAY WEBHOOK FAILED EVENT PROCESSED: order=%s",
+            order.order_number,
+        )
         return JsonResponse({"received": True})
 
     # -----------------------------------------
     # PAYMENT CAPTURED
     # -----------------------------------------
-
     try:
-
         expected_amount = int(payment.amount * 100)
-
-        received_amount = int(
-            entity.get("amount", -1)
-        )
+        received_amount = int(entity.get("amount", -1))
 
     except (TypeError, ValueError):
-
+        logger.warning(
+            "RAZORPAY WEBHOOK STOP: invalid captured amount "
+            "razorpay_order_id=%s",
+            razorpay_order_id,
+        )
         return HttpResponseBadRequest(
             "Invalid captured payment amount."
         )
@@ -1803,23 +1921,44 @@ def razorpay_webhook(request):
         or received_amount != expected_amount
         or entity.get("currency") != payment.currency
     ):
-
+        logger.warning(
+            "RAZORPAY WEBHOOK STOP: captured payment details mismatch "
+            "order=%s status=%s amount=%s expected_amount=%s currency=%s",
+            payment.order.order_number,
+            entity.get("status"),
+            received_amount,
+            expected_amount,
+            entity.get("currency"),
+        )
         return HttpResponseBadRequest(
             "Captured payment details do not match."
         )
 
-    try:
+    logger.warning(
+        "PREPAID FINALIZE CALL: source=webhook order=%s "
+        "payment_id=%s",
+        payment.order.order_number,
+        razorpay_payment_id,
+    )
 
+    try:
         success, message = finalize_captured_payment(
             payment,
             razorpay_payment_id,
         )
 
-        if not success:
+        logger.warning(
+            "PREPAID FINALIZE RETURN: source=webhook order=%s "
+            "success=%s message=%s",
+            payment.order.order_number,
+            success,
+            message,
+        )
 
+        if not success:
             logger.error(
-                "Razorpay captured payment needs manual resolution. "
-                "Order: %s | Payment: %s | Reason: %s",
+                "RAZORPAY CAPTURED PAYMENT NEEDS MANUAL RESOLUTION: "
+                "order=%s payment_id=%s reason=%s",
                 payment.order.order_number,
                 razorpay_payment_id,
                 message,
@@ -1832,10 +1971,9 @@ def razorpay_webhook(request):
         })
 
     except Exception:
-
         logger.exception(
-            "Razorpay webhook processing failed for order %s",
-            razorpay_order_id,
+            "RAZORPAY WEBHOOK PROCESSING FAILED: order=%s",
+            payment.order.order_number,
         )
 
         return JsonResponse(
